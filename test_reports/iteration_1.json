@@ -1,0 +1,26 @@
+{
+  "summary": "Frontend-only testing of the Midnight Owl premium landing page. Verified hero scrub video (mouse-driven currentTime advance 0→14.17 across 16s duration), Push/Pull toggle with transition videos, keyboard accessibility, prefers-reduced-motion behavior, stats section including the required '0 ad spend' metric, navigation, and all downstream sections (Work, Process, Voices, Contact, FAQ, Footer). All twelve requested test cases passed. No console errors, no 404s for videos or images.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "HeroScrubVideo: In the RAF loop, when a seek is skipped due to SEEK_INTERVAL throttling, the eased smoothedTimeRef still advances every frame — so once a seek finally happens the delta already includes the accumulated ease-in. This is intentional but worth noting: at very high mouse velocity + long throttle interval the video can appear to snap slightly. Consider clamping ease per unit time rather than per frame for perfectly frame-rate-independent smoothing.",
+    "PushPullVisual: `onEnded` handlers rely on the transition video actually reaching the end. If the user rapidly toggles Push→Pull→Push within <5s, the previous transition video is paused (never fires 'ended'), and the state machine has to be rescued by the useEffect starting the reverse transition. This works today but there is no explicit fallback timer — worth adding a safety setTimeout matching the video duration in case 'ended' never fires (e.g. tab throttled).",
+    "PremiumToggle: `document.fonts.ready.then(measure)` re-measures once fonts load, but there is no ResizeObserver on the buttons themselves. If dynamic text ever changes button width (i18n), the pill will drift. Consider ResizeObserver on the two button refs.",
+    "Stats: `startedRef` is a ref inside CountUp but the IntersectionObserver is not disconnected once the animation begins — it continues observing until unmount. Minor; could be tightened by disconnecting after first trigger.",
+    "usePrefersReducedMotion: Correct pattern, but hook returns `false` on server render. If SSR is ever added this could cause a brief mount with scrubbing enabled before the effect runs. Not an issue in the current CRA client-only setup."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "test_credentials": "N/A (no auth)",
+  "seed_data_creation": "None (frontend-only, no backend)",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All requested checks pass end-to-end. Detailed results: (1) Hero video muted=true, paused=true, controls=false, preload=auto, duration=16s, readyState=4, no error, currentSrc=/videos/left-right.webm. (2) Mouse at x=100 → currentTime≈0.5s; mouse at x=1800 → currentTime≈14.17s (near duration=16), confirming linear left→right scrubbing with EASE=0.14 easing. (3) h1 font-family='Instrument Serif, serif'; hero-copy and nav use 'JetBrains Mono, monospace'. Both CTAs visible. (4) Stats section shows audience (35,000+), stories (300+), and ad-spend (0) — all three tiles present. Count-up runs on intersection. (5) Default state: pull aria-checked=true, push=false, night owl opacity 1, day opacity 0. (6) Click Push: aria flipped, night-to-day video started playing (paused=false, currentTime>0), after 6s day owl opacity=1, caption 'Push · Attention rented / Product demos. Announcements. Updates.' (7) Click Pull: day-to-night video played, resolved back to night owl opacity 1. (8) Keyboard: focus pull → ArrowLeft moves selection to Push; ArrowRight moves back to Pull. (9) Reduced-motion emulation: mouse from x=100 to x=1800 kept hero video currentTime at 0. Click Push resolved dayOpacity=1 within ~120ms with n2d video paused, currentTime=0 (instant swap, no video playback). (10) Nav logo, all 5 nav links, and Start-a-Project CTA present, JetBrains Mono. (11) Work, Process, Voices, Contact, FAQ, Footer sections all render. FAQ has 5 buttons and first click opens without error. (12) Zero console errors, zero page errors, zero 4xx network responses. All /videos/*.webm, /videos/*.mp4, /images/owl-*.jpg loaded.",
+  "rca of the issue": "N/A — no bugs found."
+}
