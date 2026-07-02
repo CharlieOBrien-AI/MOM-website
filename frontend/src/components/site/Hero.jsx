@@ -40,7 +40,7 @@ export default function Hero() {
                 className="absolute left-0 right-0 top-[54%] block"
                 style={{
                   height: "3px",
-                  background: "var(--mo-accent)",
+                  background: "var(--mo-accent-warm)",
                   transform: "rotate(-1.2deg)",
                 }}
               />
@@ -59,8 +59,7 @@ export default function Hero() {
             }}
           >
             We make videos that make people{" "}
-            <span style={{ color: "var(--mo-accent)" }}>care</span>. Same camera,
-            same founder — the difference is what you point it at.
+            <span style={{ color: "var(--mo-accent)" }}>care</span>.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-3">
@@ -73,7 +72,7 @@ export default function Hero() {
                 background: "var(--mo-fg)",
                 color: "var(--mo-bg)",
                 boxShadow:
-                  "0 10px 40px -14px rgba(212,162,86,0.55), 0 0 0 1px rgba(255,255,255,0.06)",
+                  "0 10px 40px -14px rgba(164,74,255,0.55), 0 0 0 1px rgba(255,255,255,0.06)",
               }}
             >
               {"Let's talk"}
@@ -99,31 +98,6 @@ export default function Hero() {
               Explore the work
             </a>
           </div>
-        </div>
-      </div>
-
-      {/* Scrub interaction hint */}
-      <div
-        data-testid={HERO.scrubHint}
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-8 flex justify-center"
-      >
-        <div
-          className="flex items-center gap-3 rounded-full border px-4 py-2 text-[10px] tracking-[0.28em] uppercase"
-          style={{
-            fontFamily: "JetBrains Mono, monospace",
-            borderColor: "var(--mo-line-strong)",
-            background: "rgba(10,10,11,0.6)",
-            color: "var(--mo-fg-dim)",
-            backdropFilter: "blur(8px)",
-          }}
-        >
-          <span
-            className="inline-block h-1.5 w-1.5 rounded-full"
-            style={{ background: "var(--mo-accent)" }}
-          />
-          Move cursor · Scrub the night
-          <span aria-hidden="true">← →</span>
         </div>
       </div>
     </section>

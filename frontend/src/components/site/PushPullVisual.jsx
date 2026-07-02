@@ -3,25 +3,24 @@ import { APPROACH } from "@/constants/testIds";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 /**
- * PushPullVisual
- * Layer stack:
- *  - Night still image (Pull)
- *  - Day still image (Push)
- *  - night→day transition video (plays when going Pull → Push)
- *  - day→night transition video (plays when going Push → Pull)
+ * PushPullBackground
  *
- * Rules:
- *  - Never instantly swap images
- *  - Play the appropriate transition video, then reveal the final still
- *  - Crossfade edges for cinematic feel
- *  - Reduced motion → instant swap, no video playback
+ * Full-cover cinematic background driven by `mode` (pull | push).
+ * Layers (bottom → top):
+ *   - Night owl still (Pull)     → visible in "night-still"
+ *   - Day owl still (Push)       → visible in "day-still"
+ *   - Night→Day transition video → plays in "n2d"
+ *   - Day→Night transition video → plays in "d2n"
+ *   - Vignette / dark overlay for readable foreground
+ *
+ * Never instantly swaps stills. Always: transition video → final still.
+ * Under prefers-reduced-motion, swaps happen instantly with no video playback.
  */
-export default function PushPullVisual({ mode }) {
+export default function PushPullBackground({ mode, overlay = true }) {
   const reduced = usePrefersReducedMotion();
-  const n2dRef = useRef(null); // night → day (plays on push)
-  const d2nRef = useRef(null); // day → night (plays on pull)
+  const n2dRef = useRef(null); // night → day
+  const d2nRef = useRef(null); // day → night
   const prevModeRef = useRef(mode);
-  // Which layer is currently on top
   const [layer, setLayer] = useState(mode === "push" ? "day-still" : "night-still");
 
   useEffect(() => {
@@ -29,14 +28,12 @@ export default function PushPullVisual({ mode }) {
     prevModeRef.current = mode;
     if (prev === mode) return;
 
-    // Under reduced motion: skip transitions
     if (reduced) {
       setLayer(mode === "push" ? "day-still" : "night-still");
       return;
     }
 
     if (mode === "push") {
-      // going Pull → Push: play night→day
       const v = n2dRef.current;
       if (!v) {
         setLayer("day-still");
@@ -51,7 +48,6 @@ export default function PushPullVisual({ mode }) {
         setLayer("day-still");
       }
     } else {
-      // going Push → Pull: play day→night
       const v = d2nRef.current;
       if (!v) {
         setLayer("night-still");
@@ -71,7 +67,6 @@ export default function PushPullVisual({ mode }) {
   const onN2DEnded = () => setLayer("day-still");
   const onD2NEnded = () => setLayer("night-still");
 
-  // Preload first frames of the transition videos so they render instantly on click
   useEffect(() => {
     [n2dRef.current, d2nRef.current].forEach((v) => {
       if (!v) return;
@@ -84,41 +79,31 @@ export default function PushPullVisual({ mode }) {
     });
   }, []);
 
-  const baseImgClass =
+  const baseImg =
     "absolute inset-0 h-full w-full object-cover transition-opacity duration-[700ms] ease-out";
-  const baseVidClass =
+  const baseVid =
     "absolute inset-0 h-full w-full object-cover transition-opacity duration-[500ms] ease-out";
 
   return (
     <div
       data-testid={APPROACH.visual}
-      className="relative w-full overflow-hidden rounded-2xl"
-      style={{
-        aspectRatio: "16 / 9",
-        background: "#050506",
-        border: "1px solid var(--mo-line)",
-        boxShadow:
-          "inset 0 1px 0 rgba(255,255,255,0.04), 0 40px 80px -30px rgba(0,0,0,0.7)",
-      }}
+      className="absolute inset-0 overflow-hidden"
+      aria-hidden="true"
     >
-      {/* Night still (Pull) */}
       <img
         data-testid={APPROACH.imgNight}
         src="/images/owl-night.jpg"
-        alt="Owl awake at night — Pull mode: stories that draw people in"
-        className={baseImgClass}
+        alt=""
+        className={baseImg}
         style={{ opacity: layer === "night-still" ? 1 : 0 }}
       />
-      {/* Day still (Push) */}
       <img
         data-testid={APPROACH.imgDay}
         src="/images/owl-day.jpg"
-        alt="Owl asleep during the day — Push mode: content people scroll past"
-        className={baseImgClass}
+        alt=""
+        className={baseImg}
         style={{ opacity: layer === "day-still" ? 1 : 0 }}
       />
-
-      {/* Night → Day transition video */}
       <video
         ref={n2dRef}
         data-testid={APPROACH.videoN2D}
@@ -126,16 +111,13 @@ export default function PushPullVisual({ mode }) {
         playsInline
         preload="auto"
         onEnded={onN2DEnded}
-        aria-hidden="true"
         tabIndex={-1}
-        className={baseVidClass}
+        className={baseVid}
         style={{ opacity: layer === "n2d" ? 1 : 0 }}
       >
         <source src="/videos/night-to-day.webm" type="video/webm" />
         <source src="/videos/night-to-day.mp4" type="video/mp4" />
       </video>
-
-      {/* Day → Night transition video */}
       <video
         ref={d2nRef}
         data-testid={APPROACH.videoD2N}
@@ -143,41 +125,40 @@ export default function PushPullVisual({ mode }) {
         playsInline
         preload="auto"
         onEnded={onD2NEnded}
-        aria-hidden="true"
         tabIndex={-1}
-        className={baseVidClass}
+        className={baseVid}
         style={{ opacity: layer === "d2n" ? 1 : 0 }}
       >
         <source src="/videos/day-to-night.webm" type="video/webm" />
         <source src="/videos/day-to-night.mp4" type="video/mp4" />
       </video>
 
-      {/* Soft vignette */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(110% 80% at 50% 40%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.35) 100%)",
-        }}
-      />
-      <div className="noise-overlay" aria-hidden="true" />
-
-      {/* Corner meta label */}
-      <div
-        aria-live="polite"
-        className="absolute left-4 top-4 rounded-full border px-3 py-1.5 text-[10px] tracking-[0.24em] uppercase"
-        style={{
-          borderColor: "rgba(255,255,255,0.18)",
-          background: "rgba(10,10,11,0.55)",
-          backdropFilter: "blur(10px)",
-          color: "var(--mo-fg)",
-          fontFamily: "JetBrains Mono, monospace",
-        }}
-      >
-        <span style={{ color: "var(--mo-accent)" }}>●</span>{" "}
-        {mode === "push" ? "Daylight // Pushing" : "Midnight // Pulling"}
-      </div>
+      {overlay && (
+        <>
+          {/* Subtle wash to keep foreground readable, tinted by mode */}
+          <div
+            className="absolute inset-0 transition-colors duration-[700ms] ease-out"
+            style={{
+              background:
+                mode === "push"
+                  ? "linear-gradient(180deg, rgba(10,10,11,0.35) 0%, rgba(10,10,11,0.05) 25%, rgba(10,10,11,0.35) 70%, rgba(10,10,11,0.9) 100%)"
+                  : "linear-gradient(180deg, rgba(10,10,11,0.45) 0%, rgba(10,10,11,0.15) 25%, rgba(10,10,11,0.55) 70%, rgba(10,10,11,0.95) 100%)",
+            }}
+          />
+          {/* Left-side text-readability wash (stronger in daylight) */}
+          <div
+            className="absolute inset-0 transition-opacity duration-[700ms] ease-out"
+            style={{
+              background:
+                mode === "push"
+                  ? "linear-gradient(90deg, rgba(10,10,11,0.9) 0%, rgba(10,10,11,0.75) 25%, rgba(10,10,11,0.4) 45%, rgba(10,10,11,0.1) 60%, rgba(10,10,11,0) 72%)"
+                  : "linear-gradient(90deg, rgba(10,10,11,0.55) 0%, rgba(10,10,11,0.3) 28%, rgba(10,10,11,0.08) 52%, rgba(10,10,11,0) 68%)",
+              opacity: 1,
+            }}
+          />
+          <div className="noise-overlay" />
+        </>
+      )}
     </div>
   );
 }

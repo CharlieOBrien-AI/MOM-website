@@ -25,15 +25,15 @@ export default function Contact() {
                 aria-hidden="true"
                 className="grid h-9 w-9 place-items-center rounded-full border"
                 style={{
-                  borderColor: "var(--mo-accent)",
+                  borderColor: "var(--mo-accent-warm)",
                   animation: `mo-eyepulse 2.6s ease ${i * 0.3}s infinite`,
                 }}
               >
                 <div
                   className="h-3.5 w-3.5 rounded-full"
                   style={{
-                    background: "var(--mo-accent)",
-                    boxShadow: "0 0 20px var(--mo-accent)",
+                    background: "var(--mo-accent-warm)",
+                    boxShadow: "0 0 20px var(--mo-accent-warm)",
                   }}
                 />
               </div>
@@ -69,7 +69,7 @@ export default function Contact() {
               fontFamily: "JetBrains Mono, monospace",
             }}
           >
-            {"Real ideas on the call — from Charlie and the team. Work with us or don't. You'll leave with a plan either way."}
+            Book a free consultation session with us.
           </p>
 
           <a
@@ -81,7 +81,7 @@ export default function Contact() {
               background: "var(--mo-fg)",
               color: "var(--mo-bg)",
               boxShadow:
-                "0 20px 60px -18px rgba(212,162,86,0.6), 0 0 0 1px rgba(255,255,255,0.06)",
+                "0 20px 60px -18px rgba(164,74,255,0.6), 0 0 0 1px rgba(255,255,255,0.06)",
             }}
           >
             Book a call

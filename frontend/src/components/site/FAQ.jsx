@@ -50,7 +50,7 @@ function Item({ q, a, idx, open, onToggle }) {
         <span
           className="grid h-8 w-8 flex-none place-items-center rounded-full border text-[15px] transition-transform duration-300"
           style={{
-            borderColor: "rgba(212,162,86,0.35)",
+            borderColor: "rgba(164,74,255,0.35)",
             color: "var(--mo-accent)",
             transform: open ? "rotate(45deg)" : "rotate(0deg)",
           }}

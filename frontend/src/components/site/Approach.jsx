@@ -1,145 +1,258 @@
 import { useState } from "react";
 import PremiumToggle from "./PremiumToggle";
-import PushPullVisual from "./PushPullVisual";
+import PushPullBackground from "./PushPullVisual";
 import { APPROACH } from "@/constants/testIds";
 
+/**
+ * Approach
+ *
+ * The centerpiece.
+ * The Push/Pull toggle changes the background of the entire section (day ↔ night owl).
+ * A small "video examples" box in the foreground acts as a passive showcase
+ * of what pull vs push content actually looks like.
+ */
 export default function Approach() {
-  const [mode, setMode] = useState("pull"); // default: Pull (night, owl awake)
+  const [mode, setMode] = useState("pull");
 
   const copy = {
     pull: {
+      italic: "pull.",
+      label: "Pull · Attention earned",
       title: "Stories that hold attention.",
-      body:
-        "Founder POVs. Behind the build. Real lessons. The camera stays close. People stop scrolling because there's something worth staying for.",
-      chips: ["\"The $40k hiring mistake\"", "\"Why we killed our best feature\"", "\"What I wish I knew at year one\""],
-      footer: "People lean in.",
+      caption: "The owl awake. People come to you.",
+      chip: "Founder stories · Behind the build · Lessons",
+      examples: [
+        { kicker: "01 · Story", title: "The $40k hiring mistake" },
+        { kicker: "02 · Behind", title: "Why we killed our best feature" },
+        { kicker: "03 · Lesson", title: "What I wish I knew at year one" },
+      ],
     },
     push: {
-      title: "Product demos. Announcements. Updates.",
-      body:
-        "Content designed to broadcast, not to connect. Feature lists dressed up as stories. Corporate language people learned to skip.",
-      chips: ["\"Check out our new feature\"", "\"We're hiring\"", "\"Industry leader in...\""],
-      footer: "People scroll right past.",
+      italic: "pull.",
+      label: "Push · Attention rented",
+      title: "Announcements. Demos. Feature dumps.",
+      caption: "The owl asleep. You go to them.",
+      chip: "Product launches · Hiring · Corporate updates",
+      examples: [
+        { kicker: "AD · Reach", title: "Check out our new feature." },
+        { kicker: "AD · Reach", title: "We're hiring — join the team." },
+        { kicker: "AD · Reach", title: "Industry leader in synergy." },
+      ],
     },
   };
-
   const active = copy[mode];
 
   return (
     <section
       id="approach"
       data-testid={APPROACH.root}
-      className="mx-auto max-w-[1240px] px-6 pb-[120px] pt-10 sm:px-8"
+      className="relative overflow-hidden"
+      style={{ minHeight: "min(120vh, 1080px)" }}
     >
-      <div className="mono-eyebrow mb-4">
-        <span style={{ color: "var(--mo-accent)" }}>//</span> Our approach
-      </div>
+      {/* Full-section background: owl images + transition videos */}
+      <PushPullBackground mode={mode} />
 
-      <h2
-        className="max-w-[880px] text-white"
-        style={{
-          fontFamily: "Instrument Serif, serif",
-          fontSize: "clamp(36px, 5vw, 76px)",
-          lineHeight: 1.02,
-          letterSpacing: "-0.015em",
-          fontWeight: 400,
-        }}
-      >
-        Most content{" "}
-        <span style={{ color: "var(--mo-mute)", fontStyle: "italic" }}>
-          pushes.
-        </span>{" "}
-        The best founders{" "}
-        <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
-          pull.
-        </span>
-      </h2>
+      {/* Foreground content */}
+      <div className="relative mx-auto flex max-w-[1240px] flex-col gap-16 px-6 pb-[140px] pt-[120px] sm:px-8 lg:min-h-[100vh] lg:flex-row lg:items-center lg:gap-20">
+        <div className="max-w-[560px] lg:flex-1">
+          <div className="mono-eyebrow">
+            <span style={{ color: "var(--mo-accent)" }}>//</span> Our approach
+          </div>
 
-      <p
-        className="mt-6 max-w-[560px] text-[14px] leading-[1.7]"
-        style={{ color: "var(--mo-fg-dim)", fontFamily: "JetBrains Mono, monospace" }}
-      >
-        Same camera. Same founder. Opposite result. The difference is what you
-        point it at — and whether it treats the viewer like a human or a target.
-      </p>
+          <h2
+            className="mt-6 text-white"
+            style={{
+              fontFamily: "Instrument Serif, serif",
+              fontSize: "clamp(40px, 5.6vw, 84px)",
+              lineHeight: 1.02,
+              letterSpacing: "-0.015em",
+              fontWeight: 400,
+            }}
+          >
+            Most content{" "}
+            <span style={{ color: "var(--mo-mute)", fontStyle: "italic" }}>
+              pushes.
+            </span>{" "}
+            The best founders{" "}
+            <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
+              {active.italic}
+            </span>
+          </h2>
 
-      <div className="mt-10 flex flex-wrap items-center gap-6">
-        <PremiumToggle value={mode} onChange={setMode} />
-        <div
-          className="text-[11px] tracking-[0.18em] uppercase"
-          style={{ color: "var(--mo-mute)", fontFamily: "JetBrains Mono, monospace" }}
-        >
-          {mode === "pull" ? "The owl awake. People come to you." : "The owl asleep. You go to them."}
-        </div>
-      </div>
+          <div className="mt-8 flex flex-wrap items-center gap-5">
+            <PremiumToggle value={mode} onChange={setMode} />
+            <div
+              aria-live="polite"
+              className="text-[11px] tracking-[0.18em] uppercase"
+              style={{
+                color: "var(--mo-fg-dim)",
+                fontFamily: "JetBrains Mono, monospace",
+              }}
+            >
+              <span style={{ color: "var(--mo-accent-warm)" }}>●</span>{" "}
+              {active.caption}
+            </div>
+          </div>
 
-      <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-[1.15fr_1fr]">
-        <PushPullVisual mode={mode} />
-
-        <div
-          data-testid={APPROACH.captionCard}
-          className="flex flex-col justify-between rounded-2xl border p-8"
-          style={{
-            borderColor: "var(--mo-line)",
-            background: "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0))",
-          }}
-        >
-          <div>
+          <div
+            className="mt-8 border-l pl-5"
+            style={{ borderColor: "var(--mo-line-strong)" }}
+          >
             <div
               className="text-[10px] tracking-[0.28em] uppercase"
-              style={{ color: "var(--mo-accent)", fontFamily: "JetBrains Mono, monospace" }}
+              style={{
+                color: "var(--mo-accent)",
+                fontFamily: "JetBrains Mono, monospace",
+              }}
             >
-              {mode === "pull" ? "Pull · Attention earned" : "Push · Attention rented"}
+              {active.label}
             </div>
-            <h3
-              className="mt-4 text-white"
+            <div
+              className="mt-3 text-white"
               style={{
                 fontFamily: "Instrument Serif, serif",
-                fontSize: "clamp(24px, 2.4vw, 34px)",
+                fontSize: "clamp(22px, 2.4vw, 32px)",
                 lineHeight: 1.15,
                 letterSpacing: "-0.01em",
                 transition: "opacity 280ms ease",
               }}
             >
               {active.title}
-            </h3>
-            <p
-              className="mt-4 text-[14px] leading-[1.7]"
-              style={{ color: "var(--mo-fg-dim)", fontFamily: "JetBrains Mono, monospace" }}
+            </div>
+            <div
+              className="mt-3 text-[12px] tracking-[0.14em]"
+              style={{
+                color: "var(--mo-fg-dim)",
+                fontFamily: "JetBrains Mono, monospace",
+              }}
             >
-              {active.body}
-            </p>
-
-            <div className="mt-6 flex flex-wrap gap-2">
-              {active.chips.map((c) => (
-                <span
-                  key={c}
-                  className="rounded-full border px-3 py-1.5 text-[11px]"
-                  style={{
-                    fontFamily: "JetBrains Mono, monospace",
-                    color: "var(--mo-fg-dim)",
-                    borderColor: "var(--mo-line-strong)",
-                    background: "rgba(255,255,255,0.02)",
-                  }}
-                >
-                  {c}
-                </span>
-              ))}
+              {active.chip}
             </div>
           </div>
+        </div>
 
+        {/* Passive video-examples box */}
+        <div
+          data-testid={APPROACH.captionCard}
+          className="w-full lg:flex-1"
+        >
           <div
-            className="mt-8 border-t pt-6 text-[13px]"
+            className="rounded-2xl border p-6 backdrop-blur-md sm:p-7"
             style={{
-              borderColor: "var(--mo-line)",
-              color: mode === "pull" ? "var(--mo-fg)" : "var(--mo-mute)",
-              fontFamily: "JetBrains Mono, monospace",
+              borderColor: "var(--mo-line-strong)",
+              background: "rgba(10,10,11,0.55)",
+              boxShadow: "0 40px 80px -30px rgba(0,0,0,0.7)",
             }}
           >
-            {active.footer}
+            <div className="flex items-center justify-between">
+              <div
+                className="text-[10px] tracking-[0.28em] uppercase"
+                style={{
+                  color: "var(--mo-fg-dim)",
+                  fontFamily: "JetBrains Mono, monospace",
+                }}
+              >
+                Examples
+              </div>
+              <div
+                className="text-[10px] tracking-[0.28em] uppercase"
+                style={{
+                  color: "var(--mo-accent)",
+                  fontFamily: "JetBrains Mono, monospace",
+                }}
+              >
+                {mode === "pull" ? "Made to hold" : "Made to broadcast"}
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-3 gap-3">
+              {active.examples.map((ex, i) => (
+                <ReelPreview key={`${mode}-${i}`} mode={mode} kicker={ex.kicker} title={ex.title} />
+              ))}
+            </div>
+
+            <div
+              className="mt-6 border-t pt-4 text-[11px] leading-[1.6]"
+              style={{
+                borderColor: "var(--mo-line)",
+                color: "var(--mo-fg-dim)",
+                fontFamily: "JetBrains Mono, monospace",
+              }}
+            >
+              {mode === "pull"
+                ? "People lean in. Retention holds. Trust compounds."
+                : "People scroll past. Reach rented. No trust built."}
+            </div>
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function ReelPreview({ mode, kicker, title }) {
+  const bg =
+    mode === "pull"
+      ? "linear-gradient(160deg, #14121a 0%, #0a0a0b 100%)"
+      : "linear-gradient(160deg, #1a1712 0%, #0a0a0b 100%)";
+  const glow =
+    mode === "pull"
+      ? "radial-gradient(80% 50% at 50% 20%, rgba(164,74,255,0.22), transparent 70%)"
+      : "radial-gradient(80% 50% at 50% 20%, rgba(212,162,86,0.20), transparent 70%)";
+
+  return (
+    <div
+      className="relative overflow-hidden rounded-lg border transition-transform duration-500 hover:-translate-y-0.5"
+      style={{
+        aspectRatio: "9 / 14",
+        borderColor: "rgba(255,255,255,0.08)",
+        background: bg,
+      }}
+    >
+      <div className="absolute inset-0" style={{ background: glow }} />
+      <div className="noise-overlay" aria-hidden="true" />
+
+      {/* play glyph */}
+      <div
+        className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full border"
+        style={{
+          borderColor: "rgba(255,255,255,0.28)",
+          background: "rgba(10,10,11,0.4)",
+        }}
+      >
+        <span
+          aria-hidden="true"
+          className="ml-0.5 block h-0 w-0"
+          style={{
+            borderLeft: "5px solid white",
+            borderTop: "3.5px solid transparent",
+            borderBottom: "3.5px solid transparent",
+          }}
+        />
+      </div>
+
+      <div className="absolute inset-x-2.5 bottom-2.5">
+        <div
+          className="text-[9px] tracking-[0.16em] uppercase"
+          style={{
+            color:
+              mode === "pull" ? "var(--mo-accent)" : "var(--mo-accent-warm)",
+            fontFamily: "JetBrains Mono, monospace",
+          }}
+        >
+          {kicker}
+        </div>
+        <div
+          className="mt-1 text-white"
+          style={{
+            fontFamily: "Instrument Serif, serif",
+            fontSize: "13px",
+            lineHeight: 1.15,
+          }}
+        >
+          {title}
+        </div>
+      </div>
+    </div>
   );
 }

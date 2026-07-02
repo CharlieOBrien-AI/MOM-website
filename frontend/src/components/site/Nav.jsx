@@ -79,7 +79,7 @@ export default function Nav() {
             fontFamily: "JetBrains Mono, monospace",
             background: "var(--mo-fg)",
             color: "var(--mo-bg)",
-            boxShadow: "0 4px 24px -8px rgba(212,162,86,0.35)",
+            boxShadow: "0 4px 24px -8px rgba(164,74,255,0.4)",
           }}
         >
           Start a project

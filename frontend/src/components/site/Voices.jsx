@@ -47,8 +47,8 @@ export default function Voices() {
               <div
                 className="grid h-9 w-9 flex-none place-items-center rounded-full border"
                 style={{
-                  borderColor: "rgba(212,162,86,0.35)",
-                  background: "rgba(212,162,86,0.08)",
+                  borderColor: "rgba(164,74,255,0.35)",
+                  background: "rgba(164,74,255,0.08)",
                   fontFamily: "JetBrains Mono, monospace",
                   fontSize: "11px",
                   letterSpacing: "0.08em",

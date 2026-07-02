@@ -60,7 +60,8 @@ export default function HeroScrubVideo({ src }) {
 
     const updateTarget = (clientX) => {
       const w = window.innerWidth || 1;
-      const p = Math.max(0, Math.min(1, clientX / w));
+      // Map the scrub in reverse so the owl looks toward the cursor
+      const p = 1 - Math.max(0, Math.min(1, clientX / w));
       targetTimeRef.current = p * (durationRef.current || 0);
     };
 
@@ -133,21 +134,21 @@ export default function HeroScrubVideo({ src }) {
         tabIndex={-1}
         className="absolute inset-0 h-full w-full object-cover will-change-[opacity]"
         style={{
-          opacity: ready ? 0.9 : 0,
+          opacity: ready ? 1 : 0,
           transition: "opacity 900ms cubic-bezier(0.22, 1, 0.36, 1)",
-          filter: "contrast(1.05) saturate(0.9) brightness(0.95)",
+          filter: "contrast(1.02) saturate(0.95)",
         }}
       >
         <source src="/videos/left-right.webm" type="video/webm" />
         <source src={src} type="video/mp4" />
       </video>
-      {/* Dark vignette / gradient wash to keep foreground legible */}
+      {/* Soft edge wash — keeps text legible without darkening the owl */}
       <div
         aria-hidden="true"
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(120% 80% at 22% 40%, rgba(10,10,11,0.15), rgba(10,10,11,0.65) 62%, rgba(10,10,11,0.92) 100%)",
+            "radial-gradient(120% 90% at 22% 45%, rgba(10,10,11,0) 0%, rgba(10,10,11,0.15) 55%, rgba(10,10,11,0.55) 100%)",
         }}
       />
       <div
@@ -155,7 +156,7 @@ export default function HeroScrubVideo({ src }) {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, rgba(10,10,11,0.55) 0%, rgba(10,10,11,0) 25%, rgba(10,10,11,0) 55%, rgba(10,10,11,0.9) 100%)",
+            "linear-gradient(180deg, rgba(10,10,11,0.35) 0%, rgba(10,10,11,0) 18%, rgba(10,10,11,0) 62%, rgba(10,10,11,0.9) 100%)",
         }}
       />
       <div className="noise-overlay" aria-hidden="true" />

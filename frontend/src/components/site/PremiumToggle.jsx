@@ -66,7 +66,7 @@ export default function PremiumToggle({ value, onChange, disabled = false }) {
           transition:
             "left 320ms cubic-bezier(0.4, 0, 0.2, 1), width 320ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 320ms ease",
           boxShadow:
-            "0 0 0 1px rgba(255,255,255,0.05), 0 8px 24px -8px rgba(212,162,86,0.35), 0 0 32px -8px rgba(212,162,86,0.25)",
+            "0 0 0 1px rgba(255,255,255,0.05), 0 8px 24px -8px rgba(164,74,255,0.35), 0 0 32px -8px rgba(164,74,255,0.25)",
         }}
       />
 

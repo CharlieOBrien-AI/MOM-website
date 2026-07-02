@@ -55,8 +55,13 @@ export default function Stats() {
     },
     {
       testid: STATS.adSpend,
-      value: <span>0</span>,
-      caption: "Ad dollars spent to get there.",
+      value: (
+        <span>
+          <CountUp target={75} suffix="%" />
+          <span style={{ fontSize: "0.55em", verticalAlign: "0.35em", marginLeft: "0.08em" }}>+</span>
+        </span>
+      ),
+      caption: "Average view duration. Stories that make people stick.",
     },
   ];
 
@@ -74,7 +79,7 @@ export default function Stats() {
             key={i}
             data-testid={it.testid}
             className="border-l pl-6"
-            style={{ borderColor: "rgba(212,162,86,0.35)" }}
+            style={{ borderColor: "rgba(164,74,255,0.35)" }}
           >
             <div
               style={{
