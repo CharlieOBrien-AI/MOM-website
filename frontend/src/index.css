@@ -153,6 +153,19 @@
   .stagger > *:nth-child(4) { animation-delay: 0.35s; }
   .stagger > *:nth-child(5) { animation-delay: 0.45s; }
   .stagger > *:nth-child(6) { animation-delay: 0.55s; }
+
+  /* Strikethrough draw-in — used on the Hero heading's crossed-out phrase.
+     Starts already at scaleX(0) (no flash during the delay), then draws
+     left-to-right once, right as the heading finishes fading in. */
+  .mo-strike-draw {
+    transform: scaleX(0);
+    transform-origin: left center;
+    animation: mo-strike-draw-kf 0.6s cubic-bezier(0.65, 0, 0.35, 1) 1.05s forwards;
+  }
+
+  @keyframes mo-strike-draw-kf {
+    to { transform: scaleX(1); }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

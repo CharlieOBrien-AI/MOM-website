@@ -1,6 +1,5 @@
 import HeroScrubVideo from "./HeroScrubVideo";
 import TextRotator from "./TextRotator";
-import { motion } from "framer-motion";
 import { HERO } from "@/constants/testIds";
 
 export default function Hero() {
@@ -37,17 +36,13 @@ export default function Hero() {
               style={{ color: "var(--mo-mute)" }}
             >
               <span style={{ fontStyle: "italic" }}>30 videos a month</span>
-              <motion.span
+              <span
                 aria-hidden="true"
-                className="absolute left-0 right-0 top-[54%] block"
+                className="absolute left-0 right-0 top-[54%] block mo-strike-draw"
                 style={{
                   height: "3px",
                   background: "var(--mo-accent-warm)",
-                  transformOrigin: "left center",
                 }}
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 0.6, delay: 1.0, ease: "easeInOut" }}
               />
             </span>
             <br />
