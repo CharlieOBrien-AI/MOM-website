@@ -64,74 +64,45 @@ export default function Stats() {
       caption: "Average view duration. Stories that make people stick.",
     },
   ];
-  const [featured, ...rest] = items;
 
   return (
     <section
       data-testid={STATS.root}
-      className="mx-auto max-w-[1240px] section-px py-[90px] sm:py-[100px]"
+      className="mx-auto max-w-[1240px] section-px py-[120px]"
     >
       <div className="mono-eyebrow mb-10">
         <span style={{ color: "var(--mo-accent)" }}>//</span> By the numbers
       </div>
-
-      {/* Asymmetric split — one oversized anchor stat + a stacked, offset list */}
-      <div className="grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-6">
-        <div data-testid={featured.testid} className="lg:col-span-5">
+      <div className="grid gap-8 md:grid-cols-3 md:gap-12">
+        {items.map((it, i) => (
           <div
-            style={{
-              fontFamily: "Instrument Serif, serif",
-              fontSize: "clamp(64px, 11vw, 176px)",
-              lineHeight: 0.9,
-              letterSpacing: "-0.02em",
-              color: "var(--mo-accent)",
-            }}
+            key={i}
+            data-testid={it.testid}
+            className="border-l pl-6"
+            style={{ borderColor: "rgba(164,74,255,0.35)" }}
           >
-            {featured.value}
-          </div>
-          <div
-            className="mt-5 max-w-[280px] border-l pl-5 text-[13px] leading-[1.6]"
-            style={{
-              borderColor: "rgba(164,74,255,0.35)",
-              color: "var(--mo-fg-dim)",
-              fontFamily: "JetBrains Mono, monospace",
-            }}
-          >
-            {featured.caption}
-          </div>
-        </div>
-
-        <div className="lg:col-span-7 lg:pl-10 lg:pt-24">
-          {rest.map((it, i) => (
             <div
-              key={i}
-              data-testid={it.testid}
-              className="flex flex-col gap-3 border-t py-7 first:border-t-0 first:pt-0 sm:flex-row sm:items-center sm:justify-between sm:gap-8"
-              style={{ borderColor: "var(--mo-line)" }}
+              style={{
+                fontFamily: "Instrument Serif, serif",
+                fontSize: "clamp(56px, 6vw, 92px)",
+                lineHeight: 0.95,
+                letterSpacing: "-0.02em",
+                color: "var(--mo-accent)",
+              }}
             >
-              <div
-                style={{
-                  fontFamily: "Instrument Serif, serif",
-                  fontSize: "clamp(40px, 4.4vw, 60px)",
-                  lineHeight: 0.95,
-                  letterSpacing: "-0.02em",
-                  color: "var(--mo-fg)",
-                }}
-              >
-                {it.value}
-              </div>
-              <div
-                className="max-w-[300px] text-[13px] leading-[1.6] sm:text-right"
-                style={{
-                  color: "var(--mo-fg-dim)",
-                  fontFamily: "JetBrains Mono, monospace",
-                }}
-              >
-                {it.caption}
-              </div>
+              {it.value}
             </div>
-          ))}
-        </div>
+            <div
+              className="mt-4 max-w-[260px] text-[13px] leading-[1.6]"
+              style={{
+                color: "var(--mo-fg-dim)",
+                fontFamily: "JetBrains Mono, monospace",
+              }}
+            >
+              {it.caption}
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );

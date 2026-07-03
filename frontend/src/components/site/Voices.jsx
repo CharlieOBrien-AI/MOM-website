@@ -9,31 +9,11 @@ const voices = [
   { initials: "SO", name: "Sam Okonkwo", handle: "@sokonkwo", quote: "Stop reading the comments and go book them. That is my review." },
 ];
 
-function Avatar({ v }) {
-  return (
-    <div
-      className="grid h-9 w-9 flex-none place-items-center rounded-full border"
-      style={{
-        borderColor: "rgba(164,74,255,0.35)",
-        background: "rgba(164,74,255,0.08)",
-        fontFamily: "JetBrains Mono, monospace",
-        fontSize: "11px",
-        letterSpacing: "0.08em",
-        color: "var(--mo-accent-strong)",
-      }}
-    >
-      {v.initials}
-    </div>
-  );
-}
-
 export default function Voices() {
-  const [hero, ...rest] = voices;
-
   return (
     <section
       data-testid={VOICES.root}
-      className="mx-auto max-w-[1240px] section-px py-[130px]"
+      className="mx-auto max-w-[1240px] section-px py-[120px]"
     >
       <div className="mono-eyebrow mb-4">
         <span style={{ color: "var(--mo-accent)" }}>//</span> What people say
@@ -53,69 +33,30 @@ export default function Voices() {
         </span>
       </h2>
 
-      {/* Featured pull-quote — oversized asymmetric anchor, breaks the grid */}
-      <div
-        className="mt-14 flex flex-col gap-6 border-y py-10 lg:flex-row lg:items-start lg:gap-14"
-        style={{ borderColor: "var(--mo-line)" }}
-      >
-        <div
-          aria-hidden="true"
-          className="flex-none select-none"
-          style={{
-            fontFamily: "Instrument Serif, serif",
-            fontSize: "96px",
-            lineHeight: 0.6,
-            color: "var(--mo-accent)",
-          }}
-        >
-          {'"'}
-        </div>
-        <div className="flex-1">
-          <p
-            className="max-w-[760px] text-white"
-            style={{
-              fontFamily: "Instrument Serif, serif",
-              fontSize: "clamp(24px, 3vw, 38px)",
-              lineHeight: 1.25,
-              letterSpacing: "-0.01em",
-            }}
-          >
-            {hero.quote}
-          </p>
-          <div className="mt-6 flex items-center gap-3">
-            <Avatar v={hero} />
-            <div>
-              <div
-                className="text-[13px]"
-                style={{ color: "var(--mo-fg)", fontFamily: "JetBrains Mono, monospace" }}
-              >
-                {hero.name}
-              </div>
-              <div
-                className="text-[10px] tracking-[0.14em]"
-                style={{ color: "var(--mo-mute)", fontFamily: "JetBrains Mono, monospace" }}
-              >
-                {hero.handle}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Staggered wall — organic masonry instead of a uniform grid */}
-      <div className="mt-4 columns-1 gap-4 sm:columns-2 lg:columns-3">
-        {rest.map((v, i) => (
+      <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {voices.map((v) => (
           <div
             key={v.name}
-            className="mb-4 break-inside-avoid rounded-2xl border p-6 transition-transform duration-500 hover:-translate-y-0.5"
+            className="rounded-2xl border p-6 transition-transform duration-500 hover:-translate-y-0.5"
             style={{
               borderColor: "var(--mo-line)",
               background: "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0))",
-              marginTop: i % 2 === 1 ? "24px" : 0,
             }}
           >
             <div className="flex items-center gap-3">
-              <Avatar v={v} />
+              <div
+                className="grid h-9 w-9 flex-none place-items-center rounded-full border"
+                style={{
+                  borderColor: "rgba(164,74,255,0.35)",
+                  background: "rgba(164,74,255,0.08)",
+                  fontFamily: "JetBrains Mono, monospace",
+                  fontSize: "11px",
+                  letterSpacing: "0.08em",
+                  color: "var(--mo-accent-strong)",
+                }}
+              >
+                {v.initials}
+              </div>
               <div>
                 <div
                   className="text-[13px]"
