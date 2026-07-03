@@ -10,7 +10,7 @@ export default function Footer() {
         background: "#08080a",
       }}
     >
-      <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-6 px-6 py-14 sm:px-8">
+      <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-6 section-px py-14">
         <div className="flex items-center gap-2.5">
           <span
             aria-hidden="true"
@@ -65,7 +65,7 @@ export default function Footer() {
         </div>
       </div>
       <div
-        className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-3 px-6 pb-10 sm:px-8"
+        className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-3 section-px pb-10"
         style={{
           color: "var(--mo-mute)",
           fontFamily: "JetBrains Mono, monospace",

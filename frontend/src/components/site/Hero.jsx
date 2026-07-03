@@ -12,7 +12,7 @@ export default function Hero() {
       <HeroScrubVideo src="/videos/left-right.mp4" />
 
       {/* Content */}
-      <div className="relative mx-auto w-full max-w-[1240px] px-6 pt-24 sm:px-8">
+      <div className="relative mx-auto w-full max-w-[1240px] section-px pt-24">
         <div className="max-w-[880px] stagger">
           <div className="mono-eyebrow" data-testid="hero-eyebrow">
             <span style={{ color: "var(--mo-accent)" }}>//</span> Storytelling-first content studio

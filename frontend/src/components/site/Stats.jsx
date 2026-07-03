@@ -68,7 +68,7 @@ export default function Stats() {
   return (
     <section
       data-testid={STATS.root}
-      className="mx-auto max-w-[1240px] px-6 py-[120px] sm:px-8"
+      className="mx-auto max-w-[1240px] section-px py-[120px]"
     >
       <div className="mono-eyebrow mb-10">
         <span style={{ color: "var(--mo-accent)" }}>//</span> By the numbers

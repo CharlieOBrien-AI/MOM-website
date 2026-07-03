@@ -29,7 +29,7 @@ export default function Nav() {
         backdropFilter: "blur(18px) saturate(140%)",
       }}
     >
-      <div className="mx-auto flex h-[68px] max-w-[1240px] items-center justify-between px-6 sm:px-8">
+      <div className="mx-auto flex h-[68px] max-w-[1240px] items-center justify-between section-px">
         <a
           href="#top"
           data-testid={NAV.logo}

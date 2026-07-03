@@ -26,7 +26,7 @@ export default function Work() {
     <section
       id="work"
       data-testid={WORK.root}
-      className="mx-auto max-w-[1240px] px-6 pb-[120px] sm:px-8"
+      className="mx-auto max-w-[1240px] section-px pb-[120px]"
     >
       <div className="mono-eyebrow mb-4">
         <span style={{ color: "var(--mo-accent)" }}>//</span> Recent work

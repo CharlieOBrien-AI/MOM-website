@@ -79,7 +79,7 @@ export default function HowItWorks() {
         borderBottom: "1px solid var(--mo-line)",
       }}
     >
-      <div className="mx-auto max-w-[1240px] px-6 py-[120px] sm:px-8">
+      <div className="mx-auto max-w-[1240px] section-px py-[120px]">
         <div className="mono-eyebrow mb-4">
           <span style={{ color: "var(--mo-accent)" }}>//</span> How it works
         </div>

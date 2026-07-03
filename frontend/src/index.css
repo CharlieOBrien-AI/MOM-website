@@ -98,6 +98,13 @@
 }
 
 @layer utilities {
+  /* Fluid horizontal gutter — scales from 24px on mobile up to 96px on
+     large desktops so content never feels glued to the viewport edge. */
+  .section-px {
+    padding-left: clamp(24px, 5vw, 96px);
+    padding-right: clamp(24px, 5vw, 96px);
+  }
+
   .mono-eyebrow {
     font-family: "JetBrains Mono", monospace;
     font-size: 11px;
