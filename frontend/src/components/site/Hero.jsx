@@ -45,9 +45,9 @@ export default function Hero() {
                   background: "var(--mo-accent-warm)",
                   transformOrigin: "left center",
                 }}
-                initial={{ scaleX: 0, rotate: -1.2 }}
-                animate={{ scaleX: 1, rotate: -1.2 }}
-                transition={{ duration: 0.7, delay: 1.1, ease: [0.65, 0, 0.35, 1] }}
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.6, delay: 1.0, ease: "easeInOut" }}
               />
             </span>
             <br />
