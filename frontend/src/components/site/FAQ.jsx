@@ -86,37 +86,63 @@ export default function FAQSection() {
     <section
       id="faq"
       data-testid={FAQ.root}
-      className="mx-auto max-w-[880px] section-px pb-[120px]"
+      className="mx-auto max-w-[1240px] section-px pb-[130px]"
     >
-      <div className="mono-eyebrow mb-4">
-        <span style={{ color: "var(--mo-accent)" }}>//</span> FAQ
-      </div>
-      <h2
-        className="text-white"
-        style={{
-          fontFamily: "Instrument Serif, serif",
-          fontSize: "clamp(30px, 3.6vw, 52px)",
-          letterSpacing: "-0.015em",
-          lineHeight: 1.1,
-        }}
-      >
-        {"The questions you're"}{" "}
-        <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
-          thinking.
-        </span>
-      </h2>
+      {/* Editorial two-column split — sticky heading rail + accordion,
+          breaking away from the narrow centered column used elsewhere */}
+      <div className="grid gap-10 lg:grid-cols-[360px_1fr] lg:gap-20">
+        <div className="lg:sticky lg:top-32 lg:self-start">
+          <div className="mono-eyebrow mb-4">
+            <span style={{ color: "var(--mo-accent)" }}>//</span> FAQ
+          </div>
+          <h2
+            className="text-white"
+            style={{
+              fontFamily: "Instrument Serif, serif",
+              fontSize: "clamp(30px, 3.6vw, 52px)",
+              letterSpacing: "-0.015em",
+              lineHeight: 1.1,
+            }}
+          >
+            {"The questions you're"}{" "}
+            <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
+              thinking.
+            </span>
+          </h2>
+          <p
+            className="mt-6 max-w-[300px] text-[13px] leading-[1.7]"
+            style={{
+              color: "var(--mo-fg-dim)",
+              fontFamily: "JetBrains Mono, monospace",
+            }}
+          >
+            Still have one? We would rather answer it on a call than in a paragraph.
+          </p>
+          <a
+            href="#contact"
+            className="mt-6 inline-flex items-center gap-2 text-[11px] tracking-[0.18em] uppercase transition-colors hover:text-white"
+            style={{
+              color: "var(--mo-accent)",
+              fontFamily: "JetBrains Mono, monospace",
+            }}
+          >
+            Ask us directly
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
 
-      <div className="mt-10">
-        {faqs.map((f, i) => (
-          <Item
-            key={i}
-            idx={i}
-            {...f}
-            open={openIdx === i}
-            onToggle={() => setOpenIdx(openIdx === i ? -1 : i)}
-          />
-        ))}
-        <div className="border-t" style={{ borderColor: "var(--mo-line)" }} />
+        <div>
+          {faqs.map((f, i) => (
+            <Item
+              key={i}
+              idx={i}
+              {...f}
+              open={openIdx === i}
+              onToggle={() => setOpenIdx(openIdx === i ? -1 : i)}
+            />
+          ))}
+          <div className="border-t" style={{ borderColor: "var(--mo-line)" }} />
+        </div>
       </div>
     </section>
   );

@@ -130,7 +130,7 @@ export default function Approach() {
         {/* Passive video-examples box */}
         <div
           data-testid={APPROACH.captionCard}
-          className="w-full lg:flex-1"
+          className="w-full lg:flex-1 lg:-translate-y-4"
         >
           <div
             className="rounded-2xl border p-6 backdrop-blur-md sm:p-7"
