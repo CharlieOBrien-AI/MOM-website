@@ -1,6 +1,5 @@
 import { useState } from "react";
 import PremiumToggle from "./PremiumToggle";
-import PushPullBackground from "./PushPullVisual";
 import { APPROACH } from "@/constants/testIds";
 
 /**
@@ -47,11 +46,8 @@ export default function Approach() {
       id="approach"
       data-testid={APPROACH.root}
       className="relative overflow-hidden"
-      style={{ minHeight: "min(120vh, 1080px)" }}
+      style={{ minHeight: "min(120vh, 1080px)", background: "var(--mo-bg)" }}
     >
-      {/* Full-section background: owl images + transition videos */}
-      <PushPullBackground mode={mode} />
-
       {/* Foreground content */}
       <div className="relative mx-auto flex max-w-[1240px] flex-col gap-16 px-6 pb-[140px] pt-[120px] sm:px-8 lg:min-h-[100vh] lg:flex-row lg:items-center lg:gap-20">
         <div className="max-w-[560px] lg:flex-1">
