@@ -1,4 +1,6 @@
 import HeroScrubVideo from "./HeroScrubVideo";
+import TextRotator from "./TextRotator";
+import { motion } from "framer-motion";
 import { HERO } from "@/constants/testIds";
 
 export default function Hero() {
@@ -23,8 +25,8 @@ export default function Hero() {
             className="mt-8 text-white"
             style={{
               fontFamily: "Instrument Serif, serif",
-              fontSize: "clamp(48px, 8.4vw, 132px)",
-              lineHeight: 0.96,
+              fontSize: "clamp(40px, 6.2vw, 96px)",
+              lineHeight: 1,
               letterSpacing: "-0.02em",
               fontWeight: 400,
             }}
@@ -34,25 +36,32 @@ export default function Hero() {
               className="relative whitespace-nowrap"
               style={{ color: "var(--mo-mute)" }}
             >
-              <span style={{ fontStyle: "italic" }}>30 reels a month</span>
-              <span
+              <span style={{ fontStyle: "italic" }}>30 videos a month</span>
+              <motion.span
                 aria-hidden="true"
                 className="absolute left-0 right-0 top-[54%] block"
                 style={{
                   height: "3px",
                   background: "var(--mo-accent-warm)",
-                  transform: "rotate(-1.2deg)",
+                  transformOrigin: "left center",
                 }}
+                initial={{ scaleX: 0, rotate: -1.2 }}
+                animate={{ scaleX: 1, rotate: -1.2 }}
+                transition={{ duration: 0.7, delay: 1.1, ease: [0.65, 0, 0.35, 1] }}
               />
-            </span>{" "}
-            <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
-              trust.
             </span>
+            <br />
+            <TextRotator
+              words={["trust", "loyalty", "community"]}
+              className="align-[-0.1em]"
+              style={{ color: "var(--mo-accent)", fontStyle: "italic" }}
+            />
+            <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>.</span>
           </h1>
 
           <p
             data-testid={HERO.copy}
-            className="mt-8 max-w-[560px] text-[15px] leading-[1.7]"
+            className="mt-8 max-w-[560px] text-[14.5px] leading-[1.7]"
             style={{
               color: "var(--mo-fg-dim)",
               fontFamily: "JetBrains Mono, monospace",
