@@ -68,41 +68,47 @@ export default function Stats() {
   return (
     <section
       data-testid={STATS.root}
-      className="mx-auto max-w-[1240px] section-px py-[120px]"
+      style={{
+        background: "linear-gradient(180deg, #08080a 0%, #0a0a0b 100%)",
+        borderTop: "1px solid var(--mo-line)",
+        borderBottom: "1px solid var(--mo-line)",
+      }}
     >
-      <div className="mono-eyebrow mb-10">
-        <span style={{ color: "var(--mo-accent)" }}>//</span> By the numbers
-      </div>
-      <div className="grid gap-8 md:grid-cols-3 md:gap-12">
-        {items.map((it, i) => (
-          <div
-            key={i}
-            data-testid={it.testid}
-            className="border-l pl-6"
-            style={{ borderColor: "rgba(164,74,255,0.35)" }}
-          >
+      <div className="mx-auto max-w-[1240px] section-px py-[120px]">
+        <div className="mono-eyebrow mb-10">
+          <span style={{ color: "var(--mo-accent)" }}>//</span> By the numbers
+        </div>
+        <div className="grid gap-8 md:grid-cols-3 md:gap-12">
+          {items.map((it, i) => (
             <div
-              style={{
-                fontFamily: "Instrument Serif, serif",
-                fontSize: "clamp(56px, 6vw, 92px)",
-                lineHeight: 0.95,
-                letterSpacing: "-0.02em",
-                color: "var(--mo-accent)",
-              }}
+              key={i}
+              data-testid={it.testid}
+              className="border-l pl-6"
+              style={{ borderColor: "rgba(164,74,255,0.35)" }}
             >
-              {it.value}
+              <div
+                style={{
+                  fontFamily: "Instrument Serif, serif",
+                  fontSize: "clamp(56px, 6vw, 92px)",
+                  lineHeight: 0.95,
+                  letterSpacing: "-0.02em",
+                  color: "var(--mo-accent)",
+                }}
+              >
+                {it.value}
+              </div>
+              <div
+                className="mt-4 max-w-[260px] text-[13px] leading-[1.6]"
+                style={{
+                  color: "var(--mo-fg-dim)",
+                  fontFamily: "JetBrains Mono, monospace",
+                }}
+              >
+                {it.caption}
+              </div>
             </div>
-            <div
-              className="mt-4 max-w-[260px] text-[13px] leading-[1.6]"
-              style={{
-                color: "var(--mo-fg-dim)",
-                fontFamily: "JetBrains Mono, monospace",
-              }}
-            >
-              {it.caption}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

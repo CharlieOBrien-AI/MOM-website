@@ -13,27 +13,33 @@ export default function Voices() {
   return (
     <section
       data-testid={VOICES.root}
-      className="mx-auto max-w-[1240px] section-px py-[120px]"
+      style={{
+        background:
+          "radial-gradient(120% 60% at 50% 0%, rgba(164,74,255,0.05), rgba(10,10,11,0) 55%), linear-gradient(180deg, #08080a 0%, #0a0a0b 100%)",
+        borderTop: "1px solid var(--mo-line)",
+        borderBottom: "1px solid var(--mo-line)",
+      }}
     >
-      <div className="mono-eyebrow mb-4">
-        <span style={{ color: "var(--mo-accent)" }}>//</span> What people say
-      </div>
-      <h2
-        className="max-w-[880px] text-white"
-        style={{
-          fontFamily: "Instrument Serif, serif",
-          fontSize: "clamp(36px, 5vw, 68px)",
-          lineHeight: 1.02,
-          letterSpacing: "-0.015em",
-        }}
-      >
-        {"People can buy followers. They can't buy"}{" "}
-        <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
-          this.
-        </span>
-      </h2>
+      <div className="mx-auto max-w-[1240px] section-px py-[120px] text-center">
+        <div className="mono-eyebrow mb-4">
+          <span style={{ color: "var(--mo-accent)" }}>//</span> What people say
+        </div>
+        <h2
+          className="mx-auto max-w-[680px] text-white"
+          style={{
+            fontFamily: "Instrument Serif, serif",
+            fontSize: "clamp(36px, 5vw, 68px)",
+            lineHeight: 1.02,
+            letterSpacing: "-0.015em",
+          }}
+        >
+          {"People can buy followers. They can't buy"}{" "}
+          <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
+            this.
+          </span>
+        </h2>
 
-      <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-4 text-left md:grid-cols-2 lg:grid-cols-3">
         {voices.map((v) => (
           <div
             key={v.name}
@@ -89,6 +95,7 @@ export default function Voices() {
             </p>
           </div>
         ))}
+        </div>
       </div>
     </section>
   );
