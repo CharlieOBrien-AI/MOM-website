@@ -1,20 +1,24 @@
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef } from "react";
 
 /**
  * TextRotator
  *
- * A vertical "slot machine" word rotator. Cycles infinitely through `words`,
- * with each new word rolling in from below while fading in, and the outgoing
- * word rolling further up while fading out — vertical motion only, no
- * horizontal movement.
+ * Vertical "slot machine" word rotator, matching this exact mechanism:
  *
- * At rest, the current word is always 100% opaque, fully sharp and centered
- * within a slightly taller-than-1em box (no mask/gradient), so ascenders and
- * descenders (e.g. the "y" in "loyalty") never get clipped.
- *
- * The container's width is driven by an invisible sizer span so it resizes
- * smoothly (via the `layout` animation) as word length changes.
+ * - A viewport box sized to exactly one line (height: 1em, overflow: hidden)
+ *   with a vertical mask-image that fades the top/bottom ~26% so words
+ *   blur in/out as they cross the edges instead of popping.
+ * - A flex-column stack containing every word plus a duplicate of the first
+ *   word appended at the end (`[...words, words[0]]`) — all rendered as
+ *   static children at once (no conditional re-rendering).
+ * - Every `interval` ms, the stack is shifted up by exactly one more `1em`
+ *   via `translateY(-Nem)` with a CSS transition (cubic-bezier "drum
+ *   roller" easing: quick acceleration, soft landing).
+ * - When the stack lands on the duplicated first word (the Nth position),
+ *   right after that transition finishes, the stack is snapped back to
+ *   `translateY(0)` with `transition: none` (imperative DOM manipulation
+ *   via a ref, done outside React's render cycle) so the reset is
+ *   invisible and the loop reads as infinite.
  */
 export default function TextRotator({
   words = [],
@@ -22,46 +26,71 @@ export default function TextRotator({
   className = "",
   style = {},
 }) {
-  const [index, setIndex] = useState(0);
+  const stackRef = useRef(null);
+  const indexRef = useRef(0);
+
+  const rollWords = words.length > 0 ? [...words, words[0]] : words;
 
   useEffect(() => {
     if (words.length < 2) return;
-    const id = setInterval(() => {
-      setIndex((i) => (i + 1) % words.length);
-    }, interval);
-    return () => clearInterval(id);
-  }, [words.length, interval]);
+    const n = words.length;
+    indexRef.current = 0;
 
-  const current = words[index] ?? "";
+    const tick = () => {
+      const el = stackRef.current;
+      if (!el) return;
+
+      indexRef.current += 1;
+      el.style.transition = "transform 0.7s cubic-bezier(0.76,0,0.24,1)";
+      el.style.transform = `translateY(-${indexRef.current}em)`;
+
+      if (indexRef.current === n) {
+        setTimeout(() => {
+          const node = stackRef.current;
+          if (!node) return;
+          node.style.transition = "none";
+          indexRef.current = 0;
+          node.style.transform = "translateY(0)";
+          // Force a reflow so the "none" transition is committed before
+          // the next tick re-enables the transition.
+          void node.offsetHeight;
+        }, 720);
+      }
+    };
+
+    const id = setInterval(tick, interval);
+    return () => clearInterval(id);
+  }, [words, interval]);
+
+  if (words.length === 0) return null;
 
   return (
-    <motion.span
-      layout
-      transition={{ layout: { duration: 0.4, ease: [0.65, 0, 0.35, 1] } }}
-      className={`relative inline-flex items-center overflow-hidden align-middle ${className}`}
+    <span
+      className={`relative inline-block overflow-hidden align-bottom ${className}`}
       style={{
-        height: "1.3em",
+        height: "1em",
+        maskImage:
+          "linear-gradient(to bottom, transparent 0%, #000 26%, #000 74%, transparent 100%)",
+        WebkitMaskImage:
+          "linear-gradient(to bottom, transparent 0%, #000 26%, #000 74%, transparent 100%)",
         ...style,
       }}
     >
-      {/* Invisible sizer — keeps the container width matched to the current
-          word without a hardcoded width, so it animates smoothly via `layout`. */}
-      <span aria-hidden="true" className="invisible whitespace-nowrap">
-        {current}
+      <span
+        ref={stackRef}
+        className="flex flex-col"
+        style={{ willChange: "transform" }}
+      >
+        {rollWords.map((w, i) => (
+          <span
+            key={`${w}-${i}`}
+            className="block whitespace-nowrap"
+            style={{ height: "1em", lineHeight: "1em", paddingRight: "0.06em" }}
+          >
+            {w}
+          </span>
+        ))}
       </span>
-
-      <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span
-          key={current}
-          initial={{ y: "100%", opacity: 0 }}
-          animate={{ y: "0%", opacity: 1 }}
-          exit={{ y: "-100%", opacity: 0 }}
-          transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-          className="absolute inset-0 flex items-center justify-start whitespace-nowrap"
-        >
-          {current}
-        </motion.span>
-      </AnimatePresence>
-    </motion.span>
+    </span>
   );
 }

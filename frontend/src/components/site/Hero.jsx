@@ -52,11 +52,9 @@ export default function Hero() {
             </span>
             <br />
             <TextRotator
-              words={["trust", "loyalty", "community"]}
-              className="align-[-0.1em]"
+              words={["trust.", "loyalty.", "community."]}
               style={{ color: "var(--mo-accent)", fontStyle: "italic" }}
             />
-            <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>.</span>
           </h1>
 
           <p
