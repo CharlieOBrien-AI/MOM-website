@@ -70,40 +70,76 @@ export default function TextRotator({
 
   if (words.length === 0) return null;
 
+  // The longest word is used as an invisible spacer to give the outer span
+  // its intrinsic width without pulling the animated stack into the flow.
+  const longestWord = words.reduce((a, b) => (a.length >= b.length ? a : b));
+
+  // The visible viewport reserves half the extra room above and half below
+  // the baseline 1em line-box, so ascenders and descenders can breathe.
+  const overshoot = (SLOT_EM - 1) / 2; // in em
+
   return (
     <span
-      className={`relative inline-block overflow-hidden align-bottom ${className}`}
+      className={`relative inline-block align-baseline ${className}`}
       style={{
-        height: `${SLOT_EM}em`,
-        // Nudge the whole rotator down slightly so its baseline aligns
-        // with the surrounding "1em line-height" text (the extra room
-        // now lives above and below the glyphs, not inside them).
-        verticalAlign: "-0.18em",
-        maskImage:
-          "linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%)",
-        WebkitMaskImage:
-          "linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%)",
+        // Keep the rotator's line-box height at 1em so it doesn't push the
+        // surrounding lines apart. The taller animation viewport lives on
+        // an absolutely-positioned inner layer that overflows this box.
+        height: "1em",
+        lineHeight: "1em",
         ...style,
       }}
     >
+      {/* Invisible spacer sets the outer span's width to the widest word */}
       <span
-        ref={stackRef}
-        className="flex flex-col"
-        style={{ willChange: "transform" }}
+        aria-hidden="true"
+        className="whitespace-nowrap"
+        style={{
+          visibility: "hidden",
+          paddingRight: "0.06em",
+          lineHeight: "1em",
+        }}
       >
-        {rollWords.map((w, i) => (
-          <span
-            key={`${w}-${i}`}
-            className="block whitespace-nowrap"
-            style={{
-              height: `${SLOT_EM}em`,
-              lineHeight: `${SLOT_EM}em`,
-              paddingRight: "0.06em",
-            }}
-          >
-            {w}
-          </span>
-        ))}
+        {longestWord}
+      </span>
+
+      {/* Animated viewport, taller than 1em, but positioned so it overflows
+          equally above and below the line without affecting layout. */}
+      <span
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: `-${overshoot}em`,
+          height: `${SLOT_EM}em`,
+          overflow: "hidden",
+          maskImage:
+            "linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%)",
+          pointerEvents: "none",
+        }}
+      >
+        <span
+          ref={stackRef}
+          className="flex flex-col"
+          style={{ willChange: "transform" }}
+        >
+          {rollWords.map((w, i) => (
+            <span
+              key={`${w}-${i}`}
+              className="block whitespace-nowrap"
+              style={{
+                height: `${SLOT_EM}em`,
+                lineHeight: `${SLOT_EM}em`,
+                paddingRight: "0.06em",
+              }}
+            >
+              {w}
+            </span>
+          ))}
+        </span>
       </span>
     </span>
   );
