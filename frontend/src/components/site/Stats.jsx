@@ -69,12 +69,42 @@ export default function Stats() {
     <section
       data-testid={STATS.root}
       style={{
+        position: "relative",
         background: "linear-gradient(180deg, #08080a 0%, #0a0a0b 100%)",
         borderTop: "1px solid var(--mo-line)",
         borderBottom: "1px solid var(--mo-line)",
+        overflow: "hidden",
       }}
     >
-      <div className="mx-auto max-w-[1240px] section-px py-[120px]">
+      {/* Leaves background */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage:
+            "url('https://customer-assets.emergentagent.com/job_b6a78a8c-323d-42c1-ae59-de00e052239c/artifacts/kfabpg6f_image.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          opacity: 0.55,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+      {/* Dark overlay for readability */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "radial-gradient(ellipse at center, rgba(8,8,10,0.55) 0%, rgba(8,8,10,0.78) 60%, rgba(8,8,10,0.9) 100%)",
+          pointerEvents: "none",
+          zIndex: 1,
+        }}
+      />
+      <div className="mx-auto max-w-[1240px] section-px py-[120px]" style={{ position: "relative", zIndex: 2 }}>
         <div className="mono-eyebrow mb-10">
           <span style={{ color: "var(--mo-accent)" }}>//</span> By the numbers
         </div>
