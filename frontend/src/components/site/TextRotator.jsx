@@ -20,6 +20,12 @@ import { useEffect, useRef } from "react";
  *   via a ref, done outside React's render cycle) so the reset is
  *   invisible and the loop reads as infinite.
  */
+// Height of each rotator slot, in em. Must be tall enough to fit ascenders
+// and descenders of the (italic serif) font without clipping. The stack is
+// shifted by exactly this amount per tick, so item height and shift stay in
+// sync.
+const SLOT_EM = 1.35;
+
 export default function TextRotator({
   words = [],
   interval = 2500,
@@ -42,7 +48,7 @@ export default function TextRotator({
 
       indexRef.current += 1;
       el.style.transition = "transform 0.7s cubic-bezier(0.76,0,0.24,1)";
-      el.style.transform = `translateY(-${indexRef.current}em)`;
+      el.style.transform = `translateY(-${indexRef.current * SLOT_EM}em)`;
 
       if (indexRef.current === n) {
         setTimeout(() => {
@@ -68,11 +74,15 @@ export default function TextRotator({
     <span
       className={`relative inline-block overflow-hidden align-bottom ${className}`}
       style={{
-        height: "1em",
+        height: `${SLOT_EM}em`,
+        // Nudge the whole rotator down slightly so its baseline aligns
+        // with the surrounding "1em line-height" text (the extra room
+        // now lives above and below the glyphs, not inside them).
+        verticalAlign: "-0.18em",
         maskImage:
-          "linear-gradient(to bottom, transparent 0%, #000 26%, #000 74%, transparent 100%)",
+          "linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%)",
         WebkitMaskImage:
-          "linear-gradient(to bottom, transparent 0%, #000 26%, #000 74%, transparent 100%)",
+          "linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%)",
         ...style,
       }}
     >
@@ -85,7 +95,11 @@ export default function TextRotator({
           <span
             key={`${w}-${i}`}
             className="block whitespace-nowrap"
-            style={{ height: "1em", lineHeight: "1em", paddingRight: "0.06em" }}
+            style={{
+              height: `${SLOT_EM}em`,
+              lineHeight: `${SLOT_EM}em`,
+              paddingRight: "0.06em",
+            }}
           >
             {w}
           </span>
