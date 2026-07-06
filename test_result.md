@@ -157,10 +157,7 @@ metadata:
   run_ui: true
 
 test_plan:
-  current_focus:
-    - "Push-mode background is the workspace illustration at natural aspect with no zoom and no purple tint"
-    - "Examples card is positioned INSIDE the monitor screen area in Push mode"
-    - "Pull mode layout unchanged"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
