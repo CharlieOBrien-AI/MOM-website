@@ -300,17 +300,24 @@ function ReelPreview({ mode, kicker, title }) {
   const isPush = mode === "push";
 
   // Pull mode → the original violet glow.
-  // Push mode → we swap the flat glow for a tight crop of the monitor
-  // display area from the Midnight Owl workspace illustration. The
-  // monitor screen sits at roughly (46.5–78.5% × 29.4–67% ) of the
-  // source image (centre at 62.5%, 48.2%). Zooming background-size to
-  // ~300% of the container height guarantees the black display area
-  // fully covers the 9:14 thumbnail — no bezel, no frame, just screen.
+  // Push mode → tight crop of just the monitor display area from the
+  // Midnight Owl workspace illustration.
+  //
+  // Source image is 1672×941 (aspect 1.777). The black display area
+  // sits at x: 46.5%–78.5% (centre 62.5%) and y: 29.4%–67% (centre 48.2%).
+  //
+  // With background-size: auto 380% (image height = 3.8 × container height)
+  // and a 9:14 container, the correct CSS background-position that puts
+  // the screen centre exactly at the container centre is:
+  //   pos_x = (Cw/2 − 0.625·Iw) / (Cw − Iw) ≈ 63.8%
+  //   pos_y = (Ch/2 − 0.482·Ih) / (Ch − Ih) ≈ 47.6%
+  // These values are size-independent because both aspect ratios are fixed,
+  // so the crop stays locked to the screen across every viewport.
   const screenCropStyle = {
     backgroundImage: `url(${OWL_WORKSPACE_URL})`,
     backgroundRepeat: "no-repeat",
-    backgroundPosition: "64% 47%",
-    backgroundSize: "auto 300%",
+    backgroundPosition: "63.8% 47.6%",
+    backgroundSize: "auto 380%",
     borderRadius: "inherit",
   };
 
@@ -327,32 +334,10 @@ function ReelPreview({ mode, kicker, title }) {
       tilt={4}
       style={{ aspectRatio: "9 / 14" }}
     >
-      {/* Base layer: monitor-screen crop (push) OR violet glow (pull) */}
+      {/* Base layer: monitor-screen crop (push) OR violet glow (pull).
+          In push mode this is the ONLY visual — no tint, no overlays,
+          just the pure black display area from the illustration. */}
       <div className="absolute inset-0" style={isPush ? screenCropStyle : pullGlowStyle} />
-
-      {/* Push-only: subtle inner shadow + faint scanline sheen so the
-          "monitor screen" feels lit from within, not flat black. */}
-      {isPush && (
-        <>
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(120% 80% at 50% 30%, rgba(164, 74, 255, 0.10) 0%, transparent 55%), radial-gradient(120% 80% at 50% 100%, rgba(212, 162, 86, 0.10) 0%, transparent 60%)",
-              borderRadius: "inherit",
-            }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              boxShadow:
-                "inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 20px 30px -20px rgba(0,0,0,0.75), inset 0 -20px 30px -20px rgba(0,0,0,0.6)",
-              borderRadius: "inherit",
-              pointerEvents: "none",
-            }}
-          />
-        </>
-      )}
 
       <div className="noise-overlay" aria-hidden="true" />
 
