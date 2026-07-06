@@ -44,13 +44,13 @@
   }
 
   html {
-    background: var(--mo-bg);
+    background: #06060a;
     color-scheme: dark;
   }
 
   body {
     margin: 0;
-    background: var(--mo-bg);
+    background: transparent;
     color: var(--mo-fg);
     font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     -webkit-font-smoothing: antialiased;
@@ -176,5 +176,244 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+  .mo-glass {
+    --mo-glass-tilt: none !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   LIQUID GLASS SYSTEM
+   ───────────────────────────────────────────────────────────────────────── */
+
+@layer utilities {
+  /* Site-wide backdrop: fixed layer of slow-drifting violet orbs behind
+     every glass surface, so panels have real color/light to refract. */
+  .mo-bg-orbs {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    background: #06060a;
+  }
+
+  .mo-bg-vignette {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(120% 80% at 50% 0%, rgba(50, 20, 90, 0.35), rgba(6, 6, 10, 0) 55%),
+      radial-gradient(80% 60% at 100% 100%, rgba(90, 30, 140, 0.20), rgba(6, 6, 10, 0) 60%),
+      radial-gradient(80% 60% at 0% 100%, rgba(30, 20, 80, 0.18), rgba(6, 6, 10, 0) 60%);
+  }
+
+  .mo-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.55;
+    will-change: transform;
+  }
+
+  .mo-orb--a {
+    top: -8%;
+    left: 4%;
+    width: 46vw;
+    height: 46vw;
+    background: radial-gradient(circle, rgba(164, 74, 255, 0.65), rgba(164, 74, 255, 0) 65%);
+    animation: mo-orb-a 24s ease-in-out infinite alternate;
+  }
+  .mo-orb--b {
+    top: 12%;
+    right: -6%;
+    width: 40vw;
+    height: 40vw;
+    background: radial-gradient(circle, rgba(120, 60, 220, 0.55), rgba(120, 60, 220, 0) 65%);
+    animation: mo-orb-b 30s ease-in-out infinite alternate;
+  }
+  .mo-orb--c {
+    top: 42%;
+    left: 24%;
+    width: 34vw;
+    height: 34vw;
+    background: radial-gradient(circle, rgba(212, 162, 86, 0.22), rgba(212, 162, 86, 0) 65%);
+    animation: mo-orb-c 34s ease-in-out infinite alternate;
+  }
+  .mo-orb--d {
+    bottom: 6%;
+    left: -8%;
+    width: 42vw;
+    height: 42vw;
+    background: radial-gradient(circle, rgba(80, 40, 180, 0.5), rgba(80, 40, 180, 0) 65%);
+    animation: mo-orb-d 28s ease-in-out infinite alternate;
+  }
+  .mo-orb--e {
+    bottom: 0%;
+    right: 8%;
+    width: 38vw;
+    height: 38vw;
+    background: radial-gradient(circle, rgba(185, 109, 255, 0.42), rgba(185, 109, 255, 0) 65%);
+    animation: mo-orb-e 32s ease-in-out infinite alternate;
+  }
+
+  @keyframes mo-orb-a {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(6vw, 4vh, 0) scale(1.08); }
+  }
+  @keyframes mo-orb-b {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(-5vw, 3vh, 0) scale(1.1); }
+  }
+  @keyframes mo-orb-c {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(3vw, -4vh, 0) scale(1.06); }
+  }
+  @keyframes mo-orb-d {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(4vw, -3vh, 0) scale(1.09); }
+  }
+  @keyframes mo-orb-e {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(-3vw, -3vh, 0) scale(1.07); }
+  }
+
+  .mo-bg-grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.9 0 0 0 0 0.9 0 0 0 0 0.9 0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  /* ── Liquid glass surface ─────────────────────────────────────────────── */
+
+  .mo-glass {
+    --mo-glass-tilt: none;
+    --gx: 50%;
+    --gy: 50%;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 55%),
+      linear-gradient(180deg, rgba(20, 15, 40, 0.28), rgba(10, 8, 22, 0.42));
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    backdrop-filter: blur(22px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+      0 20px 60px -22px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(255, 255, 255, 0.02);
+    transform: var(--mo-glass-tilt);
+    transition:
+      transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 380ms ease,
+      border-color 380ms ease;
+    transform-style: preserve-3d;
+  }
+
+  /* Static (non-interactive) subvariant — still glassy but no cursor tricks */
+  .mo-glass:not(.mo-glass-interactive) {
+    transition: none;
+  }
+
+  .mo-glass-interactive {
+    cursor: pointer;
+  }
+
+  .mo-glass-interactive:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.22),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.4),
+      0 34px 90px -22px rgba(164, 74, 255, 0.35),
+      0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+
+  .mo-glass-sheen {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(
+      320px 320px at var(--gx) var(--gy),
+      rgba(255, 255, 255, 0.18),
+      rgba(164, 74, 255, 0.08) 40%,
+      rgba(255, 255, 255, 0) 70%
+    );
+    opacity: 0;
+    transition: opacity 320ms ease;
+    /* Sit behind static content but above the surface tint — the
+       `isolation: isolate` on `.mo-glass` scopes this negative z-index. */
+    z-index: -1;
+    mix-blend-mode: screen;
+  }
+  .mo-glass-interactive:hover .mo-glass-sheen {
+    opacity: 1;
+  }
+
+  .mo-glass-ripples {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    overflow: hidden;
+    /* Ripples paint above content — like actual water ripples on glass. */
+    z-index: 2;
+  }
+
+  .mo-glass-ripple {
+    position: absolute;
+    border-radius: 999px;
+    transform: translate(-50%, -50%) scale(0);
+    pointer-events: none;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.36) 0%,
+      rgba(164, 74, 255, 0.22) 40%,
+      rgba(255, 255, 255, 0) 70%
+    );
+    animation: mo-ripple 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    mix-blend-mode: screen;
+  }
+
+  @keyframes mo-ripple {
+    from { transform: translate(-50%, -50%) scale(0); opacity: 0.9; }
+    to   { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+  }
+
+  /* Content is intentionally NOT positioned; using `display: contents` means
+     the wrapper disappears from the box tree entirely, so children behave as
+     if they were direct descendants of `.mo-glass` (including anchoring
+     their own absolutely-positioned children to it). */
+  .mo-glass-content {
+    display: contents;
+  }
+
+  /* Optional variants ---------------------------------------------------- */
+
+  /* Slightly denser panel — for bigger surfaces like the Contact card */
+  .mo-glass-strong {
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.03) 55%),
+      linear-gradient(180deg, rgba(24, 18, 46, 0.42), rgba(10, 8, 22, 0.55));
+    -webkit-backdrop-filter: blur(28px) saturate(170%);
+    backdrop-filter: blur(28px) saturate(170%);
+  }
+
+  /* Pill CTA — used on Nav CTA, Hero primary CTA, etc. */
+  .mo-glass-pill {
+    border-radius: 999px;
+  }
+
+  /* Soft edge accent to catch the light on top rims (Apple-ish highlight) */
+  .mo-glass-lit {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.28),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.4),
+      0 24px 70px -22px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(255, 255, 255, 0.03);
   }
 }

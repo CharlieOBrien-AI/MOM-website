@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import GlassSurface from "@/components/glass/GlassSurface";
 import { STATS } from "@/constants/testIds";
 
 function CountUp({ target, prefix = "", suffix = "", duration = 1400 }) {
@@ -70,9 +71,7 @@ export default function Stats() {
       data-testid={STATS.root}
       style={{
         position: "relative",
-        background: "linear-gradient(180deg, #08080a 0%, #0a0a0b 100%)",
-        borderTop: "1px solid var(--mo-line)",
-        borderBottom: "1px solid var(--mo-line)",
+        background: "transparent",
         overflow: "hidden",
       }}
     >
@@ -87,19 +86,19 @@ export default function Stats() {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          opacity: 0.55,
+          opacity: 0.45,
           pointerEvents: "none",
           zIndex: 0,
         }}
       />
-      {/* Dark overlay for readability */}
+      {/* Soft overlay for readability — lets orb violet mix with leaves */}
       <div
         aria-hidden="true"
         style={{
           position: "absolute",
           inset: 0,
           background:
-            "radial-gradient(ellipse at center, rgba(8,8,10,0.55) 0%, rgba(8,8,10,0.78) 60%, rgba(8,8,10,0.9) 100%)",
+            "radial-gradient(ellipse at center, rgba(6,6,10,0.35) 0%, rgba(6,6,10,0.65) 65%, rgba(6,6,10,0.82) 100%)",
           pointerEvents: "none",
           zIndex: 1,
         }}
@@ -108,13 +107,13 @@ export default function Stats() {
         <div className="mono-eyebrow mb-10">
           <span style={{ color: "var(--mo-accent)" }}>//</span> By the numbers
         </div>
-        <div className="grid gap-8 md:grid-cols-3 md:gap-12">
+        <div className="grid gap-6 md:grid-cols-3 md:gap-8">
           {items.map((it, i) => (
-            <div
+            <GlassSurface
               key={i}
               data-testid={it.testid}
-              className="border-l pl-6"
-              style={{ borderColor: "rgba(164,74,255,0.35)" }}
+              className="rounded-2xl p-8"
+              tilt={2.5}
             >
               <div
                 style={{
@@ -128,7 +127,7 @@ export default function Stats() {
                 {it.value}
               </div>
               <div
-                className="mt-4 max-w-[260px] text-[13px] leading-[1.6]"
+                className="mt-4 max-w-[280px] text-[13px] leading-[1.6]"
                 style={{
                   color: "var(--mo-fg-dim)",
                   fontFamily: "JetBrains Mono, monospace",
@@ -136,7 +135,7 @@ export default function Stats() {
               >
                 {it.caption}
               </div>
-            </div>
+            </GlassSurface>
           ))}
         </div>
       </div>

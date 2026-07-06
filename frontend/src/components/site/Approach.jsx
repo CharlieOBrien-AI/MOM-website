@@ -1,4 +1,5 @@
 import { useState } from "react";
+import GlassSurface from "@/components/glass/GlassSurface";
 import PremiumToggle from "./PremiumToggle";
 import { APPROACH } from "@/constants/testIds";
 
@@ -6,7 +7,7 @@ import { APPROACH } from "@/constants/testIds";
  * Approach
  *
  * The centerpiece.
- * The Push/Pull toggle changes the background of the entire section (day ↔ night owl).
+ * The Push/Pull toggle changes the copy of the entire section.
  * A small "video examples" box in the foreground acts as a passive showcase
  * of what pull vs push content actually looks like.
  */
@@ -46,7 +47,7 @@ export default function Approach() {
       id="approach"
       data-testid={APPROACH.root}
       className="relative overflow-hidden"
-      style={{ minHeight: "min(120vh, 1080px)", background: "var(--mo-bg)" }}
+      style={{ minHeight: "min(120vh, 1080px)", background: "transparent" }}
     >
       {/* Foreground content */}
       <div className="relative mx-auto flex max-w-[1240px] flex-col gap-16 section-px pb-[140px] pt-[120px] lg:min-h-[100vh] lg:flex-row lg:items-center lg:gap-20">
@@ -90,9 +91,9 @@ export default function Approach() {
             </div>
           </div>
 
-          <div
-            className="mt-8 border-l pl-5"
-            style={{ borderColor: "var(--mo-line-strong)" }}
+          <GlassSurface
+            interactive={false}
+            className="mt-8 rounded-xl px-5 py-4"
           >
             <div
               className="text-[10px] tracking-[0.28em] uppercase"
@@ -124,7 +125,7 @@ export default function Approach() {
             >
               {active.chip}
             </div>
-          </div>
+          </GlassSurface>
         </div>
 
         {/* Passive video-examples box */}
@@ -132,13 +133,9 @@ export default function Approach() {
           data-testid={APPROACH.captionCard}
           className="w-full lg:flex-1"
         >
-          <div
-            className="rounded-2xl border p-6 backdrop-blur-md sm:p-7"
-            style={{
-              borderColor: "var(--mo-line-strong)",
-              background: "rgba(10,10,11,0.55)",
-              boxShadow: "0 40px 80px -30px rgba(0,0,0,0.7)",
-            }}
+          <GlassSurface
+            interactive={false}
+            className="mo-glass-strong rounded-2xl p-6 sm:p-7"
           >
             <div className="flex items-center justify-between">
               <div
@@ -179,7 +176,7 @@ export default function Approach() {
                 ? "People lean in. Retention holds. Trust compounds."
                 : "People scroll past. Reach rented. No trust built."}
             </div>
-          </div>
+          </GlassSurface>
         </div>
       </div>
     </section>
@@ -187,25 +184,19 @@ export default function Approach() {
 }
 
 function ReelPreview({ mode, kicker, title }) {
-  const bg =
-    mode === "pull"
-      ? "linear-gradient(160deg, #14121a 0%, #0a0a0b 100%)"
-      : "linear-gradient(160deg, #1a1712 0%, #0a0a0b 100%)";
   const glow =
     mode === "pull"
-      ? "radial-gradient(80% 50% at 50% 20%, rgba(164,74,255,0.22), transparent 70%)"
-      : "radial-gradient(80% 50% at 50% 20%, rgba(212,162,86,0.20), transparent 70%)";
+      ? "radial-gradient(80% 50% at 50% 20%, rgba(164,74,255,0.28), transparent 70%)"
+      : "radial-gradient(80% 50% at 50% 20%, rgba(212,162,86,0.26), transparent 70%)";
 
   return (
-    <div
-      className="relative overflow-hidden rounded-lg border transition-transform duration-500 hover:-translate-y-0.5"
-      style={{
-        aspectRatio: "9 / 14",
-        borderColor: "rgba(255,255,255,0.08)",
-        background: bg,
-      }}
+    <GlassSurface
+      className="relative rounded-lg"
+      contentClassName="absolute inset-0"
+      tilt={4}
+      style={{ aspectRatio: "9 / 14" }}
     >
-      <div className="absolute inset-0" style={{ background: glow }} />
+      <div className="absolute inset-0" style={{ background: glow, borderRadius: "inherit" }} />
       <div className="noise-overlay" aria-hidden="true" />
 
       {/* play glyph */}
@@ -214,6 +205,7 @@ function ReelPreview({ mode, kicker, title }) {
         style={{
           borderColor: "rgba(255,255,255,0.28)",
           background: "rgba(10,10,11,0.4)",
+          zIndex: 4,
         }}
       >
         <span
@@ -227,7 +219,7 @@ function ReelPreview({ mode, kicker, title }) {
         />
       </div>
 
-      <div className="absolute inset-x-2.5 bottom-2.5">
+      <div className="absolute inset-x-2.5 bottom-2.5" style={{ zIndex: 4 }}>
         <div
           className="text-[9px] tracking-[0.16em] uppercase"
           style={{
@@ -249,6 +241,6 @@ function ReelPreview({ mode, kicker, title }) {
           {title}
         </div>
       </div>
-    </div>
+    </GlassSurface>
   );
 }

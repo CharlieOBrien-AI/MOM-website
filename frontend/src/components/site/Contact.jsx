@@ -1,3 +1,4 @@
+import GlassSurface from "@/components/glass/GlassSurface";
 import { CONTACT } from "@/constants/testIds";
 
 export default function Contact() {
@@ -6,16 +7,27 @@ export default function Contact() {
       id="contact"
       data-testid={CONTACT.root}
       className="relative overflow-hidden"
+      style={{ background: "transparent" }}
     >
       <div className="mx-auto max-w-[1240px] section-px pb-[120px]">
-        <div
-          className="relative overflow-hidden rounded-3xl border p-[clamp(56px,8vw,120px)_40px] text-center"
+        <GlassSurface
+          interactive={false}
+          className="mo-glass-strong relative overflow-hidden rounded-3xl text-center"
           style={{
-            borderColor: "rgba(212,162,86,0.24)",
-            background:
-              "radial-gradient(120% 100% at 50% 0%, rgba(212,162,86,0.10), rgba(10,10,11,0) 60%), linear-gradient(180deg, #0a0a0b, #08080a)",
+            padding: "clamp(56px, 8vw, 120px) 40px",
           }}
         >
+          {/* warm inner wash keeps the owl-eye warmth from the original */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(120% 100% at 50% 0%, rgba(212,162,86,0.14), rgba(10,10,11,0) 60%)",
+              borderRadius: "inherit",
+              pointerEvents: "none",
+            }}
+          />
           <div className="noise-overlay" aria-hidden="true" />
 
           <div className="relative flex justify-center gap-6">
@@ -72,27 +84,28 @@ export default function Contact() {
             Book a free consultation session with us.
           </p>
 
-          <a
-            href="mailto:hello@midnightowl.media"
-            data-testid={CONTACT.cta}
-            className="group relative mt-10 inline-flex items-center gap-2 rounded-full px-8 py-4 text-[12px] font-medium tracking-[0.18em] uppercase transition-transform duration-300 hover:-translate-y-0.5"
-            style={{
-              fontFamily: "JetBrains Mono, monospace",
-              background: "var(--mo-fg)",
-              color: "var(--mo-bg)",
-              boxShadow:
-                "0 20px 60px -18px rgba(164,74,255,0.6), 0 0 0 1px rgba(255,255,255,0.06)",
-            }}
-          >
-            Book a call
-            <span
-              aria-hidden="true"
-              className="transition-transform duration-300 group-hover:translate-x-1"
+          <div className="relative mt-10 inline-flex">
+            <GlassSurface
+              as="a"
+              href="mailto:hello@midnightowl.media"
+              data-testid={CONTACT.cta}
+              className="mo-glass-pill mo-glass-lit group inline-flex items-center gap-2 px-8 py-4 text-[12px] font-medium tracking-[0.18em] uppercase"
+              tilt={2.5}
+              style={{
+                fontFamily: "JetBrains Mono, monospace",
+                color: "var(--mo-fg)",
+              }}
             >
-              →
-            </span>
-          </a>
-        </div>
+              Book a call
+              <span
+                aria-hidden="true"
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              >
+                →
+              </span>
+            </GlassSurface>
+          </div>
+        </GlassSurface>
       </div>
     </section>
   );

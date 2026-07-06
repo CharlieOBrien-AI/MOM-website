@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import GlassSurface from "@/components/glass/GlassSurface";
 import { NAV } from "@/constants/testIds";
 
 export default function Nav() {
@@ -24,9 +25,17 @@ export default function Nav() {
       data-testid={NAV.root}
       className="fixed inset-x-0 top-0 z-50 transition-all duration-500"
       style={{
-        background: scrolled ? "rgba(10, 10, 11, 0.7)" : "rgba(10, 10, 11, 0.15)",
-        borderBottom: scrolled ? "1px solid var(--mo-line)" : "1px solid transparent",
-        backdropFilter: "blur(18px) saturate(140%)",
+        background: scrolled
+          ? "linear-gradient(180deg, rgba(10,8,22,0.55), rgba(10,8,22,0.35))"
+          : "linear-gradient(180deg, rgba(10,8,22,0.20), rgba(10,8,22,0.05))",
+        borderBottom: scrolled
+          ? "1px solid rgba(255,255,255,0.10)"
+          : "1px solid transparent",
+        backdropFilter: "blur(22px) saturate(160%)",
+        WebkitBackdropFilter: "blur(22px) saturate(160%)",
+        boxShadow: scrolled
+          ? "inset 0 1px 0 rgba(255,255,255,0.10), 0 12px 40px -20px rgba(0,0,0,0.5)"
+          : "inset 0 1px 0 rgba(255,255,255,0.05)",
       }}
     >
       <div className="mx-auto flex h-[68px] max-w-[1240px] items-center justify-between section-px">
@@ -71,15 +80,17 @@ export default function Nav() {
           ))}
         </nav>
 
-        <a
+        <GlassSurface
+          as="a"
           href="#contact"
           data-testid={NAV.cta}
-          className="group inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-medium tracking-[0.14em] uppercase transition-all"
+          tilt={2.5}
+          className="mo-glass-pill mo-glass-lit group inline-flex items-center gap-2 px-4 py-2 text-[11px] font-medium tracking-[0.14em] uppercase"
           style={{
             fontFamily: "JetBrains Mono, monospace",
-            background: "var(--mo-fg)",
-            color: "var(--mo-bg)",
-            boxShadow: "0 4px 24px -8px rgba(164,74,255,0.4)",
+            color: "var(--mo-fg)",
+            background:
+              "linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.06) 60%), linear-gradient(180deg, rgba(24,18,46,0.35), rgba(10,8,22,0.5))",
           }}
         >
           Start a project
@@ -89,7 +100,7 @@ export default function Nav() {
           >
             →
           </span>
-        </a>
+        </GlassSurface>
       </div>
     </header>
   );

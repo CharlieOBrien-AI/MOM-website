@@ -1,22 +1,23 @@
+import GlassSurface from "@/components/glass/GlassSurface";
 import { WORK } from "@/constants/testIds";
 
 const items = [
   {
     title: "The $40k hiring mistake",
     kicker: "Founder story",
-    hue: "linear-gradient(155deg, #1a1410 0%, #050506 70%)",
+    hue: "linear-gradient(155deg, rgba(26,20,16,0.55) 0%, rgba(10,10,11,0.35) 70%)",
     accent: "#c48a44",
   },
   {
     title: "Why we killed our best feature",
     kicker: "Behind the scenes",
-    hue: "linear-gradient(155deg, #101418 0%, #050506 70%)",
+    hue: "linear-gradient(155deg, rgba(16,20,24,0.55) 0%, rgba(10,10,11,0.35) 70%)",
     accent: "#7fa1c0",
   },
   {
     title: "What I wish I knew at year one",
     kicker: "Lessons",
-    hue: "linear-gradient(155deg, #15100f 0%, #050506 70%)",
+    hue: "linear-gradient(155deg, rgba(21,16,15,0.55) 0%, rgba(10,10,11,0.35) 70%)",
     accent: "#d4a256",
   },
 ];
@@ -58,42 +59,48 @@ export default function Work() {
         </a>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
         {items.map((it, i) => (
-          <a
-            href="#contact"
+          <GlassSurface
             key={i}
-            className="group relative block overflow-hidden rounded-2xl border transition-transform duration-500 hover:-translate-y-1"
-            style={{
-              aspectRatio: "9 / 13",
-              borderColor: "var(--mo-line)",
-              background: it.hue,
-            }}
+            as="a"
+            href="#contact"
+            className="group block rounded-2xl"
+            contentClassName="absolute inset-0"
+            tilt={4}
+            style={{ aspectRatio: "9 / 13" }}
           >
+            {/* Colored inner wash so each tile has its own hue over the glass */}
             <div
               aria-hidden="true"
-              className="absolute inset-0 opacity-70 transition-transform duration-[900ms] ease-out group-hover:scale-105"
+              className="absolute inset-0"
+              style={{ background: it.hue, borderRadius: "inherit" }}
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 opacity-80 transition-transform duration-[900ms] ease-out group-hover:scale-105"
               style={{
-                background:
-                  `radial-gradient(80% 60% at 50% 30%, ${it.accent}22, transparent 70%)`,
+                background: `radial-gradient(80% 60% at 50% 30%, ${it.accent}33, transparent 70%)`,
+                borderRadius: "inherit",
               }}
             />
-            <div className="noise-overlay" aria-hidden="true" />
             <div
               aria-hidden="true"
               className="absolute inset-0"
               style={{
                 background:
-                  "linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.85) 100%)",
+                  "linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.75) 100%)",
+                borderRadius: "inherit",
               }}
             />
 
             <div
               className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full border transition-transform duration-500 group-hover:scale-110"
               style={{
-                borderColor: "rgba(255,255,255,0.24)",
+                borderColor: "rgba(255,255,255,0.28)",
                 background: "rgba(10,10,11,0.35)",
                 backdropFilter: "blur(6px)",
+                zIndex: 4,
               }}
             >
               <span
@@ -107,7 +114,7 @@ export default function Work() {
               />
             </div>
 
-            <div className="absolute inset-x-5 bottom-5">
+            <div className="absolute inset-x-5 bottom-5" style={{ zIndex: 4 }}>
               <div
                 className="text-white"
                 style={{
@@ -128,7 +135,7 @@ export default function Work() {
                 {it.kicker}
               </div>
             </div>
-          </a>
+          </GlassSurface>
         ))}
       </div>
     </section>

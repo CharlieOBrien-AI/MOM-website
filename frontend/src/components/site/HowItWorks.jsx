@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { PROCESS } from "@/constants/testIds";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import GlassSurface from "@/components/glass/GlassSurface";
+import { PROCESS } from "@/constants/testIds";
 
 const steps = [
   {
@@ -73,11 +74,7 @@ export default function HowItWorks() {
   return (
     <section
       data-testid={PROCESS.root}
-      style={{
-        background: "linear-gradient(180deg, #08080a, #0a0a0b)",
-        borderTop: "1px solid var(--mo-line)",
-        borderBottom: "1px solid var(--mo-line)",
-      }}
+      style={{ background: "transparent", position: "relative" }}
     >
       <div className="mx-auto max-w-[1240px] section-px py-[120px]">
         <div className="mono-eyebrow mb-4">
@@ -113,131 +110,125 @@ export default function HowItWorks() {
               {" / "}
               {String(total).padStart(2, "0")}
             </div>
-            <button
+            <GlassSurface
+              as="button"
               type="button"
               onClick={prev}
               data-testid="process-prev"
               aria-label="Previous step"
-              className="grid h-11 w-11 place-items-center rounded-full border transition-all duration-300 hover:-translate-x-0.5 hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)]"
-              style={{
-                borderColor: "var(--mo-line-strong)",
-                color: "var(--mo-fg-dim)",
-                background: "rgba(255,255,255,0.02)",
-              }}
+              tilt={2}
+              className="grid h-11 w-11 place-items-center rounded-full"
+              style={{ color: "var(--mo-fg-dim)" }}
             >
               <ChevronLeft size={18} strokeWidth={1.6} />
-            </button>
-            <button
+            </GlassSurface>
+            <GlassSurface
+              as="button"
               type="button"
               onClick={next}
               data-testid="process-next"
               aria-label="Next step"
-              className="grid h-11 w-11 place-items-center rounded-full border transition-all duration-300 hover:translate-x-0.5 hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)]"
-              style={{
-                borderColor: "var(--mo-line-strong)",
-                color: "var(--mo-fg-dim)",
-                background: "rgba(255,255,255,0.02)",
-              }}
+              tilt={2}
+              className="grid h-11 w-11 place-items-center rounded-full"
+              style={{ color: "var(--mo-fg-dim)" }}
             >
               <ChevronRight size={18} strokeWidth={1.6} />
-            </button>
+            </GlassSurface>
           </div>
         </div>
 
         {/* Carousel — full-width single step */}
-        <div
-          ref={trackRef}
-          className="relative mt-12 overflow-hidden rounded-2xl border"
-          style={{
-            borderColor: "var(--mo-line)",
-            background: "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0))",
-          }}
+        <GlassSurface
+          interactive={false}
+          className="relative mt-12 rounded-2xl overflow-hidden"
         >
-          <div
-            className="flex"
-            style={{
-              width: `${total * 100}%`,
-              transform: `translate3d(-${(idx * 100) / total}%, 0, 0)`,
-              transition: "transform 600ms cubic-bezier(0.4, 0, 0.2, 1)",
-            }}
-          >
-            {steps.map((s) => (
-              <div
-                key={s.n}
-                className="grid items-start gap-10 p-8 sm:p-12 md:grid-cols-[220px_1fr] md:p-16"
-                style={{ width: `${100 / total}%`, flexShrink: 0 }}
-              >
-                <div>
-                  <div
-                    className="text-[68px] leading-none"
-                    style={{
-                      fontFamily: "Instrument Serif, serif",
-                      color: "var(--mo-accent)",
-                      letterSpacing: "-0.02em",
-                    }}
-                  >
-                    {s.n}
-                  </div>
-                  <div
-                    className="mt-3 text-[10px] tracking-[0.28em] uppercase"
-                    style={{
-                      color: "var(--mo-mute)",
-                      fontFamily: "JetBrains Mono, monospace",
-                    }}
-                  >
-                    Step {s.n}
-                  </div>
-                </div>
-                <div>
-                  <h3
-                    className="text-white"
-                    style={{
-                      fontFamily: "Instrument Serif, serif",
-                      fontSize: "clamp(32px, 4vw, 56px)",
-                      letterSpacing: "-0.015em",
-                      lineHeight: 1.05,
-                    }}
-                  >
-                    {s.title}
-                  </h3>
-                  <p
-                    className="mt-5 max-w-[560px] text-[15px] leading-[1.75]"
-                    style={{
-                      color: "var(--mo-fg)",
-                      fontFamily: "JetBrains Mono, monospace",
-                    }}
-                  >
-                    {s.body}
-                  </p>
-                  <p
-                    className="mt-4 max-w-[560px] text-[13px] leading-[1.7]"
-                    style={{
-                      color: "var(--mo-fg-dim)",
-                      fontFamily: "JetBrains Mono, monospace",
-                    }}
-                  >
-                    {s.detail}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Progress bar */}
-          <div
-            className="h-[2px] w-full"
-            style={{ background: "rgba(255,255,255,0.04)" }}
-          >
+          <div ref={trackRef}>
             <div
+              className="flex"
               style={{
-                width: `${((idx + 1) / total) * 100}%`,
-                height: "100%",
-                background: "var(--mo-accent)",
-                transition: "width 500ms cubic-bezier(0.4, 0, 0.2, 1)",
+                width: `${total * 100}%`,
+                transform: `translate3d(-${(idx * 100) / total}%, 0, 0)`,
+                transition: "transform 600ms cubic-bezier(0.4, 0, 0.2, 1)",
               }}
-            />
+            >
+              {steps.map((s) => (
+                <div
+                  key={s.n}
+                  className="grid items-start gap-10 p-8 sm:p-12 md:grid-cols-[220px_1fr] md:p-16"
+                  style={{ width: `${100 / total}%`, flexShrink: 0 }}
+                >
+                  <div>
+                    <div
+                      className="text-[68px] leading-none"
+                      style={{
+                        fontFamily: "Instrument Serif, serif",
+                        color: "var(--mo-accent)",
+                        letterSpacing: "-0.02em",
+                      }}
+                    >
+                      {s.n}
+                    </div>
+                    <div
+                      className="mt-3 text-[10px] tracking-[0.28em] uppercase"
+                      style={{
+                        color: "var(--mo-mute)",
+                        fontFamily: "JetBrains Mono, monospace",
+                      }}
+                    >
+                      Step {s.n}
+                    </div>
+                  </div>
+                  <div>
+                    <h3
+                      className="text-white"
+                      style={{
+                        fontFamily: "Instrument Serif, serif",
+                        fontSize: "clamp(32px, 4vw, 56px)",
+                        letterSpacing: "-0.015em",
+                        lineHeight: 1.05,
+                      }}
+                    >
+                      {s.title}
+                    </h3>
+                    <p
+                      className="mt-5 max-w-[560px] text-[15px] leading-[1.75]"
+                      style={{
+                        color: "var(--mo-fg)",
+                        fontFamily: "JetBrains Mono, monospace",
+                      }}
+                    >
+                      {s.body}
+                    </p>
+                    <p
+                      className="mt-4 max-w-[560px] text-[13px] leading-[1.7]"
+                      style={{
+                        color: "var(--mo-fg-dim)",
+                        fontFamily: "JetBrains Mono, monospace",
+                      }}
+                    >
+                      {s.detail}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Progress bar */}
+            <div
+              className="h-[2px] w-full"
+              style={{ background: "rgba(255,255,255,0.04)" }}
+            >
+              <div
+                style={{
+                  width: `${((idx + 1) / total) * 100}%`,
+                  height: "100%",
+                  background: "var(--mo-accent)",
+                  transition: "width 500ms cubic-bezier(0.4, 0, 0.2, 1)",
+                }}
+              />
+            </div>
           </div>
-        </div>
+        </GlassSurface>
 
         {/* Dot indicators */}
         <div className="mt-6 flex items-center justify-center gap-2">

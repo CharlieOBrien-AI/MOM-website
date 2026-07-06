@@ -1,3 +1,4 @@
+import GlassSurface from "@/components/glass/GlassSurface";
 import { VOICES } from "@/constants/testIds";
 
 const voices = [
@@ -13,12 +14,7 @@ export default function Voices() {
   return (
     <section
       data-testid={VOICES.root}
-      style={{
-        background:
-          "radial-gradient(120% 60% at 50% 0%, rgba(164,74,255,0.05), rgba(10,10,11,0) 55%), linear-gradient(180deg, #08080a 0%, #0a0a0b 100%)",
-        borderTop: "1px solid var(--mo-line)",
-        borderBottom: "1px solid var(--mo-line)",
-      }}
+      style={{ background: "transparent", position: "relative" }}
     >
       <div className="mx-auto max-w-[1240px] section-px py-[120px] text-center">
         <div className="mono-eyebrow mb-4">
@@ -39,62 +35,55 @@ export default function Voices() {
           </span>
         </h2>
 
-        <div className="mt-12 grid gap-4 text-left md:grid-cols-2 lg:grid-cols-3">
-        {voices.map((v) => (
-          <div
-            key={v.name}
-            className="rounded-2xl border p-6 transition-transform duration-500 hover:-translate-y-0.5"
-            style={{
-              borderColor: "var(--mo-line)",
-              background: "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0))",
-            }}
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className="grid h-9 w-9 flex-none place-items-center rounded-full border"
+        <div className="mt-12 grid gap-5 text-left md:grid-cols-2 lg:grid-cols-3">
+          {voices.map((v) => (
+            <GlassSurface key={v.name} className="rounded-2xl p-6" tilt={3}>
+              <div className="flex items-center gap-3">
+                <div
+                  className="grid h-9 w-9 flex-none place-items-center rounded-full border"
+                  style={{
+                    borderColor: "rgba(164,74,255,0.35)",
+                    background: "rgba(164,74,255,0.10)",
+                    fontFamily: "JetBrains Mono, monospace",
+                    fontSize: "11px",
+                    letterSpacing: "0.08em",
+                    color: "var(--mo-accent-strong)",
+                  }}
+                >
+                  {v.initials}
+                </div>
+                <div>
+                  <div
+                    className="text-[13px]"
+                    style={{
+                      color: "var(--mo-fg)",
+                      fontFamily: "JetBrains Mono, monospace",
+                    }}
+                  >
+                    {v.name}
+                  </div>
+                  <div
+                    className="text-[10px] tracking-[0.14em]"
+                    style={{
+                      color: "var(--mo-mute)",
+                      fontFamily: "JetBrains Mono, monospace",
+                    }}
+                  >
+                    {v.handle}
+                  </div>
+                </div>
+              </div>
+              <p
+                className="mt-4 text-[14px] leading-[1.65]"
                 style={{
-                  borderColor: "rgba(164,74,255,0.35)",
-                  background: "rgba(164,74,255,0.08)",
+                  color: "var(--mo-fg-dim)",
                   fontFamily: "JetBrains Mono, monospace",
-                  fontSize: "11px",
-                  letterSpacing: "0.08em",
-                  color: "var(--mo-accent-strong)",
                 }}
               >
-                {v.initials}
-              </div>
-              <div>
-                <div
-                  className="text-[13px]"
-                  style={{
-                    color: "var(--mo-fg)",
-                    fontFamily: "JetBrains Mono, monospace",
-                  }}
-                >
-                  {v.name}
-                </div>
-                <div
-                  className="text-[10px] tracking-[0.14em]"
-                  style={{
-                    color: "var(--mo-mute)",
-                    fontFamily: "JetBrains Mono, monospace",
-                  }}
-                >
-                  {v.handle}
-                </div>
-              </div>
-            </div>
-            <p
-              className="mt-4 text-[14px] leading-[1.65]"
-              style={{
-                color: "var(--mo-fg-dim)",
-                fontFamily: "JetBrains Mono, monospace",
-              }}
-            >
-              {`"${v.quote}"`}
-            </p>
-          </div>
-        ))}
+                {`"${v.quote}"`}
+              </p>
+            </GlassSurface>
+          ))}
         </div>
       </div>
     </section>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import GlassSurface from "@/components/glass/GlassSurface";
 import { FAQ } from "@/constants/testIds";
 
 const faqs = [
@@ -26,16 +27,17 @@ const faqs = [
 
 function Item({ q, a, idx, open, onToggle }) {
   return (
-    <div
-      className="border-t"
-      style={{ borderColor: "var(--mo-line)" }}
+    <GlassSurface
+      className="rounded-2xl mb-3"
+      interactive={true}
+      tilt={1.5}
+      onPointerDown={onToggle}
     >
       <button
         type="button"
-        onClick={onToggle}
         aria-expanded={open}
         data-testid={`faq-item-${idx}`}
-        className="flex w-full items-center justify-between gap-6 py-6 text-left transition-colors hover:text-white"
+        className="flex w-full items-center justify-between gap-6 px-6 py-6 text-left transition-colors hover:text-white"
       >
         <span
           className="text-[18px] sm:text-[22px]"
@@ -60,7 +62,7 @@ function Item({ q, a, idx, open, onToggle }) {
       </button>
 
       <div
-        className="grid transition-[grid-template-rows] duration-500"
+        className="grid transition-[grid-template-rows] duration-500 px-6"
         style={{ gridTemplateRows: open ? "1fr" : "0fr", transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)" }}
       >
         <div className="overflow-hidden">
@@ -75,7 +77,7 @@ function Item({ q, a, idx, open, onToggle }) {
           </p>
         </div>
       </div>
-    </div>
+    </GlassSurface>
   );
 }
 
@@ -116,7 +118,6 @@ export default function FAQSection() {
             onToggle={() => setOpenIdx(openIdx === i ? -1 : i)}
           />
         ))}
-        <div className="border-t" style={{ borderColor: "var(--mo-line)" }} />
       </div>
     </section>
   );

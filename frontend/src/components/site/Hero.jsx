@@ -1,5 +1,6 @@
 import HeroScrubVideo from "./HeroScrubVideo";
 import TextRotator from "./TextRotator";
+import GlassSurface from "@/components/glass/GlassSurface";
 import { HERO } from "@/constants/testIds";
 
 export default function Hero() {
@@ -65,16 +66,17 @@ export default function Hero() {
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-3">
-            <a
+            <GlassSurface
+              as="a"
               href="#contact"
               data-testid={HERO.ctaPrimary}
-              className="group inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-[12px] font-medium tracking-[0.16em] uppercase transition-transform duration-300 hover:translate-y-[-1px]"
+              tilt={3}
+              className="mo-glass-pill mo-glass-lit group inline-flex items-center gap-2 px-6 py-3.5 text-[12px] font-medium tracking-[0.16em] uppercase"
               style={{
                 fontFamily: "JetBrains Mono, monospace",
-                background: "var(--mo-fg)",
-                color: "var(--mo-bg)",
-                boxShadow:
-                  "0 10px 40px -14px rgba(164,74,255,0.55), 0 0 0 1px rgba(255,255,255,0.06)",
+                color: "var(--mo-fg)",
+                background:
+                  "linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.06) 60%), linear-gradient(180deg, rgba(24,18,46,0.35), rgba(10,8,22,0.5))",
               }}
             >
               {"Let's talk"}
@@ -84,21 +86,21 @@ export default function Hero() {
               >
                 →
               </span>
-            </a>
+            </GlassSurface>
 
-            <a
+            <GlassSurface
+              as="a"
               href="#work"
               data-testid={HERO.ctaSecondary}
-              className="group inline-flex items-center gap-2 rounded-full border px-6 py-3.5 text-[12px] font-medium tracking-[0.16em] uppercase transition-colors duration-300"
+              tilt={3}
+              className="mo-glass-pill group inline-flex items-center gap-2 px-6 py-3.5 text-[12px] font-medium tracking-[0.16em] uppercase"
               style={{
                 fontFamily: "JetBrains Mono, monospace",
-                borderColor: "var(--mo-line-strong)",
-                background: "rgba(255,255,255,0.03)",
                 color: "var(--mo-fg)",
               }}
             >
               Explore the work
-            </a>
+            </GlassSurface>
           </div>
         </div>
       </div>

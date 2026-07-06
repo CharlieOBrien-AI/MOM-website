@@ -7,7 +7,10 @@ export default function Footer() {
       data-testid={FOOTER.root}
       style={{
         borderTop: "1px solid var(--mo-line)",
-        background: "#08080a",
+        background:
+          "linear-gradient(180deg, rgba(6,6,10,0) 0%, rgba(10,8,20,0.35) 60%, rgba(10,8,20,0.55) 100%)",
+        backdropFilter: "blur(14px) saturate(140%)",
+        WebkitBackdropFilter: "blur(14px) saturate(140%)",
       }}
     >
       <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-6 section-px py-14">
