@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import GlassSurface from "@/components/glass/GlassSurface";
 import { PROCESS } from "@/constants/testIds";
 
@@ -46,6 +48,28 @@ const steps = [
 ];
 
 export default function HowItWorks() {
+  const [idx, setIdx] = useState(0);
+  const trackRef = useRef(null);
+  const total = steps.length;
+
+  const next = () => setIdx((i) => (i + 1) % total);
+  const prev = () => setIdx((i) => (i - 1 + total) % total);
+
+  // Keyboard support when the section is in view
+  useEffect(() => {
+    const onKey = (e) => {
+      if (!trackRef.current) return;
+      const rect = trackRef.current.getBoundingClientRect();
+      const inView =
+        rect.top < window.innerHeight * 0.75 && rect.bottom > window.innerHeight * 0.25;
+      if (!inView) return;
+      if (e.key === "ArrowRight") next();
+      else if (e.key === "ArrowLeft") prev();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
   return (
     <section
       data-testid={PROCESS.root}
@@ -56,69 +80,122 @@ export default function HowItWorks() {
           <span style={{ color: "var(--mo-accent)" }}>//</span> How it works
         </div>
 
-        <h2
-          className="text-white"
-          style={{
-            fontFamily: "Instrument Serif, serif",
-            fontSize: "clamp(36px, 5vw, 68px)",
-            lineHeight: 1.05,
-            letterSpacing: "-0.015em",
-            maxWidth: "900px",
-          }}
-        >
-          {"How We Create Content That"}{" "}
-          <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
-            Pulls People In.
-          </span>
-        </h2>
+        <div className="flex flex-wrap items-end justify-between gap-8">
+          <h2
+            className="text-white"
+            style={{
+              fontFamily: "Instrument Serif, serif",
+              fontSize: "clamp(36px, 5vw, 68px)",
+              lineHeight: 1.05,
+              letterSpacing: "-0.015em",
+              maxWidth: "900px",
+            }}
+          >
+            {"How We Create Content That"}{" "}
+            <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
+              Pulls People In.
+            </span>
+          </h2>
 
-        {/* Vertical flow — six steps, each with three levels of info:
-            step name → one-sentence outcome → small supporting bullets.
-            A ↓ connector between cards makes the pipeline read top-down. */}
-        <div className="mt-14 flex flex-col">
-          {steps.map((s, i) => (
-            <div key={s.n}>
-              <GlassSurface
-                interactive={false}
-                data-testid={`process-step-${i}`}
-                className="rounded-2xl"
-              >
-                <div className="grid gap-6 p-7 sm:p-9 md:grid-cols-[104px_1fr] md:gap-8 md:p-10">
-                  {/* Level 0 — circled step number */}
-                  <div className="flex md:justify-center">
+          <div className="flex items-center gap-3">
+            <div
+              className="text-[11px] tracking-[0.24em] uppercase"
+              data-testid="process-step-indicator"
+              style={{
+                color: "var(--mo-fg-dim)",
+                fontFamily: "JetBrains Mono, monospace",
+              }}
+            >
+              <span style={{ color: "var(--mo-accent)" }}>
+                {String(idx + 1).padStart(2, "0")}
+              </span>
+              {" / "}
+              {String(total).padStart(2, "0")}
+            </div>
+            <button
+              type="button"
+              onClick={prev}
+              data-testid="process-prev"
+              aria-label="Previous step"
+              className="grid h-11 w-11 place-items-center rounded-full border transition-all duration-300 hover:-translate-x-0.5 hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)]"
+              style={{
+                borderColor: "var(--mo-line-strong)",
+                color: "var(--mo-fg-dim)",
+                background: "rgba(255,255,255,0.02)",
+              }}
+            >
+              <ChevronLeft size={18} strokeWidth={1.6} />
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              data-testid="process-next"
+              aria-label="Next step"
+              className="grid h-11 w-11 place-items-center rounded-full border transition-all duration-300 hover:translate-x-0.5 hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)]"
+              style={{
+                borderColor: "var(--mo-line-strong)",
+                color: "var(--mo-fg-dim)",
+                background: "rgba(255,255,255,0.02)",
+              }}
+            >
+              <ChevronRight size={18} strokeWidth={1.6} />
+            </button>
+          </div>
+        </div>
+
+        {/* Carousel — full-width single step wrapped in the Glass surface */}
+        <div ref={trackRef} className="mt-12">
+          <GlassSurface interactive={false} className="rounded-2xl overflow-hidden">
+            <div
+              className="flex"
+              style={{
+                width: `${total * 100}%`,
+                transform: `translate3d(-${(idx * 100) / total}%, 0, 0)`,
+                transition: "transform 600ms cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+            >
+              {steps.map((s, i) => (
+                <div
+                  key={s.n}
+                  data-testid={`process-step-${i}`}
+                  className="grid items-start gap-10 p-8 sm:p-12 md:grid-cols-[220px_1fr] md:p-16"
+                  style={{ width: `${100 / total}%`, flexShrink: 0 }}
+                >
+                  <div>
                     <div
-                      aria-hidden="true"
-                      className="grid h-14 w-14 place-items-center rounded-full border"
+                      className="text-[68px] leading-none"
                       style={{
-                        borderColor: "rgba(164, 74, 255, 0.45)",
-                        background: "rgba(164, 74, 255, 0.08)",
-                        color: "var(--mo-accent)",
                         fontFamily: "Instrument Serif, serif",
-                        fontSize: "26px",
-                        lineHeight: 1,
+                        color: "var(--mo-accent)",
+                        letterSpacing: "-0.02em",
                       }}
                     >
-                      {s.n}
+                      {String(i + 1).padStart(2, "0")}
+                    </div>
+                    <div
+                      className="mt-3 text-[10px] tracking-[0.28em] uppercase"
+                      style={{
+                        color: "var(--mo-mute)",
+                        fontFamily: "JetBrains Mono, monospace",
+                      }}
+                    >
+                      Step {String(i + 1).padStart(2, "0")}
                     </div>
                   </div>
-
                   <div>
-                    {/* Level 1 — step name */}
                     <h3
                       className="text-white"
                       style={{
                         fontFamily: "Instrument Serif, serif",
-                        fontSize: "clamp(26px, 3vw, 40px)",
+                        fontSize: "clamp(32px, 4vw, 56px)",
                         letterSpacing: "-0.015em",
-                        lineHeight: 1.1,
+                        lineHeight: 1.05,
                       }}
                     >
                       {s.title}
                     </h3>
-
-                    {/* Level 2 — one-sentence outcome */}
                     <p
-                      className="mt-3 max-w-[640px] text-[15px] leading-[1.7]"
+                      className="mt-5 max-w-[600px] text-[15px] leading-[1.75]"
                       style={{
                         color: "var(--mo-fg)",
                         fontFamily: "JetBrains Mono, monospace",
@@ -126,9 +203,7 @@ export default function HowItWorks() {
                     >
                       {s.outcome}
                     </p>
-
-                    {/* Level 3 — small supporting bullets */}
-                    <div className="mt-5 flex flex-wrap gap-x-7 gap-y-2.5">
+                    <div className="mt-6 flex flex-wrap gap-x-7 gap-y-2.5">
                       {s.bullets.map((b) => (
                         <div
                           key={b}
@@ -145,24 +220,42 @@ export default function HowItWorks() {
                     </div>
                   </div>
                 </div>
-              </GlassSurface>
-
-              {/* ↓ connector between steps */}
-              {i < steps.length - 1 && (
-                <div
-                  aria-hidden="true"
-                  className="flex justify-center py-2.5"
-                  style={{
-                    color: "var(--mo-accent)",
-                    fontFamily: "JetBrains Mono, monospace",
-                    fontSize: "18px",
-                    opacity: 0.7,
-                  }}
-                >
-                  ↓
-                </div>
-              )}
+              ))}
             </div>
+
+            {/* Progress bar */}
+            <div
+              className="h-[2px] w-full"
+              style={{ background: "rgba(255,255,255,0.06)" }}
+            >
+              <div
+                style={{
+                  width: `${((idx + 1) / total) * 100}%`,
+                  height: "100%",
+                  background: "var(--mo-accent)",
+                  transition: "width 500ms cubic-bezier(0.4, 0, 0.2, 1)",
+                }}
+              />
+            </div>
+          </GlassSurface>
+        </div>
+
+        {/* Dot indicators */}
+        <div className="mt-6 flex items-center justify-center gap-2">
+          {steps.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              data-testid={`process-dot-${i}`}
+              aria-label={`Go to step ${i + 1}`}
+              onClick={() => setIdx(i)}
+              className="rounded-full transition-all duration-300"
+              style={{
+                height: 6,
+                width: i === idx ? 24 : 6,
+                background: i === idx ? "var(--mo-accent)" : "rgba(255,255,255,0.12)",
+              }}
+            />
           ))}
         </div>
       </div>
