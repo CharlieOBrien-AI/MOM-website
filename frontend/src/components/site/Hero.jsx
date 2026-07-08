@@ -17,7 +17,7 @@ export default function Hero() {
       <div className="relative mx-auto w-full max-w-[1240px] section-px pt-24">
         <div className="max-w-[880px] stagger">
           <div className="mono-eyebrow" data-testid="hero-eyebrow">
-            <span style={{ color: "var(--mo-accent)" }}>//</span> Storytelling-first content studio
+            <span style={{ color: "var(--mo-accent)" }}>//</span> The storytelling studio for founders
           </div>
 
           <h1

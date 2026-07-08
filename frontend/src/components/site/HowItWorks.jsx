@@ -78,7 +78,7 @@ export default function HowItWorks() {
     >
       <div className="mx-auto max-w-[1240px] section-px py-[120px]">
         <div className="mono-eyebrow mb-4">
-          <span style={{ color: "var(--mo-accent)" }}>//</span> How it works
+          <span style={{ color: "var(--mo-accent)" }}>//</span> Simple by design
         </div>
 
         <div className="flex flex-wrap items-end justify-between gap-8">

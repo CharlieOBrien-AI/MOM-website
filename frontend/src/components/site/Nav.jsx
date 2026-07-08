@@ -31,6 +31,7 @@ export default function Nav() {
         borderBottom: scrolled
           ? "1px solid rgba(255,255,255,0.10)"
           : "1px solid transparent",
+        WebkitBackdropFilter: "blur(22px) saturate(160%)",
         backdropFilter: "blur(22px) saturate(160%)",
         WebkitBackdropFilter: "blur(22px) saturate(160%)",
         boxShadow: scrolled

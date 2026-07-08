@@ -18,7 +18,7 @@ export default function Voices() {
     >
       <div className="mx-auto max-w-[1240px] section-px py-[120px] text-center">
         <div className="mono-eyebrow mb-4">
-          <span style={{ color: "var(--mo-accent)" }}>//</span> What people say
+          <span style={{ color: "var(--mo-accent)" }}>//</span> Earned, not bought
         </div>
         <h2
           className="mx-auto max-w-[680px] text-white"

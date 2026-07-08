@@ -102,10 +102,22 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Rebuild the Approach section (#approach) so the Midnight Owl workspace VIDEO becomes the ambient backdrop. Requirements: (1) Video (night → day when played forward) plays night→day on Push click and day→night on Pull click (scrub-based; single source file). (2) Default state is Pull, video paused at frame 0 (night). (3) Video is shown at natural aspect, no zoom/crop. (4) Examples card must be PERFECTLY aligned with the monitor screen area — no cropping. (5) The entire section lives inside ONE large glass UI island (GlassSurface) with rounded corners."
+user_problem_statement: "Iteration 4: (1) Fix Windows/Mac video quality complaints — hero scrub video was picking 720p WebM over 1080p MP4; (2) Remove leaves background on Stats section; (3) Rewrite all section eyebrow headings with better copy; (4) Replace Push/Pull scrub video with new user-supplied 4K video (re-encoded 2560x1430 all-intra H.264 + 1920 VP9 WebM fallback), same scrub logic; (5) Move How-it-works section before Recent-work; (6) Approach copy overhaul: new static headline 'Most brands push content, ignoring what pulls audiences.' (push muted italic, pulls purple italic), toggle captions deleted, small card reduced to a single metaphor line per mode ('Like a crowd gathering around a great performer.' / 'Like handing flyers to strangers.'), layout/toggle/monitor untouched."
 
 frontend:
-  - task: "Section is wrapped in one glass UI island (GlassSurface) with rounded corners"
+  - task: "Hero scrub video uses high-quality 1080p MP4 first (Windows/Mac quality fix)"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/site/HeroScrubVideo.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Source order flipped: MP4 (1920x1080 H.264) now listed before the 720p VP9 WebM, so Chrome/Edge/Firefox on Windows and Safari on Mac pick the high-quality file. Verified via screenshot — hero renders. NOTE: this sandbox's headless Chromium has no H.264, so it falls back to the WebM here; real browsers pick the MP4."
+
+  - task: "New Push/Pull workspace video wired in with same scrub logic (night=Pull, day=Push)"
     implemented: true
     working: true
     file: "/app/frontend/src/components/site/Approach.jsx"
@@ -113,14 +125,11 @@ frontend:
     priority: "high"
     needs_retesting: false
     status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Entire section content is now wrapped in a single GlassSurface with className='mo-glass-strong rounded-[28px] overflow-hidden' and maxWidth 1720px, centred. Verify: (a) exactly one .mo-glass container is the direct child of #approach and wraps ALL of the section's content; (b) it has rounded corners (border-radius ≈ 28px); (c) it has the mo-glass-strong class so the frosted glass background/blur is applied; (d) the video, heading, and examples card are all descendants of this glass island."
       - working: true
-        agent: "testing"
-        comment: "✓ PASSED - Glass island structure is PERFECT. Verified: (a) mo-glass-strong class present, (b) border-radius exactly 28px, (c) overflow hidden, (d) width 1720px (within constraints), (e) video, heading, and examples card are all descendants of the glass container. All requirements met."
+        agent: "main"
+        comment: "User's new 4K video transcoded to 2560x1430 all-intra H.264 (owl-workspace.mp4, CRF19) + 1920x1072 VP9 WebM fallback (owl-workspace.webm). Poster regenerated from frame 0. Wrapper aspectRatio updated to 2560/1430 (natural aspect, zero crop). Verified in browser: video decodes (duration 5.042s), Push scrubs 0 -> 5.042 (night to day), Pull default parks at 0. Examples card re-anchored to the new video's monitor screen (left 47.35%, top 28.9%, width 32.4%, height 39.1%) — DOM measurement matches exactly; screenshot confirms pixel-perfect placement on the day-scene monitor."
 
-  - task: "Video backdrop plays night → day on Push click and day → night on Pull click"
+  - task: "Approach copy overhaul (new headline, no toggle captions, metaphor-only small card)"
     implemented: true
     working: true
     file: "/app/frontend/src/components/site/Approach.jsx"
@@ -128,59 +137,48 @@ frontend:
     priority: "high"
     needs_retesting: false
     status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "A <video> element is rendered inside the aspect-locked wrapper. src='/videos/owl-workspace.mp4', poster='/images/owl-workspace-night.jpg', muted, playsInline, preload='auto'. On mode change we scrub video.currentTime toward 0 (Pull → night) or video.duration (Push → day) over 2600 ms using requestAnimationFrame + ease-in-out (HTML5 <video> can't reliably do negative playbackRate). Default state is Pull, currentTime pinned at 0 on mount. Verify: (a) video element exists in #approach; (b) src ends with /videos/owl-workspace.mp4; (c) poster attribute is set; (d) after clicking Push, video.currentTime increases (target = duration); (e) after clicking Pull, video.currentTime decreases back to ~0. NOTE FOR TESTER: Headless Chromium may not decode the H.264 video (network state ends up 3 = NO_SOURCE, error code 4). If that happens, the poster JPEG stays visible and the layout is still correct. In real browsers the video will play. If the video's readyState remains 0 after 8 seconds, mark this task as 'passes visually via poster' rather than a hard fail, but still verify the JavaScript scrub logic is wired up by checking that the useEffect calls video.load() and that video.currentTime is being mutated on toggle."
       - working: true
-        agent: "testing"
-        comment: "✓ PASSED (poster-only mode) - Video element configured correctly. Verified: (a) video element exists with correct src (/videos/owl-workspace.mp4) and poster (/images/owl-workspace-night.jpg), (b) muted=true, playsInline=true, (c) video visible on page, (d) readyState=0 (H.264 did not decode in headless Chromium as expected), (e) poster image displays correctly showing night scene, (f) scrub logic is wired up - video.currentTime changes on Push/Pull clicks, (g) no console errors. In real browsers the video will decode and play. The JavaScript scrubTo function with requestAnimationFrame is present and functional."
-
-  - task: "Examples card is PERFECTLY aligned with the monitor screen — no cropping — in Push mode"
-    implemented: true
-    working: "NA"
-    file: "/app/frontend/src/components/site/Approach.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
-    status_history:
-      - working: "NA"
         agent: "main"
-        comment: "The monitor screen inside the video frame (analysed programmatically) sits at x: 46.48% – 78.98% (width 32.5%), y: 29.17% – 68.89% (height 39.72%). The Examples card (data-testid='approach-caption') is absolutely positioned at those exact percentages inside the aspect-locked (16/9) wrapper. My own DOM measurement returned: left 46.51%, top 29.19%, width 32.48%, height 39.75% — sub-0.05% off the target. Verify: (a) the card sits exactly on top of the black monitor screen in the video/poster (no crop, no overhang); (b) the card is only visible when mode === 'push' (opacity 0 in pull, 1 in push); (c) the three thumbnails + labels are all rendered inside the card without content clipping."
+        comment: "Headline now static: 'Most brands push content, ignoring what pulls audiences.' with push in var(--mo-mute) italic and pulls in var(--mo-accent) italic. Toggle caption lines (THE OWL AWAKE/ASLEEP) deleted. Small glass card shows ONLY the metaphor line per mode with generous padding (px-8 py-9): Pull='Like a crowd gathering around a great performer.', Push='Like handing flyers to strangers.'. Layout, toggle, monitor, Examples card all unchanged. Verified via screenshots in both modes."
 
-  - task: "Pull is the default state; layout still works on mobile"
+  - task: "Stats section: leaves background removed, heading '// The results speak'"
     implemented: true
-    working: "NA"
-    file: "/app/frontend/src/components/site/Approach.jsx"
+    working: true
+    file: "/app/frontend/src/components/site/Stats.jsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
-      - working: "NA"
+      - working: true
         agent: "main"
-        comment: "On page load the toggle is Pull, video is paused at time 0 (night poster visible), examples card has opacity 0 and is not interactive. Below the lg breakpoint (<1024px), the section falls back to a stacked layout (video/poster at top, heading + full-size examples card below), also wrapped in the same glass island."
+        comment: "Background image div + readability overlay removed; section now transparent over the site-wide orb backdrop. Eyebrow replaced. Verified via screenshot + DOM check (0 background images in section)."
+
+  - task: "Section order swap (How it works before Recent work) + eyebrow heading rewrites + Safari webkit backdrop prefixes"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Home.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Home.jsx order now Hero, Stats, Approach, HowItWorks, Work, Voices, Contact, FAQ (verified via DOM: ['top','stats-section','approach','process-section','work',...]). Eyebrows rewritten: Hero '// The storytelling studio for founders', Stats '// The results speak', Approach '// Why pull wins', HowItWorks '// Simple by design', Work '// Proof in the wild', Voices '// Earned, not bought', FAQ '// Before you ask'. WebkitBackdropFilter added beside backdropFilter inline styles in Nav, Footer, Work, PremiumToggle for older Safari. Unused night-to-day/day-to-night videos (~55MB) deleted."
 
 metadata:
   created_by: "main_agent"
-  version: "1.2"
-  test_sequence: 3
+  version: "1.3"
+  test_sequence: 4
   run_ui: true
 
 test_plan:
   current_focus:
-    - "Section is wrapped in one glass UI island (GlassSurface) with rounded corners"
-    - "Video backdrop plays night → day on Push click and day → night on Pull click"
-    - "Examples card is PERFECTLY aligned with the monitor screen — no cropping — in Push mode"
-    - "Pull is the default state; layout still works on mobile"
+    - "New Push/Pull workspace video wired in with same scrub logic (night=Pull, day=Push)"
+    - "Approach copy overhaul (new headline, no toggle captions, metaphor-only small card)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
-  - agent: "testing"
-    message: "Testing complete. All verification tests passed successfully. The animated background (owl images and transition videos) has been completely removed from the Approach section. The section now displays a clean, plain dark background (#0a0a0b) with no video/image elements. Toggle functionality works correctly. Also cleaned up leftover preload links in index.html that were causing console warnings. No errors or issues found. Ready for user acceptance."
   - agent: "main"
-    message: "Redesigned Push mode of the Approach section. Only file changed: /app/frontend/src/components/site/Approach.jsx. Please verify against the three tasks in test_plan."
-  - agent: "testing"
-    message: "✅ ALL TESTS PASSED. Verified all three requirements for the Approach section redesign: illustration natural aspect, no purple tint, examples on monitor, pull unchanged."
-  - agent: "main"
-    message: "Iteration 3: switched from static PNG to a night↔day MP4 video, wrapped whole section in one large glass island (GlassSurface with mo-glass-strong + rounded-[28px]), and locked the Examples card exactly to the monitor screen. Only file changed: /app/frontend/src/components/site/Approach.jsx (plus two static assets in /app/frontend/public/videos/owl-workspace.mp4 and /app/frontend/public/images/owl-workspace-night.jpg). IMPORTANT for testing: (1) Headless Chromium in Playwright may not decode the H.264 MP4 — networkState will be 3 and readyState 0. When that happens the poster JPG (night frame) stays visible and the layout is still correct. Please still verify the scrub JavaScript logic is present (video.currentTime is being mutated in a requestAnimationFrame loop when mode changes). (2) There are two heading blocks and two caption cards in the DOM (desktop layout + mobile fallback) — always use :visible or .first when interacting with toggle buttons, and query the caption-card by 'approach-caption' testid (NOT 'caption-card')."
+    message: "Iteration 4 complete, self-verified via screenshots. Files changed: Approach.jsx, Stats.jsx, Home.jsx, HeroScrubVideo.jsx, Nav.jsx, Footer.jsx, Work.jsx, HowItWorks.jsx, Voices.jsx, FAQ.jsx, Hero.jsx, PremiumToggle.jsx + assets (owl-workspace.mp4 replaced with 2560x1430 all-intra, owl-workspace.webm added, poster regenerated, old transition videos deleted). TESTING NOTES: (1) This sandbox's headless Chromium lacks H.264 — the Approach video now has a VP9 WebM fallback so it DOES decode here and the night/day scrub is fully verifiable (duration 5.042s). (2) Toggle buttons use data-testid 'toggle-push'/'toggle-pull'; two instances exist (desktop + mobile) — use .first/:visible. (3) Examples card testid 'approach-caption', anchored at left 47.35% / top 28.9% / width 32.4% / height 39.1% of the video box, visible only in Push mode."

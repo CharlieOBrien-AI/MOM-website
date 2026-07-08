@@ -52,6 +52,7 @@ export default function PremiumToggle({ value, onChange, disabled = false }) {
       style={{
         borderColor: "var(--mo-line-strong)",
         background: "rgba(255,255,255,0.03)",
+        WebkitBackdropFilter: "blur(10px)",
         backdropFilter: "blur(10px)",
       }}
     >

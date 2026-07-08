@@ -9,6 +9,7 @@ export default function Footer() {
         borderTop: "1px solid var(--mo-line)",
         background:
           "linear-gradient(180deg, rgba(6,6,10,0) 0%, rgba(10,8,20,0.35) 60%, rgba(10,8,20,0.55) 100%)",
+        WebkitBackdropFilter: "blur(14px) saturate(140%)",
         backdropFilter: "blur(14px) saturate(140%)",
         WebkitBackdropFilter: "blur(14px) saturate(140%)",
       }}

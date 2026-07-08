@@ -30,7 +30,7 @@ export default function Work() {
       className="mx-auto max-w-[1240px] section-px pb-[120px]"
     >
       <div className="mono-eyebrow mb-4">
-        <span style={{ color: "var(--mo-accent)" }}>//</span> Recent work
+        <span style={{ color: "var(--mo-accent)" }}>//</span> Proof in the wild
       </div>
       <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
         <h2
@@ -99,6 +99,7 @@ export default function Work() {
               style={{
                 borderColor: "rgba(255,255,255,0.28)",
                 background: "rgba(10,10,11,0.35)",
+                WebkitBackdropFilter: "blur(6px)",
                 backdropFilter: "blur(6px)",
                 zIndex: 4,
               }}

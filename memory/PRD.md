@@ -25,7 +25,7 @@ Create a premium, cinematic landing page hero that feels calm, elegant, and inte
 - `Nav`, `Hero`, `Stats`, `Approach`, `Work`, `HowItWorks`, `Voices`, `Contact`, `FAQ`, `Footer`.
 
 ## What's Implemented (Dec 2025)
-- ✅ Hero with cursor-scrubbing background video (WebM primary, MP4 fallback).
+- ✅ Hero with cursor-scrubbing background video (MP4 1080p primary, WebM fallback).
 - ✅ Push/Pull centerpiece with cinematic Day ↔ Night video transitions.
 - ✅ Premium segmented toggle with sliding pill, ARIA + keyboard support.
 - ✅ Stats section with "0 ad dollars spent" replacing the 75% view-duration metric.
@@ -34,6 +34,15 @@ Create a premium, cinematic landing page hero that feels calm, elegant, and inte
 - ✅ Warm amber accent (#d4a256) — owl-appropriate, non-generic (no purple AI slop).
 - ✅ `prefers-reduced-motion` respected globally + specifically in scrub / transition components.
 - ✅ Data-testid on every interactive + critical element.
+
+## Iteration 4 (Jul 2025)
+- Windows/Mac quality fix: hero video source order flipped so 1080p H.264 MP4 is picked over the 720p VP9 WebM (root cause of "low quality" complaints); WebkitBackdropFilter prefixes added to inline glass styles (Nav, Footer, Work, PremiumToggle).
+- Approach (#approach): new user-supplied 4K workspace video transcoded to 2560×1430 all-intra H.264 (`owl-workspace.mp4`) + VP9 WebM fallback (`owl-workspace.webm`); same scrub logic (Pull=night frame 0, Push=day end); Examples card re-anchored to new monitor coords (47.35% / 28.9% / 32.4% / 39.1%); wrapper aspect = 2560/1430.
+- Approach copy: static headline "Most brands *push* content, ignoring what *pulls* audiences." (push=muted italic, pulls=accent italic); toggle caption lines deleted; small card = metaphor line only ("Like a crowd gathering around a great performer." / "Like handing flyers to strangers.").
+- Stats: leaves background removed; eyebrow → "// The results speak".
+- Section order: How-it-works now before Recent-work.
+- Eyebrows rewritten site-wide (copywriter pass): Hero "// The storytelling studio for founders", Approach "// Why pull wins", HowItWorks "// Simple by design", Work "// Proof in the wild", Voices "// Earned, not bought", FAQ "// Before you ask".
+- Deleted unused night-to-day / day-to-night videos (~55MB).
 
 ## Prioritized Backlog
 - P1 — Contact form → email backend (currently `mailto:` on the Book-a-call CTA).

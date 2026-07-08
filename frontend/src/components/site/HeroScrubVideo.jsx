@@ -139,8 +139,12 @@ export default function HeroScrubVideo({ src }) {
           filter: "contrast(1.02) saturate(0.95)",
         }}
       >
-        <source src="/videos/left-right.webm" type="video/webm" />
+        {/* High-quality 1080p H.264 first — every modern browser (Windows
+            Chrome/Edge, macOS Safari) decodes + scrubs it smoothly with
+            hardware acceleration. The 720p VP9 WebM is only a fallback for
+            the rare browser without H.264 support. */}
         <source src={src} type="video/mp4" />
+        <source src="/videos/left-right.webm" type="video/webm" />
       </video>
       {/* Soft edge wash — keeps text legible without darkening the owl */}
       <div

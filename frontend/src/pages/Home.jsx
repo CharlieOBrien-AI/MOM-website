@@ -24,8 +24,8 @@ export default function Home() {
           <Hero />
           <Stats />
           <Approach />
-          <Work />
           <HowItWorks />
+          <Work />
           <Voices />
           <Contact />
           <FAQ />

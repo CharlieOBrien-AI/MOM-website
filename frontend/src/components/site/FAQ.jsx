@@ -91,7 +91,7 @@ export default function FAQSection() {
       className="mx-auto max-w-[880px] section-px pb-[120px]"
     >
       <div className="mono-eyebrow mb-4">
-        <span style={{ color: "var(--mo-accent)" }}>//</span> FAQ
+        <span style={{ color: "var(--mo-accent)" }}>//</span> Before you ask
       </div>
       <h2
         className="text-white"

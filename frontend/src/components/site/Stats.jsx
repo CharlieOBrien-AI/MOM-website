@@ -75,37 +75,9 @@ export default function Stats() {
         overflow: "hidden",
       }}
     >
-      {/* Leaves background */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage:
-            "url('https://customer-assets.emergentagent.com/job_b6a78a8c-323d-42c1-ae59-de00e052239c/artifacts/kfabpg6f_image.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          opacity: 0.45,
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      />
-      {/* Soft overlay for readability — lets orb violet mix with leaves */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "radial-gradient(ellipse at center, rgba(6,6,10,0.35) 0%, rgba(6,6,10,0.65) 65%, rgba(6,6,10,0.82) 100%)",
-          pointerEvents: "none",
-          zIndex: 1,
-        }}
-      />
       <div className="mx-auto max-w-[1240px] section-px py-[120px]" style={{ position: "relative", zIndex: 2 }}>
         <div className="mono-eyebrow mb-10">
-          <span style={{ color: "var(--mo-accent)" }}>//</span> By the numbers
+          <span style={{ color: "var(--mo-accent)" }}>//</span> The results speak
         </div>
         <div className="grid gap-6 md:grid-cols-3 md:gap-8">
           {items.map((it, i) => (

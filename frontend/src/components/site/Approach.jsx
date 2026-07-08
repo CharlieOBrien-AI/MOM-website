@@ -7,14 +7,16 @@ import { APPROACH } from "@/constants/testIds";
 // Midnight Owl workspace video.
 // Frame 0  = NIGHT (moon, awake owl, dark room)
 // Last frame = DAY (sunshine, sleeping owl, bright room)
-// Video is 1280 × 720 (16:9). Duration ≈ 5s @ 24fps.
+// Video is 2560 × 1430 (≈1.79:1), all-intra H.264 for smooth bidirectional
+// scrubbing on every platform (Windows Chrome/Edge, macOS Safari).
+// Duration ≈ 5s @ 24fps.
 //
-// The physical monitor screen inside the frame (the black display area,
-// no bezel) occupies:
-//   x: 46.48% – 78.98%   (width  32.50%)
-//   y: 29.17% – 68.89%   (height 39.72%)
-// We use these values below to anchor the Examples card so it sits
-// exactly ON the monitor screen, with no cropping.
+// The physical monitor screen inside the frame (the display area,
+// measured programmatically from the day frame) occupies:
+//   x: 47.15% – 79.85%   (width  ≈32.4%)
+//   y: 28.70% – 68.20%   (height ≈39.1%)
+// We use slightly inset values below to anchor the Examples card so it
+// sits exactly ON the monitor screen, with no cropping or overhang.
 //
 // The video is served from /public/videos so it lives on the same
 // origin as the app — no CORS, faster loads. A JPG of the first frame
@@ -24,12 +26,16 @@ import { APPROACH } from "@/constants/testIds";
 const WORKSPACE_VIDEO_URL = "/videos/owl-workspace.mp4";
 const WORKSPACE_POSTER_URL = "/images/owl-workspace-night.jpg";
 
-// Monitor screen region as fractions of the 16:9 video frame.
+// Natural aspect of the workspace video — the wrapper matches it exactly
+// so percentage-anchored overlays map 1:1 onto video pixels (zero crop).
+const VIDEO_ASPECT = "2560 / 1430";
+
+// Monitor screen region as fractions of the video frame.
 const SCREEN = {
-  left: 46.48, // %
-  top: 29.17, // %
-  width: 32.5, // %
-  height: 39.72, // %
+  left: 47.35, // %
+  top: 28.9, // %
+  width: 32.4, // %
+  height: 39.1, // %
 };
 
 const TRANSITION_MS = 2600; // duration of the night↔day scrub
@@ -47,11 +53,7 @@ export default function Approach() {
 
   const copy = {
     pull: {
-      italic: "pull.",
-      label: "Pull · Attention earned",
-      title: "Stories that hold attention.",
-      caption: "The owl awake. People come to you.",
-      chip: "Founder stories · Behind the build · Lessons",
+      metaphor: "Like a crowd gathering around a great performer.",
       examples: [
         { kicker: "01 · Story", title: "The $40k hiring mistake" },
         { kicker: "02 · Behind", title: "Why we killed our best feature" },
@@ -59,11 +61,7 @@ export default function Approach() {
       ],
     },
     push: {
-      italic: "pull.",
-      label: "Push · Attention rented",
-      title: "Announcements. Demos. Feature dumps.",
-      caption: "The owl asleep. You go to them.",
-      chip: "Product launches · Hiring · Corporate updates",
+      metaphor: "Like handing flyers to strangers.",
       examples: [
         { kicker: "AD · Reach", title: "Check out our new feature." },
         { kicker: "AD · Reach", title: "We're hiring — join the team." },
@@ -190,7 +188,7 @@ export default function Approach() {
   const HeadingBlock = ({ compact = false }) => (
     <>
       <div className="mono-eyebrow">
-        <span style={{ color: "var(--mo-accent)" }}>//</span> Our approach
+        <span style={{ color: "var(--mo-accent)" }}>//</span> Why pull wins
       </div>
 
       <h2
@@ -205,66 +203,40 @@ export default function Approach() {
           fontWeight: 400,
         }}
       >
-        Most content{" "}
+        Most brands{" "}
         <span style={{ color: "var(--mo-mute)", fontStyle: "italic" }}>
-          pushes.
+          push
         </span>{" "}
-        The best founders{" "}
+        content, ignoring what{" "}
         <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
-          {active.italic}
-        </span>
+          pulls
+        </span>{" "}
+        audiences.
       </h2>
 
       <div className="mt-8 flex flex-wrap items-center gap-5">
         <PremiumToggle value={mode} onChange={setMode} />
-        <div
-          aria-live="polite"
-          className="text-[11px] tracking-[0.18em] uppercase"
-          style={{
-            color: "var(--mo-fg-dim)",
-            fontFamily: "JetBrains Mono, monospace",
-          }}
-        >
-          <span style={{ color: "var(--mo-accent-warm)" }}>●</span>{" "}
-          {active.caption}
-        </div>
       </div>
 
       <GlassSurface
         interactive={false}
-        className="mt-8 rounded-xl px-5 py-4"
+        className="mt-8 rounded-xl px-8 py-9"
       >
         <div
-          className="text-[10px] tracking-[0.28em] uppercase"
-          style={{
-            color: "var(--mo-accent)",
-            fontFamily: "JetBrains Mono, monospace",
-          }}
-        >
-          {active.label}
-        </div>
-        <div
-          className="mt-3 text-white"
+          aria-live="polite"
+          className="text-white"
           style={{
             fontFamily: "Instrument Serif, serif",
             fontSize: compact
               ? "clamp(18px, 1.7vw, 24px)"
               : "clamp(22px, 2.4vw, 32px)",
-            lineHeight: 1.15,
+            fontStyle: "italic",
+            lineHeight: 1.3,
             letterSpacing: "-0.01em",
             transition: "opacity 280ms ease",
           }}
         >
-          {active.title}
-        </div>
-        <div
-          className="mt-3 text-[12px] tracking-[0.14em]"
-          style={{
-            color: "var(--mo-fg-dim)",
-            fontFamily: "JetBrains Mono, monospace",
-          }}
-        >
-          {active.chip}
+          {active.metaphor}
         </div>
       </GlassSurface>
     </>
@@ -359,12 +331,13 @@ export default function Approach() {
         className="relative mx-auto w-full overflow-hidden rounded-[28px] mo-glass-strong"
         style={{ maxWidth: "1720px" }}
       >
-        {/* Aspect-locked wrapper matches the video (16:9). Everything is
-            positioned in percentages of this wrapper so that the Examples
-            card lands on the monitor screen at every viewport size. */}
+        {/* Aspect-locked wrapper matches the video's natural aspect exactly.
+            Everything is positioned in percentages of this wrapper so that
+            the Examples card lands on the monitor screen at every viewport
+            size — with zero crop, video pixels map 1:1 to overlay %. */}
         <div
           className="relative w-full"
-          style={{ aspectRatio: "16 / 9" }}
+          style={{ aspectRatio: VIDEO_ASPECT }}
         >
           {/* Video backdrop — natural aspect, no zoom, no crop.
               Local-served MP4 avoids CORS/range-request quirks on some CDNs.
@@ -374,14 +347,19 @@ export default function Approach() {
             ref={videoRef}
             className="absolute inset-0 h-full w-full select-none"
             style={{ objectFit: "cover" }}
-            src={WORKSPACE_VIDEO_URL}
             poster={WORKSPACE_POSTER_URL}
             muted
             playsInline
             preload="auto"
             aria-hidden="true"
             tabIndex={-1}
-          />
+          >
+            {/* High-quality H.264 first — decoded natively on Windows
+                (Chrome/Edge/Firefox) and macOS (Safari). VP9 WebM is a
+                fallback for browsers without H.264 support. */}
+            <source src={WORKSPACE_VIDEO_URL} type="video/mp4" />
+            <source src="/videos/owl-workspace.webm" type="video/webm" />
+          </video>
 
           {/* Left-heavy readability wash (neutral dark, NO purple). Keeps
               the heading crisp against the busy backdrop. */}
