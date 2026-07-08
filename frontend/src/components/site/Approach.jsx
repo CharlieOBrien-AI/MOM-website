@@ -49,7 +49,6 @@ const TRANSITION_MS = 2600; // duration of the night↔day scrub
  */
 export default function Approach() {
   const [mode, setMode] = useState("pull");
-  const isPush = mode === "push";
 
   const copy = {
     pull: {
@@ -126,7 +125,9 @@ export default function Approach() {
     modeRef.current = mode;
   }, [mode]);
 
-  // On mount: kick the video load explicitly, then park at frame 0 (NIGHT).
+  // On mount: defer the network fetch until the section is near the
+  // viewport (saves ~19MB on initial page load — important on Windows
+  // machines / slower connections), then park at frame 0 (NIGHT).
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -145,17 +146,40 @@ export default function Approach() {
 
     video.addEventListener("loadedmetadata", init, { once: true });
     video.addEventListener("error", onError);
-    // Force the browser to actually fetch the resource. Some headless /
-    // low-power contexts skip preload without this.
-    try {
-      video.load();
-    } catch (_) {}
+
+    // Lazy fetch: kick the real download only when the user is within
+    // ~1.5 viewports of the section. Poster (night JPG) shows meanwhile.
+    let started = false;
+    const startLoad = () => {
+      if (started) return;
+      started = true;
+      try {
+        video.preload = "auto";
+        video.load();
+      } catch (_) {}
+    };
+    let io = null;
+    if ("IntersectionObserver" in window) {
+      io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            startLoad();
+            if (io) io.disconnect();
+          }
+        },
+        { rootMargin: "150% 0px 150% 0px" }
+      );
+      io.observe(video);
+    } else {
+      startLoad();
+    }
 
     if (video.readyState >= 1) init();
 
     return () => {
       video.removeEventListener("loadedmetadata", init);
       video.removeEventListener("error", onError);
+      if (io) io.disconnect();
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, []);
@@ -188,7 +212,7 @@ export default function Approach() {
   const HeadingBlock = ({ compact = false }) => (
     <>
       <div className="mono-eyebrow">
-        <span style={{ color: "var(--mo-accent)" }}>//</span> Why pull wins
+        <span style={{ color: "var(--mo-accent)" }}>//</span> Our approach
       </div>
 
       <h2
@@ -350,7 +374,7 @@ export default function Approach() {
             poster={WORKSPACE_POSTER_URL}
             muted
             playsInline
-            preload="auto"
+            preload="none"
             aria-hidden="true"
             tabIndex={-1}
           >
@@ -401,11 +425,10 @@ export default function Approach() {
           </div>
 
           {/* --------------------------------------------------------------
-              EXAMPLES CARD — pinned to the monitor screen in Push mode.
+              EXAMPLES CARD — pinned to the monitor screen in BOTH modes.
               Coordinates come straight from the video-frame analysis and
-              match the display area exactly (no cropping).
-              The card cross-fades in/out with a tiny scale so it feels
-              like it's being "turned on" like a screen.
+              match the display area exactly (no cropping). Content swaps
+              with the Push/Pull mode.
              -------------------------------------------------------------- */}
           <div
             data-testid={APPROACH.captionCard}
@@ -416,12 +439,6 @@ export default function Approach() {
               width: `${SCREEN.width}%`,
               height: `${SCREEN.height}%`,
               zIndex: 4,
-              opacity: isPush ? 1 : 0,
-              transform: isPush ? "scale(1)" : "scale(0.985)",
-              transformOrigin: "center center",
-              transition:
-                "opacity 520ms cubic-bezier(0.4, 0, 0.2, 1) 220ms, transform 520ms cubic-bezier(0.4, 0, 0.2, 1) 220ms",
-              pointerEvents: isPush ? "auto" : "none",
             }}
           >
             <ExamplesCardBlock onMonitor />

@@ -44,6 +44,14 @@ Create a premium, cinematic landing page hero that feels calm, elegant, and inte
 - Eyebrows rewritten site-wide (copywriter pass): Hero "// The storytelling studio for founders", Approach "// Why pull wins", HowItWorks "// Simple by design", Work "// Proof in the wild", Voices "// Earned, not bought", FAQ "// Before you ask".
 - Deleted unused night-to-day / day-to-night videos (~55MB).
 
+## Iteration 5 (Jul 2025)
+- Examples card on the Approach monitor visible in BOTH modes (content swaps Push/Pull).
+- Eyebrow headings rolled back to originals (Stats keeps "// The results speak").
+- Stats: 300+ caption → "Videos produced."
+- HowItWorks: carousel replaced by vertical 6-step flow with ↓ connectors — heading "How We Create Content That *Pulls People In.*"; steps: Audience Research / Story Development / Production / Retention Editing / Distribution / Trust, each = name + one-sentence outcome + 3 bullets.
+- Windows performance: orbs no longer use `filter: blur(90px)` (biggest GPU cost), Approach 19MB video lazy-loads via IntersectionObserver, MP4s confirmed faststart.
+- Glass UI v2: `.mo-glass`/`.mo-glass-strong` lighter translucent gradients + blur/saturate/brightness backdrop + rim light + subtle text-shadow for readability.
+
 ## Prioritized Backlog
 - P1 — Contact form → email backend (currently `mailto:` on the Book-a-call CTA).
 - P1 — Additional case-study pages (Work cards currently link to `#contact`).

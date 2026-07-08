@@ -52,7 +52,7 @@ export default function Stats() {
     {
       testid: STATS.stories,
       value: <CountUp target={300} suffix="+" />,
-      caption: "Stories told for founders who hate selling.",
+      caption: "Videos produced.",
     },
     {
       testid: STATS.adSpend,

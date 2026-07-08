@@ -210,7 +210,9 @@
   .mo-orb {
     position: absolute;
     border-radius: 50%;
-    filter: blur(90px);
+    /* NOTE: no `filter: blur()` here — blurring 40vw+ animated elements is
+       extremely expensive on Windows GPUs. The soft-edge look comes from the
+       radial gradients themselves (already fade to transparent). */
     opacity: 0.55;
     will-change: transform;
   }
@@ -220,7 +222,7 @@
     left: 4%;
     width: 46vw;
     height: 46vw;
-    background: radial-gradient(circle, rgba(164, 74, 255, 0.65), rgba(164, 74, 255, 0) 65%);
+    background: radial-gradient(circle, rgba(164, 74, 255, 0.5) 0%, rgba(164, 74, 255, 0.22) 35%, rgba(164, 74, 255, 0) 70%);
     animation: mo-orb-a 24s ease-in-out infinite alternate;
   }
   .mo-orb--b {
@@ -228,7 +230,7 @@
     right: -6%;
     width: 40vw;
     height: 40vw;
-    background: radial-gradient(circle, rgba(120, 60, 220, 0.55), rgba(120, 60, 220, 0) 65%);
+    background: radial-gradient(circle, rgba(120, 60, 220, 0.42) 0%, rgba(120, 60, 220, 0.18) 35%, rgba(120, 60, 220, 0) 70%);
     animation: mo-orb-b 30s ease-in-out infinite alternate;
   }
   .mo-orb--c {
@@ -236,7 +238,7 @@
     left: 24%;
     width: 34vw;
     height: 34vw;
-    background: radial-gradient(circle, rgba(212, 162, 86, 0.22), rgba(212, 162, 86, 0) 65%);
+    background: radial-gradient(circle, rgba(212, 162, 86, 0.17) 0%, rgba(212, 162, 86, 0.08) 35%, rgba(212, 162, 86, 0) 70%);
     animation: mo-orb-c 34s ease-in-out infinite alternate;
   }
   .mo-orb--d {
@@ -244,7 +246,7 @@
     left: -8%;
     width: 42vw;
     height: 42vw;
-    background: radial-gradient(circle, rgba(80, 40, 180, 0.5), rgba(80, 40, 180, 0) 65%);
+    background: radial-gradient(circle, rgba(80, 40, 180, 0.38) 0%, rgba(80, 40, 180, 0.17) 35%, rgba(80, 40, 180, 0) 70%);
     animation: mo-orb-d 28s ease-in-out infinite alternate;
   }
   .mo-orb--e {
@@ -252,7 +254,7 @@
     right: 8%;
     width: 38vw;
     height: 38vw;
-    background: radial-gradient(circle, rgba(185, 109, 255, 0.42), rgba(185, 109, 255, 0) 65%);
+    background: radial-gradient(circle, rgba(185, 109, 255, 0.32) 0%, rgba(185, 109, 255, 0.14) 35%, rgba(185, 109, 255, 0) 70%);
     animation: mo-orb-e 32s ease-in-out infinite alternate;
   }
 
@@ -295,17 +297,21 @@
     position: relative;
     isolation: isolate;
     overflow: hidden;
+    /* Real glass: light-catching white gradient over a faint cool tint —
+       the blurred+saturated backdrop does most of the work. */
     background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 55%),
-      linear-gradient(180deg, rgba(20, 15, 40, 0.28), rgba(10, 8, 22, 0.42));
-    -webkit-backdrop-filter: blur(22px) saturate(160%);
-    backdrop-filter: blur(22px) saturate(160%);
-    border: 1px solid rgba(255, 255, 255, 0.09);
+      linear-gradient(135deg, rgba(255, 255, 255, 0.11) 0%, rgba(255, 255, 255, 0.04) 40%, rgba(255, 255, 255, 0.015) 62%, rgba(255, 255, 255, 0.06) 100%),
+      linear-gradient(180deg, rgba(18, 14, 36, 0.26), rgba(10, 8, 22, 0.34));
+    -webkit-backdrop-filter: blur(20px) saturate(175%) brightness(1.08);
+    backdrop-filter: blur(20px) saturate(175%) brightness(1.08);
+    border: 1px solid rgba(255, 255, 255, 0.13);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.14),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.32),
       0 20px 60px -22px rgba(0, 0, 0, 0.6),
-      0 0 0 1px rgba(255, 255, 255, 0.02);
+      0 0 0 1px rgba(255, 255, 255, 0.03);
+    /* Keeps text crisp against whatever glows through the glass. */
+    text-shadow: 0 1px 2px rgba(6, 6, 10, 0.35);
     transform: var(--mo-glass-tilt);
     transition:
       transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -394,13 +400,15 @@
 
   /* Optional variants ---------------------------------------------------- */
 
-  /* Slightly denser panel — for bigger surfaces like the Contact card */
+  /* Slightly denser panel — for bigger surfaces like the Contact card and
+     the Approach video island. Keeps enough tint for text over video while
+     staying visibly translucent. Blur capped at 24px for Windows perf. */
   .mo-glass-strong {
     background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.03) 55%),
-      linear-gradient(180deg, rgba(24, 18, 46, 0.42), rgba(10, 8, 22, 0.55));
-    -webkit-backdrop-filter: blur(28px) saturate(170%);
-    backdrop-filter: blur(28px) saturate(170%);
+      linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.045) 45%, rgba(255, 255, 255, 0.02) 65%, rgba(255, 255, 255, 0.07) 100%),
+      linear-gradient(180deg, rgba(22, 16, 42, 0.38), rgba(10, 8, 22, 0.46));
+    -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.06);
+    backdrop-filter: blur(24px) saturate(180%) brightness(1.06);
   }
 
   /* Pill CTA — used on Nav CTA, Hero primary CTA, etc. */
