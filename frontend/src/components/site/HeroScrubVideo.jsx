@@ -234,7 +234,6 @@ function DesktopScrubVideo() {
         }}
       >
         <source src={DESKTOP_SRC} type="video/mp4" />
-        <source src="/videos/owl-hero.webm" type="video/webm" />
       </video>
       {/* Soft edge wash — keeps text legible without darkening the owl */}
       <div

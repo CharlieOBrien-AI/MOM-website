@@ -250,28 +250,35 @@ const StyledWrapper = styled.div`
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
   }
-  /* mode labels — sit inside the free half of the track, opposite the knob */
+  /* mode labels — sit inside the free half of the track, opposite the knob.
+     Bold purple with high-contrast halo so they read cleanly against both the
+     day-sky (blue) and night-sky (near-black) backgrounds. */
   .theme-switch .theme-switch__label {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 1;
+    z-index: 3;
     font-family: "JetBrains Mono", ui-monospace, monospace;
-    font-size: 0.56em;
-    font-weight: 700;
-    letter-spacing: 0.14em;
+    font-size: 0.62em;
+    font-weight: 900;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: #fff;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65), 0 0 8px rgba(0, 0, 0, 0.4);
+    color: #d9b8ff;
+    text-shadow:
+      0 0 1px #ffffff,
+      0 1px 2px rgba(0, 0, 0, 0.9),
+      0 0 6px rgba(185, 109, 255, 0.85),
+      0 0 12px rgba(164, 74, 255, 0.55);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.35s ease 0.12s;
+    -webkit-font-smoothing: antialiased;
   }
   .theme-switch .theme-switch__label--unchecked {
-    right: 1.05em;
+    right: 0.95em;
   }
   .theme-switch .theme-switch__label--checked {
-    left: 1.05em;
+    left: 0.95em;
   }
   .theme-switch__checkbox:not(:checked) + .theme-switch__container .theme-switch__label--unchecked {
     opacity: 1;

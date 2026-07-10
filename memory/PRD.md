@@ -63,6 +63,11 @@ Create a premium, cinematic landing page hero that feels calm, elegant, and inte
 - Testing: iteration_2.json — frontend 100% pass, zero console errors.
 - Fix round (same day): (1) scrub mapping inverted (t=0 owl looks right → cursor-right maps to t=0) so the owl's head follows the cursor; (2) startup lag fixed — seeks are gated to buffered ranges (no decoder stalls while streaming), instant `<img>` poster layer behind both hero videos, files re-encoded smaller (mp4 CRF22 24.5MB, webm CRF36 20.8MB); (3) Push/Pull labels moved INSIDE the sky toggle track (current mode shown opposite the knob, white JetBrains Mono + text-shadow), flanking label buttons removed — testids toggle-push/toggle-pull now on the inner spans, sky-toggle-input on the checkbox.
 
+## Iteration 7 (Feb 2026)
+- Push/Pull toggle labels: bolder + purple. `.theme-switch__label` now `font-weight: 900`, size `0.62em`, letter-spacing `0.18em`, color `#d9b8ff` with a multi-layer text-shadow (white halo + purple glow) so labels stay readable against the day-sky (blue) and night-sky (near-black) backgrounds. Bumped `z-index` above the sun/moon knob.
+- Hero video sharpness: re-encoded `owl-hero.mp4` at 1920×1080 all-intra x264 QP 21 (was ~12.4 Mbps → now ~21 Mbps, ~40 MB), `-preset slower -tune film -aq-mode 3 -psy-rd 1.2,0.15` + `unsharp` filter for perceived detail. Removed the 720p VP9 WebM (never picked by browsers that decode H.264; scrubbing needs all-intra mp4). Poster JPG regenerated at higher quality (~150 KB, `q:v 2` + unsharp).
+- Cleanup: `owl-hero.webm` source line removed from `HeroScrubVideo.jsx`; old WebM/backup files deleted from `public/videos/`.
+
 ## Prioritized Backlog
 - P1 — Contact form → email backend (currently `mailto:` on the Book-a-call CTA).
 - P1 — Additional case-study pages (Work cards currently link to `#contact`).
