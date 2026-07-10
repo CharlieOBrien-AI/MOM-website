@@ -8,13 +8,16 @@ export default function Hero() {
     <section
       id="top"
       data-testid={HERO.root}
-      className="relative flex min-h-screen items-center overflow-hidden"
+      className="relative flex flex-col overflow-hidden pt-[68px] lg:aspect-video lg:justify-center lg:pt-0"
     >
-      {/* Scrub-controlled background video */}
-      <HeroScrubVideo src="/videos/left-right.mp4" />
+      {/* Video layer — mobile/tablet: in-flow 16:9 block (full frame, no crop);
+          desktop: fills the aspect-locked section so the frame maps 1:1. */}
+      <div className="relative aspect-video w-full lg:absolute lg:inset-0 lg:aspect-auto">
+        <HeroScrubVideo />
+      </div>
 
       {/* Content */}
-      <div className="relative mx-auto w-full max-w-[1240px] section-px pt-24">
+      <div className="relative mx-auto w-full max-w-[1240px] section-px py-12 lg:py-0 lg:pt-24">
         <div className="max-w-[880px] stagger">
           <div className="mono-eyebrow" data-testid="hero-eyebrow">
             <span style={{ color: "var(--mo-accent)" }}>//</span> Storytelling-first content studio

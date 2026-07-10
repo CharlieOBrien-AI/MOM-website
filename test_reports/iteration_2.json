@@ -1,0 +1,24 @@
+{
+  "summary": "Frontend-only end-to-end verification of Midnight Owl Media iteration 2 (branding rename, new hero video with desktop scrub + mobile autoplay, sky-toggle Push/Pull, scroll reveals, mobile Work carousel). All 8 requested checks pass. Zero console errors on both viewports.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Approach.jsx renders HeadingBlock (which contains PremiumToggle -> SkyToggle) twice in the DOM — once inside the hidden lg:flex desktop column and once inside the lg:hidden mobile block. This produces duplicate data-testids (push-pull-toggle, toggle-push, toggle-pull, sky-toggle-input) at the DOM level. Only one is visible at a time so behavior is correct, but Playwright strict-mode selectors fail. Recommend either scoping test IDs (e.g. -desktop / -mobile suffix) or rendering a single PremiumToggle outside the responsive branches so tests using bare selectors work.",
+    "HeroScrubVideo useIsCompact reads window.matchMedia at mount so the correct variant only renders after initial hydration; safe here since we're CSR-only, but if SSR is ever added the desktop scrub video would flash on mobile before hydration.",
+    "Work carousel & HowItWorks carousel duplicate near-identical touch/swipe + dots/indicator logic. Consider extracting a small useSwipeCarousel hook or Carousel component to DRY."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "test_credentials": "N/A (no auth, no backend)",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Verified at desktop (1920x800/1080) and mobile (390x844). Nav & footer render 'MIDNIGHT OWL MEDIA' (via CSS uppercase, source text 'Midnight Owl Media' with Owl in accent purple). Desktop hero: section aspect ratio 1.78 (16:9), hero-scrub-video currentSrc ends with owl-hero.webm (headless VP9 fallback), readyState=4, duration=15.766s, paused=true, scrubbing verified: mouse x=100 -> currentTime≈0.30, mouse x=1800 -> currentTime≈12.74. Mobile hero-mobile-video autoplays (paused=false, currentTime advancing 2.35 -> 4.36 after 2s), loop=true, muted=true, currentSrc owl-hero-mobile.webm; no hero-scrub-video in DOM. Sky toggle default = Pull (aria-checked true), clicking toggle-push flips to Push, toggle-pull flips back, direct click on sky-toggle-input toggles mode, ArrowLeft/ArrowRight on radiogroup switches. NOTE selectors need :visible or .nth() because PremiumToggle is rendered twice in Approach (see critical_code_review_comments). Mobile Work carousel: initial indicator '01 / 03', work-next -> '02 / 03' -> '03 / 03', work-prev back, work-dot-0 jumps to '01 / 03'. Desktop: work-carousel hidden, work-card-0..2 visible in 3-col grid. Scroll reveal: 26 .mo-reveal elements, 0 remaining opacity-0 while in viewport after scrolling top->bottom on both viewports. FAQ accordion works (aria-expanded true/false, accordion behavior - only one open). Contact 'Book a call' link href=mailto:hello@midnightowl.media. Stats show 35,000+ / 300+ / 75%+ (note: review_request example mentioned '0 ad spend' but current UI shows 75%+ view duration — assumed intentional; not part of this iteration's scope). Zero console/page errors, zero 4xx network responses.",
+  "rca of the issue": "N/A - no bugs found."
+}

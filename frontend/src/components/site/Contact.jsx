@@ -1,4 +1,5 @@
 import GlassSurface from "@/components/glass/GlassSurface";
+import Reveal from "./Reveal";
 import { CONTACT } from "@/constants/testIds";
 
 export default function Contact() {
@@ -10,6 +11,7 @@ export default function Contact() {
       style={{ background: "transparent" }}
     >
       <div className="mx-auto max-w-[1240px] section-px pb-[120px]">
+        <Reveal>
         <GlassSurface
           interactive={false}
           className="mo-glass-strong relative overflow-hidden rounded-3xl text-center"
@@ -106,6 +108,7 @@ export default function Contact() {
             </GlassSurface>
           </div>
         </GlassSurface>
+        </Reveal>
       </div>
     </section>
   );

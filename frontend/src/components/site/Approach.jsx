@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import GlassSurface from "@/components/glass/GlassSurface";
 import PremiumToggle from "./PremiumToggle";
+import Reveal from "./Reveal";
 import { APPROACH } from "@/constants/testIds";
 
 // ---------------------------------------------------------------------------
@@ -350,6 +351,7 @@ export default function Approach() {
           left, and the Examples card is anchored exactly to the monitor
           screen (in Push mode only).
          ===================================================================== */}
+      <Reveal>
       <GlassSurface
         interactive={false}
         className="relative mx-auto w-full overflow-hidden rounded-[28px] mo-glass-strong"
@@ -474,6 +476,7 @@ export default function Approach() {
           </div>
         </div>
       </GlassSurface>
+      </Reveal>
     </section>
   );
 }

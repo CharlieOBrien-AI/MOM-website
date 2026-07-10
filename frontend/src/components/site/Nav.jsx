@@ -44,7 +44,7 @@ export default function Nav() {
           href="#top"
           data-testid={NAV.logo}
           className="flex items-center gap-2.5"
-          aria-label="Midnight Owl — home"
+          aria-label="Midnight Owl Media — home"
         >
           <span
             aria-hidden="true"
@@ -60,7 +60,7 @@ export default function Nav() {
             style={{ fontFamily: "JetBrains Mono, monospace" }}
           >
             Midnight{" "}
-            <span style={{ color: "var(--mo-accent)" }}>Owl</span>
+            <span style={{ color: "var(--mo-accent)" }}>Owl</span> Media
           </span>
         </a>
 

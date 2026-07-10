@@ -1,4 +1,5 @@
 import GlassSurface from "@/components/glass/GlassSurface";
+import Reveal from "./Reveal";
 import { VOICES } from "@/constants/testIds";
 
 const voices = [
@@ -17,6 +18,7 @@ export default function Voices() {
       style={{ background: "transparent", position: "relative" }}
     >
       <div className="mx-auto max-w-[1240px] section-px py-[120px] text-center">
+        <Reveal>
         <div className="mono-eyebrow mb-4">
           <span style={{ color: "var(--mo-accent)" }}>//</span> What people say
         </div>
@@ -34,10 +36,12 @@ export default function Voices() {
             this.
           </span>
         </h2>
+        </Reveal>
 
         <div className="mt-12 grid gap-5 text-left md:grid-cols-2 lg:grid-cols-3">
-          {voices.map((v) => (
-            <GlassSurface key={v.name} className="rounded-2xl p-6" tilt={3}>
+          {voices.map((v, i) => (
+            <Reveal key={v.name} delay={(i % 3) * 110}>
+            <GlassSurface className="h-full rounded-2xl p-6" tilt={3}>
               <div className="flex items-center gap-3">
                 <div
                   className="grid h-9 w-9 flex-none place-items-center rounded-full border"
@@ -83,6 +87,7 @@ export default function Voices() {
                 {`"${v.quote}"`}
               </p>
             </GlassSurface>
+            </Reveal>
           ))}
         </div>
       </div>

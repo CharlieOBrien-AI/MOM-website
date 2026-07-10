@@ -29,7 +29,8 @@ export default function Footer() {
             className="text-[13px] font-medium tracking-[0.16em] uppercase"
             style={{ fontFamily: "JetBrains Mono, monospace" }}
           >
-            Midnight <span style={{ color: "var(--mo-accent)" }}>Owl</span>
+            Midnight <span style={{ color: "var(--mo-accent)" }}>Owl</span>{" "}
+            Media
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-6">

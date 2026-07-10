@@ -157,6 +157,20 @@
   /* Strikethrough draw-in — used on the Hero heading's crossed-out phrase.
      Starts already at scaleX(0) (no flash during the delay), then draws
      left-to-right once, right as the heading finishes fading in. */
+  /* Scroll-reveal — used by the <Reveal> wrapper across sections */
+  .mo-reveal {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0);
+    transition:
+      opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  .mo-reveal.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
   .mo-strike-draw {
     transform: scaleX(0);
     transform-origin: left center;

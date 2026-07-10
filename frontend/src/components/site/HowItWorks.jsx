@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import GlassSurface from "@/components/glass/GlassSurface";
+import Reveal from "./Reveal";
 import { PROCESS } from "@/constants/testIds";
 
 // Each step carries three levels of information:
@@ -55,6 +56,23 @@ export default function HowItWorks() {
   const next = () => setIdx((i) => (i + 1) % total);
   const prev = () => setIdx((i) => (i - 1 + total) % total);
 
+  const touchRef = useRef({ x: 0, y: 0 });
+  const onTouchStart = (e) => {
+    if (e.touches && e.touches[0]) {
+      touchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+  };
+  const onTouchEnd = (e) => {
+    const t = e.changedTouches && e.changedTouches[0];
+    if (!t) return;
+    const dx = t.clientX - touchRef.current.x;
+    const dy = t.clientY - touchRef.current.y;
+    if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) next();
+      else prev();
+    }
+  };
+
   // Keyboard support when the section is in view
   useEffect(() => {
     const onKey = (e) => {
@@ -76,6 +94,7 @@ export default function HowItWorks() {
       style={{ background: "transparent", position: "relative" }}
     >
       <div className="mx-auto max-w-[1240px] section-px py-[120px]">
+        <Reveal>
         <div className="mono-eyebrow mb-4">
           <span style={{ color: "var(--mo-accent)" }}>//</span> How it works
         </div>
@@ -142,9 +161,16 @@ export default function HowItWorks() {
             </button>
           </div>
         </div>
+        </Reveal>
 
         {/* Carousel — full-width single step wrapped in the Glass surface */}
-        <div ref={trackRef} className="mt-12">
+        <Reveal delay={130}>
+        <div
+          ref={trackRef}
+          className="mt-12"
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
           <GlassSurface interactive={false} className="rounded-2xl overflow-hidden">
             <div
               className="flex"
@@ -258,6 +284,7 @@ export default function HowItWorks() {
             />
           ))}
         </div>
+        </Reveal>
       </div>
     </section>
   );

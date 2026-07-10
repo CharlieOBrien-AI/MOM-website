@@ -2,13 +2,69 @@ import { useEffect, useRef, useState } from "react";
 import { HERO } from "@/constants/testIds";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
+const DESKTOP_SRC = "/videos/owl-hero.mp4";
+const MOBILE_SRC = "/videos/owl-hero-mobile.mp4";
+const POSTER_SRC = "/images/owl-hero-poster.jpg";
+
+function useIsCompact() {
+  const [compact, setCompact] = useState(
+    () => window.matchMedia("(max-width: 1023px)").matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const onChange = (e) => setCompact(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+  return compact;
+}
+
 /**
  * HeroScrubVideo
- * A muted, non-autoplaying background video whose currentTime is driven
- * linearly by horizontal cursor / touch position, with eased interpolation
- * for buttery-smooth scrubbing (Apple-style).
+ * Desktop (lg+): muted, non-autoplaying video whose currentTime is driven by
+ * horizontal cursor position with eased interpolation (Apple-style scrubbing).
+ * Mobile/tablet: plain autoplaying looped video — no scrubbing.
  */
-export default function HeroScrubVideo({ src }) {
+export default function HeroScrubVideo() {
+  const compact = useIsCompact();
+  return compact ? <MobileHeroVideo /> : <DesktopScrubVideo />;
+}
+
+function MobileHeroVideo() {
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      <video
+        data-testid="hero-mobile-video"
+        muted
+        autoPlay
+        loop
+        playsInline
+        preload="metadata"
+        poster={POSTER_SRC}
+        disablePictureInPicture
+        aria-hidden="true"
+        tabIndex={-1}
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{ filter: "contrast(1.02) saturate(0.95)" }}
+      >
+        <source src={MOBILE_SRC} type="video/mp4" />
+        <source src="/videos/owl-hero-mobile.webm" type="video/webm" />
+      </video>
+      {/* Bottom fade blends the video into the page background below */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(10,10,11,0.25) 0%, rgba(10,10,11,0) 20%, rgba(10,10,11,0) 70%, #06060a 100%)",
+        }}
+      />
+      <div className="noise-overlay" aria-hidden="true" />
+    </div>
+  );
+}
+
+function DesktopScrubVideo() {
   const videoRef = useRef(null);
   const targetTimeRef = useRef(0);
   const smoothedTimeRef = useRef(0);
@@ -60,19 +116,13 @@ export default function HeroScrubVideo({ src }) {
 
     const updateTarget = (clientX) => {
       const w = window.innerWidth || 1;
-      // Map the scrub in reverse so the owl looks toward the cursor
-      const p = 1 - Math.max(0, Math.min(1, clientX / w));
+      const p = Math.max(0, Math.min(1, clientX / w));
       targetTimeRef.current = p * (durationRef.current || 0);
     };
 
     const onMouse = (e) => updateTarget(e.clientX);
-    const onTouch = (e) => {
-      if (e.touches && e.touches[0]) updateTarget(e.touches[0].clientX);
-    };
 
     window.addEventListener("mousemove", onMouse, { passive: true });
-    window.addEventListener("touchmove", onTouch, { passive: true });
-    window.addEventListener("touchstart", onTouch, { passive: true });
 
     const EASE = 0.14; // 0..1 — lower = smoother/slower, higher = snappier
     const DEADBAND = 0.02; // ~half a frame at 30fps; only seek if beyond this
@@ -98,8 +148,7 @@ export default function HeroScrubVideo({ src }) {
           seekingRef.current = true;
           lastSeekRef.current = t;
           try {
-            // fastSeek gives keyframe-nearest jump on some browsers.
-            // We generated all-intra keyframes so precise currentTime is safe too.
+            // All-intra keyframes make precise currentTime seeks cheap.
             const next = Math.max(0, Math.min(d - 0.033, smoothedTimeRef.current));
             v.currentTime = next;
           } catch (e) {
@@ -114,21 +163,21 @@ export default function HeroScrubVideo({ src }) {
 
     return () => {
       window.removeEventListener("mousemove", onMouse);
-      window.removeEventListener("touchmove", onTouch);
-      window.removeEventListener("touchstart", onTouch);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [reduced]);
 
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {/* The scrubbing video — always visible, only seeks, never plays */}
+      {/* The scrubbing video — always visible, only seeks, never plays.
+          1080p all-intra H.264 — hardware-decoded on Windows & macOS. */}
       <video
         ref={videoRef}
         data-testid={HERO.scrubVideo}
         muted
         playsInline
         preload="auto"
+        poster={POSTER_SRC}
         disablePictureInPicture
         aria-hidden="true"
         tabIndex={-1}
@@ -139,12 +188,8 @@ export default function HeroScrubVideo({ src }) {
           filter: "contrast(1.02) saturate(0.95)",
         }}
       >
-        {/* High-quality 1080p H.264 first — every modern browser (Windows
-            Chrome/Edge, macOS Safari) decodes + scrubs it smoothly with
-            hardware acceleration. The 720p VP9 WebM is only a fallback for
-            the rare browser without H.264 support. */}
-        <source src={src} type="video/mp4" />
-        <source src="/videos/left-right.webm" type="video/webm" />
+        <source src={DESKTOP_SRC} type="video/mp4" />
+        <source src="/videos/owl-hero.webm" type="video/webm" />
       </video>
       {/* Soft edge wash — keeps text legible without darkening the owl */}
       <div

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import GlassSurface from "@/components/glass/GlassSurface";
+import Reveal from "./Reveal";
 import { FAQ } from "@/constants/testIds";
 
 const faqs = [
@@ -90,6 +91,7 @@ export default function FAQSection() {
       data-testid={FAQ.root}
       className="mx-auto max-w-[880px] section-px pb-[120px]"
     >
+      <Reveal>
       <div className="mono-eyebrow mb-4">
         <span style={{ color: "var(--mo-accent)" }}>//</span> FAQ
       </div>
@@ -107,16 +109,18 @@ export default function FAQSection() {
           thinking.
         </span>
       </h2>
+      </Reveal>
 
       <div className="mt-10">
         {faqs.map((f, i) => (
-          <Item
-            key={i}
-            idx={i}
-            {...f}
-            open={openIdx === i}
-            onToggle={() => setOpenIdx(openIdx === i ? -1 : i)}
-          />
+          <Reveal key={i} delay={i * 70}>
+            <Item
+              idx={i}
+              {...f}
+              open={openIdx === i}
+              onToggle={() => setOpenIdx(openIdx === i ? -1 : i)}
+            />
+          </Reveal>
         ))}
       </div>
     </section>

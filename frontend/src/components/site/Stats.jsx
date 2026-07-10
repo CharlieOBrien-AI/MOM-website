@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import GlassSurface from "@/components/glass/GlassSurface";
+import Reveal from "./Reveal";
 import { STATS } from "@/constants/testIds";
 
 function CountUp({ target, prefix = "", suffix = "", duration = 1400 }) {
@@ -76,15 +77,17 @@ export default function Stats() {
       }}
     >
       <div className="mx-auto max-w-[1240px] section-px py-[120px]" style={{ position: "relative", zIndex: 2 }}>
-        <div className="mono-eyebrow mb-10">
-          <span style={{ color: "var(--mo-accent)" }}>//</span> The results speak
-        </div>
+        <Reveal>
+          <div className="mono-eyebrow mb-10">
+            <span style={{ color: "var(--mo-accent)" }}>//</span> The results speak
+          </div>
+        </Reveal>
         <div className="grid gap-6 md:grid-cols-3 md:gap-8">
           {items.map((it, i) => (
+            <Reveal key={i} delay={i * 130}>
             <GlassSurface
-              key={i}
               data-testid={it.testid}
-              className="rounded-2xl p-8"
+              className="h-full rounded-2xl p-8"
               tilt={2.5}
             >
               <div
@@ -108,6 +111,7 @@ export default function Stats() {
                 {it.caption}
               </div>
             </GlassSurface>
+            </Reveal>
           ))}
         </div>
       </div>
