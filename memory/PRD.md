@@ -52,6 +52,16 @@ Create a premium, cinematic landing page hero that feels calm, elegant, and inte
 - Windows performance: orbs no longer use `filter: blur(90px)` (biggest GPU cost), Approach 19MB video lazy-loads via IntersectionObserver, MP4s confirmed faststart.
 - Glass UI v2: `.mo-glass`/`.mo-glass-strong` lighter translucent gradients + blur/saturate/brightness backdrop + rim light + subtle text-shadow for readability.
 
+## Iteration 6 (Jun 2026)
+- Branding: "Midnight Owl" → "Midnight Owl Media" in Nav + Footer.
+- New hero video (user-supplied 4K HEVC owl/moon/city): transcoded to 1080p all-intra H.264 30fps (`owl-hero.mp4`, CRF19) + 720p VP9 WebM fallback (`owl-hero.webm`) for browsers without H.264 (incl. headless). Poster `images/owl-hero-poster.jpg`. Old left-right videos deleted (~51MB).
+- No-zoom hero: section aspect-locked 16/9 on lg+ (video maps 1:1, owl/moon/city never cropped); below lg the video renders as an in-flow 16:9 block stacked above the headline.
+- Mobile hero: plain autoplaying looped video (`owl-hero-mobile.mp4/.webm`, 442KB/215KB) — no scrubbing (`useIsCompact` matchMedia max-width:1023px in HeroScrubVideo.jsx).
+- Push/Pull switch: replaced pill toggle with SkyToggle (`components/ui/sky-toggle.jsx`, styled-components) — sun/day = Push, moon/night = Pull, flanked by highlighted Push/Pull text labels (PremiumToggle.jsx keeps same value/onChange API + testids).
+- Scroll-reveal animations site-wide via `Reveal.jsx` (IntersectionObserver + `.mo-reveal` CSS, staggered delays, reduced-motion safe).
+- Mobile "Stories we've told": swipeable one-card carousel (touch swipe + prev/next + dots + 01/03 counter); desktop keeps 3-col grid. HowItWorks carousel also gained touch swipe.
+- Testing: iteration_2.json — frontend 100% pass, zero console errors.
+
 ## Prioritized Backlog
 - P1 — Contact form → email backend (currently `mailto:` on the Book-a-call CTA).
 - P1 — Additional case-study pages (Work cards currently link to `#contact`).
