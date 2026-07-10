@@ -33,6 +33,14 @@ export default function HeroScrubVideo() {
 function MobileHeroVideo() {
   return (
     <div className="absolute inset-0 overflow-hidden">
+      {/* Instant poster layer — first frame JPG behind the video */}
+      <img
+        src={POSTER_SRC}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{ filter: "contrast(1.02) saturate(0.95)" }}
+      />
       <video
         data-testid="hero-mobile-video"
         muted
@@ -72,6 +80,7 @@ function DesktopScrubVideo() {
   const rafRef = useRef(null);
   const seekingRef = useRef(false);
   const lastSeekRef = useRef(0);
+  const fullyBufferedRef = useRef(false);
   const [ready, setReady] = useState(false);
   const reduced = usePrefersReducedMotion();
 
@@ -95,10 +104,18 @@ function DesktopScrubVideo() {
     const handleSeeked = () => {
       seekingRef.current = false;
     };
+    const handleProgress = () => {
+      const d = durationRef.current;
+      const b = v.buffered;
+      if (d > 0 && b.length > 0 && b.end(b.length - 1) >= d - 0.5) {
+        fullyBufferedRef.current = true;
+      }
+    };
 
     v.addEventListener("loadedmetadata", handleMeta);
     v.addEventListener("loadeddata", handleLoaded);
     v.addEventListener("seeked", handleSeeked);
+    v.addEventListener("progress", handleProgress);
     // Some browsers fire canplay before loadedmetadata reliably
     v.addEventListener("canplay", handleLoaded);
 
@@ -106,6 +123,7 @@ function DesktopScrubVideo() {
       v.removeEventListener("loadedmetadata", handleMeta);
       v.removeEventListener("loadeddata", handleLoaded);
       v.removeEventListener("seeked", handleSeeked);
+      v.removeEventListener("progress", handleProgress);
       v.removeEventListener("canplay", handleLoaded);
     };
   }, []);
@@ -116,7 +134,9 @@ function DesktopScrubVideo() {
 
     const updateTarget = (clientX) => {
       const w = window.innerWidth || 1;
-      const p = Math.max(0, Math.min(1, clientX / w));
+      // Inverted mapping: t=0 owl looks RIGHT, t=end owl looks LEFT —
+      // so cursor on the right maps to t=0 and the head follows the cursor.
+      const p = 1 - Math.max(0, Math.min(1, clientX / w));
       targetTimeRef.current = p * (durationRef.current || 0);
     };
 
@@ -145,14 +165,29 @@ function DesktopScrubVideo() {
           Math.abs(delta) > DEADBAND &&
           t - lastSeekRef.current > SEEK_INTERVAL
         ) {
-          seekingRef.current = true;
-          lastSeekRef.current = t;
-          try {
-            // All-intra keyframes make precise currentTime seeks cheap.
-            const next = Math.max(0, Math.min(d - 0.033, smoothedTimeRef.current));
-            v.currentTime = next;
-          } catch (e) {
-            seekingRef.current = false;
+          const next = Math.max(0, Math.min(d - 0.033, smoothedTimeRef.current));
+          // Never seek into an unbuffered region — seeking past the download
+          // head stalls the decoder and makes the whole page feel frozen
+          // while the file is still streaming in.
+          let allowed = fullyBufferedRef.current;
+          if (!allowed) {
+            const b = v.buffered;
+            for (let i = 0; i < b.length; i++) {
+              if (next >= b.start(i) && next <= b.end(i) - 0.1) {
+                allowed = true;
+                break;
+              }
+            }
+          }
+          if (allowed) {
+            seekingRef.current = true;
+            lastSeekRef.current = t;
+            try {
+              // All-intra keyframes make precise currentTime seeks cheap.
+              v.currentTime = next;
+            } catch (e) {
+              seekingRef.current = false;
+            }
           }
         }
       }
@@ -169,6 +204,16 @@ function DesktopScrubVideo() {
 
   return (
     <div className="absolute inset-0 overflow-hidden">
+      {/* Instant poster layer — the first video frame as a plain JPG so the
+          hero never renders black while the (large) video is still buffering.
+          The video fades in on top of the identical frame, seamlessly. */}
+      <img
+        src={POSTER_SRC}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{ filter: "contrast(1.02) saturate(0.95)" }}
+      />
       {/* The scrubbing video — always visible, only seeks, never plays.
           1080p all-intra H.264 — hardware-decoded on Windows & macOS. */}
       <video

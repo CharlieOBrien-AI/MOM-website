@@ -5,7 +5,18 @@ import styled from "styled-components";
  * SkyToggle — day/night sky switch (sun ↔ moon with clouds & stars).
  * Controlled: `checked` = night (moon) state.
  */
-const SkyToggle = ({ checked, onChange, disabled = false, size = 22, label = "Toggle", ...rest }) => {
+const SkyToggle = ({
+  checked,
+  onChange,
+  disabled = false,
+  size = 22,
+  label = "Toggle",
+  uncheckedLabel,
+  checkedLabel,
+  uncheckedTestId,
+  checkedTestId,
+  ...rest
+}) => {
   return (
     <StyledWrapper>
       <label className="theme-switch" style={{ "--toggle-size": `${size}px` }}>
@@ -34,6 +45,22 @@ const SkyToggle = ({ checked, onChange, disabled = false, size = 22, label = "To
               </div>
             </div>
           </div>
+          {uncheckedLabel && (
+            <span
+              className="theme-switch__label theme-switch__label--unchecked"
+              data-testid={uncheckedTestId}
+            >
+              {uncheckedLabel}
+            </span>
+          )}
+          {checkedLabel && (
+            <span
+              className="theme-switch__label theme-switch__label--checked"
+              data-testid={checkedTestId}
+            >
+              {checkedLabel}
+            </span>
+          )}
         </div>
       </label>
     </StyledWrapper>
@@ -222,6 +249,35 @@ const StyledWrapper = styled.div`
     -webkit-transform: translateY(-50%);
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
+  }
+  /* mode labels — sit inside the free half of the track, opposite the knob */
+  .theme-switch .theme-switch__label {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.56em;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65), 0 0 8px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease 0.12s;
+  }
+  .theme-switch .theme-switch__label--unchecked {
+    right: 1.05em;
+  }
+  .theme-switch .theme-switch__label--checked {
+    left: 1.05em;
+  }
+  .theme-switch__checkbox:not(:checked) + .theme-switch__container .theme-switch__label--unchecked {
+    opacity: 1;
+  }
+  .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__label--checked {
+    opacity: 1;
   }`;
 
 export default SkyToggle;

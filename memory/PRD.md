@@ -61,6 +61,7 @@ Create a premium, cinematic landing page hero that feels calm, elegant, and inte
 - Scroll-reveal animations site-wide via `Reveal.jsx` (IntersectionObserver + `.mo-reveal` CSS, staggered delays, reduced-motion safe).
 - Mobile "Stories we've told": swipeable one-card carousel (touch swipe + prev/next + dots + 01/03 counter); desktop keeps 3-col grid. HowItWorks carousel also gained touch swipe.
 - Testing: iteration_2.json — frontend 100% pass, zero console errors.
+- Fix round (same day): (1) scrub mapping inverted (t=0 owl looks right → cursor-right maps to t=0) so the owl's head follows the cursor; (2) startup lag fixed — seeks are gated to buffered ranges (no decoder stalls while streaming), instant `<img>` poster layer behind both hero videos, files re-encoded smaller (mp4 CRF22 24.5MB, webm CRF36 20.8MB); (3) Push/Pull labels moved INSIDE the sky toggle track (current mode shown opposite the knob, white JetBrains Mono + text-shadow), flanking label buttons removed — testids toggle-push/toggle-pull now on the inner spans, sky-toggle-input on the checkbox.
 
 ## Prioritized Backlog
 - P1 — Contact form → email backend (currently `mailto:` on the Book-a-call CTA).
