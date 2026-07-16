@@ -78,19 +78,21 @@ export default function Stats() {
       <div
         aria-hidden="true"
         className="pointer-events-none absolute left-0 top-0 w-full select-none"
-        style={{ zIndex: 0 }}
+        style={{ zIndex: 0, lineHeight: 0, fontSize: 0 }}
       >
         <img
           src="/images/night-sky.jpg"
           alt=""
           draggable={false}
-          className="block h-auto w-full"
+          className="h-auto w-full"
+          style={{ display: "block", margin: 0, padding: 0, border: 0, verticalAlign: "bottom" }}
         />
         <img
           src="/images/night-sky-2.jpg"
           alt=""
           draggable={false}
-          className="block h-auto w-full"
+          className="h-auto w-full"
+          style={{ display: "block", margin: 0, padding: 0, border: 0, verticalAlign: "bottom" }}
         />
       </div>
       <div className="mx-auto max-w-[1240px] section-px py-[70px]" style={{ position: "relative", zIndex: 2 }}>

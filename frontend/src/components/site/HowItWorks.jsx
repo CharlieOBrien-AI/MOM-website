@@ -64,35 +64,40 @@ const steps = [
 function StepRow({ step, index, open, onToggle }) {
   const Icon = step.icon;
   return (
-    <div data-testid={`process-step-${index}`} className="pt-2">
-      <div className="grid items-start gap-8 lg:grid-cols-[minmax(240px,0.9fr)_1.3fr_auto] lg:gap-14">
-        {/* (Step n) + big title */}
-        <div>
-          <div
-            className="text-[12px] tracking-[0.1em]"
-            style={{
-              color: "var(--mo-fg-dim)",
-              fontFamily: "JetBrains Mono, monospace",
-            }}
-          >
-            (Step {index + 1})
-          </div>
-          <h3
-            className="mt-2 text-white"
-            style={{
-              fontFamily: "Instrument Serif, serif",
-              fontSize: "clamp(34px, 3.4vw, 52px)",
-              letterSpacing: "-0.015em",
-              lineHeight: 1.02,
-            }}
-          >
-            {step.title}
-          </h3>
+    <div data-testid={`process-step-${index}`} className="pt-2 text-center">
+      <div className="flex flex-col items-center gap-6">
+        {/* Icon (centered on top for balance) */}
+        <div aria-hidden="true">
+          <Icon size={72} strokeWidth={0.9} color="rgba(255,255,255,0.9)" />
         </div>
+
+        {/* (Step n) */}
+        <div
+          className="text-[12px] tracking-[0.1em]"
+          style={{
+            color: "var(--mo-fg-dim)",
+            fontFamily: "JetBrains Mono, monospace",
+          }}
+        >
+          (Step {index + 1})
+        </div>
+
+        {/* Big title */}
+        <h3
+          className="text-white"
+          style={{
+            fontFamily: "Instrument Serif, serif",
+            fontSize: "clamp(34px, 3.4vw, 52px)",
+            letterSpacing: "-0.015em",
+            lineHeight: 1.02,
+          }}
+        >
+          {step.title}
+        </h3>
 
         {/* Description */}
         <p
-          className="max-w-[560px] text-[15px] leading-[1.8] lg:pt-7"
+          className="mx-auto max-w-[640px] text-[15px] leading-[1.8]"
           style={{
             color: "var(--mo-fg)",
             fontFamily: "JetBrains Mono, monospace",
@@ -100,15 +105,10 @@ function StepRow({ step, index, open, onToggle }) {
         >
           {step.desc}
         </p>
-
-        {/* Line icon */}
-        <div className="hidden lg:block lg:pt-4" aria-hidden="true">
-          <Icon size={84} strokeWidth={0.9} color="rgba(255,255,255,0.9)" />
-        </div>
       </div>
 
       {/* Expandable detail row */}
-      <div className="mt-10">
+      <div className="mx-auto mt-10 max-w-[720px] text-left">
         <div className="border-t" style={{ borderColor: "var(--mo-line)" }}>
           <button
             type="button"
@@ -216,107 +216,116 @@ export default function HowItWorks() {
       data-testid={PROCESS.root}
       style={{ background: "transparent", position: "relative" }}
     >
-      <div className="mx-auto max-w-[1240px] section-px py-[70px]">
+      <div className="mx-auto max-w-[1240px] section-px py-[70px] text-center">
         <Reveal>
           <div className="mono-eyebrow mb-4">
             <span style={{ color: "var(--mo-accent)" }}>//</span> How it works
           </div>
 
-          <div className="flex flex-wrap items-end justify-between gap-8">
-            <h2
-              className="text-white"
-              style={{
-                fontFamily: "Instrument Serif, serif",
-                fontSize: "clamp(36px, 5vw, 68px)",
-                lineHeight: 1.05,
-                letterSpacing: "-0.015em",
-                maxWidth: "900px",
-              }}
-            >
-              {"How We Create Content That"}{" "}
-              <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
-                Pulls People In.
-              </span>
-            </h2>
+          <h2
+            className="mx-auto text-white"
+            style={{
+              fontFamily: "Instrument Serif, serif",
+              fontSize: "clamp(36px, 5vw, 68px)",
+              lineHeight: 1.05,
+              letterSpacing: "-0.015em",
+              maxWidth: "900px",
+            }}
+          >
+            {"How We Create Content That"}{" "}
+            <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
+              Pulls People In.
+            </span>
+          </h2>
 
-            <div className="flex items-center gap-3">
-              <div
-                className="text-[11px] tracking-[0.24em] uppercase"
-                data-testid="process-step-indicator"
-                style={{
-                  color: "var(--mo-fg-dim)",
-                  fontFamily: "JetBrains Mono, monospace",
-                }}
-              >
-                <span style={{ color: "var(--mo-accent)" }}>
-                  {String(idx + 1).padStart(2, "0")}
-                </span>
-                {" / "}
-                {String(total).padStart(2, "0")}
-              </div>
-              <button
-                type="button"
-                onClick={prev}
-                data-testid="process-prev"
-                aria-label="Previous step"
-                className="grid h-11 w-11 place-items-center rounded-full border transition-all duration-300 hover:-translate-x-0.5 hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)]"
-                style={{
-                  borderColor: "var(--mo-line-strong)",
-                  color: "var(--mo-fg-dim)",
-                  background: "rgba(255,255,255,0.02)",
-                }}
-              >
-                <ChevronLeft size={18} strokeWidth={1.6} />
-              </button>
-              <button
-                type="button"
-                onClick={next}
-                data-testid="process-next"
-                aria-label="Next step"
-                className="grid h-11 w-11 place-items-center rounded-full border transition-all duration-300 hover:translate-x-0.5 hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)]"
-                style={{
-                  borderColor: "var(--mo-line-strong)",
-                  color: "var(--mo-fg-dim)",
-                  background: "rgba(255,255,255,0.02)",
-                }}
-              >
-                <ChevronRight size={18} strokeWidth={1.6} />
-              </button>
-            </div>
+          <div
+            className="mt-6 text-[11px] tracking-[0.24em] uppercase"
+            data-testid="process-step-indicator"
+            style={{
+              color: "var(--mo-fg-dim)",
+              fontFamily: "JetBrains Mono, monospace",
+            }}
+          >
+            <span style={{ color: "var(--mo-accent)" }}>
+              {String(idx + 1).padStart(2, "0")}
+            </span>
+            {" / "}
+            {String(total).padStart(2, "0")}
           </div>
         </Reveal>
 
-        {/* One step at a time — arrows / swipe / keyboard reveal the next */}
+        {/* One step at a time — arrows on the sides + swipe / keyboard reveal the next */}
         <Reveal delay={130}>
-          <div
-            ref={trackRef}
-            className="mt-12 overflow-hidden border-t"
-            style={{ borderColor: "var(--mo-line)" }}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd}
-          >
-            <div
-              className="flex"
+          <div className="relative mt-12">
+            {/* Left arrow */}
+            <button
+              type="button"
+              onClick={prev}
+              data-testid="process-prev"
+              aria-label="Previous step"
+              className="absolute left-0 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border transition-all duration-300 hover:-translate-x-0.5 hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)] sm:h-12 sm:w-12 md:left-2 lg:left-4"
               style={{
-                width: `${total * 100}%`,
-                transform: `translate3d(-${(idx * 100) / total}%, 0, 0)`,
-                transition: "transform 600ms cubic-bezier(0.4, 0, 0.2, 1)",
+                borderColor: "var(--mo-line-strong)",
+                color: "var(--mo-fg-dim)",
+                background: "rgba(0,0,0,0.35)",
+                WebkitBackdropFilter: "blur(6px)",
+                backdropFilter: "blur(6px)",
+                transform: "translateY(-50%)",
               }}
             >
-              {steps.map((s, i) => (
-                <div
-                  key={s.title}
-                  className="py-10 lg:py-12"
-                  style={{ width: `${100 / total}%`, flexShrink: 0 }}
-                >
-                  <StepRow
-                    step={s}
-                    index={i}
-                    open={openIdx === i}
-                    onToggle={() => setOpenIdx(openIdx === i ? -1 : i)}
-                  />
-                </div>
-              ))}
+              <ChevronLeft size={20} strokeWidth={1.6} />
+            </button>
+
+            {/* Right arrow */}
+            <button
+              type="button"
+              onClick={next}
+              data-testid="process-next"
+              aria-label="Next step"
+              className="absolute right-0 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border transition-all duration-300 hover:translate-x-0.5 hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)] sm:h-12 sm:w-12 md:right-2 lg:right-4"
+              style={{
+                borderColor: "var(--mo-line-strong)",
+                color: "var(--mo-fg-dim)",
+                background: "rgba(0,0,0,0.35)",
+                WebkitBackdropFilter: "blur(6px)",
+                backdropFilter: "blur(6px)",
+                transform: "translateY(-50%)",
+              }}
+            >
+              <ChevronRight size={20} strokeWidth={1.6} />
+            </button>
+
+            {/* Carousel content, padded so arrows never overlap text */}
+            <div
+              ref={trackRef}
+              className="overflow-hidden border-t px-14 sm:px-16 md:px-20"
+              style={{ borderColor: "var(--mo-line)" }}
+              onTouchStart={onTouchStart}
+              onTouchEnd={onTouchEnd}
+            >
+              <div
+                className="flex"
+                style={{
+                  width: `${total * 100}%`,
+                  transform: `translate3d(-${(idx * 100) / total}%, 0, 0)`,
+                  transition: "transform 600ms cubic-bezier(0.4, 0, 0.2, 1)",
+                }}
+              >
+                {steps.map((s, i) => (
+                  <div
+                    key={s.title}
+                    className="py-10 lg:py-12"
+                    style={{ width: `${100 / total}%`, flexShrink: 0 }}
+                  >
+                    <StepRow
+                      step={s}
+                      index={i}
+                      open={openIdx === i}
+                      onToggle={() => setOpenIdx(openIdx === i ? -1 : i)}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 

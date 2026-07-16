@@ -102,46 +102,46 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Iteration 5: (1) Examples card on the monitor now visible in BOTH Pull and Push modes (content swaps with mode); (2) Eyebrow headings rolled back to originals (Stats keeps '// The results speak' as user chose); (3) Stats caption '300+' now reads 'Videos produced.'; (4) HowItWorks redesigned: heading 'How We Create Content That Pulls People In.', carousel replaced with a vertical 6-step flow (Audience Research, Story Development, Production, Retention Editing, Distribution, Trust) each with circled number, one-sentence outcome, 3 small bullets, and a down-arrow connector; (5) Windows perf: removed filter:blur(90px) from 5 huge animated orbs, Approach video lazy-loads via IntersectionObserver (preload=none until near viewport), hero+approach MP4s confirmed faststart; (6) Actual glass UI: .mo-glass/.mo-glass-strong reworked with lighter translucent gradients, backdrop blur+saturate+brightness, crisp rim light, subtle text-shadow for readability."
+user_problem_statement: "Iteration 6: (1) New allstarsteven Instagram comment added to Voices ('Your content quality is 🔥', verified badge, real avatar photo, 4w + View replies (1)); (2) HowItWorks fully center-aligned (heading, step number, title, description, dot indicators); (3) Auto-pause behavior in Work section — clicking play on any story unmounts (pauses) whichever other story was playing (playingIdx state lifted to parent); (4) Stats SQ2/SQ3 stacking hardened — night-sky.jpg then night-sky-2.jpg with 0px gap (line-height:0, font-size:0 on wrapper; display:block, verticalAlign:bottom, margin:0 on <img>s), no crop; (5) HowItWorks arrows moved to left/right sides of the step content (vertically centered, absolute-positioned, backdrop blur, translateY(-50%)); (6) Removed 'AI · Short' / 'Tech · Short' kicker tags from Stories cards; (7) Custom local thumbnails wired into Stories — Mira Murati poster, Zuck vs Government poster, Elon-vs-Sam poster."
 
 frontend:
-  - task: "Hero scrub video uses high-quality 1080p MP4 first (Windows/Mac quality fix)"
+  - task: "Voices: new allstarsteven Instagram comment with verified badge + real avatar"
     implemented: true
     working: true
-    file: "/app/frontend/src/components/site/HeroScrubVideo.jsx"
+    file: "/app/frontend/src/components/site/Voices.jsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
       - working: true
         agent: "main"
-        comment: "Source order flipped: MP4 (1920x1080 H.264) now listed before the 720p VP9 WebM, so Chrome/Edge/Firefox on Windows and Safari on Mac pick the high-quality file. Verified via screenshot — hero renders. NOTE: this sandbox's headless Chromium has no H.264, so it falls back to the WebM here; real browsers pick the MP4."
+        comment: "Added a new Instagram comment (@allstarsteven, verified BadgeCheck icon in Instagram blue, real avatar cropped from user's screenshot at /images/avatars/allstarsteven.jpg, text 'Your content quality is 🔥', meta '4w', viewReplies 1, no likesLabel). Updated InstagramComment renderer to conditionally render avatar image OR initial-based avatar, and to render the verified badge inline after the username. Verified via screenshot — new comment renders correctly in the pile."
 
-  - task: "New Push/Pull workspace video wired in with same scrub logic (night=Pull, day=Push)"
+  - task: "HowItWorks: fully center-aligned layout + arrows moved to left/right sides"
     implemented: true
     working: true
-    file: "/app/frontend/src/components/site/Approach.jsx"
+    file: "/app/frontend/src/components/site/HowItWorks.jsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
       - working: true
         agent: "main"
-        comment: "User's new 4K video transcoded to 2560x1430 all-intra H.264 (owl-workspace.mp4, CRF19) + 1920x1072 VP9 WebM fallback (owl-workspace.webm). Poster regenerated from frame 0. Wrapper aspectRatio updated to 2560/1430 (natural aspect, zero crop). Verified in browser: video decodes (duration 5.042s), Push scrubs 0 -> 5.042 (night to day), Pull default parks at 0. Examples card re-anchored to the new video's monitor screen (left 47.35%, top 28.9%, width 32.4%, height 39.1%) — DOM measurement matches exactly; screenshot confirms pixel-perfect placement on the day-scene monitor."
+        comment: "Section wrapper now uses text-center. Heading is centered (max-w-900 mx-auto). Step indicator '01 / 06' moved below the heading and centered. StepRow rewritten to flex-col items-center: icon on top, then (Step n), then title, then description (all centered). Accordion still opens; kept its inner content left-aligned so bullets read cleanly. Prev/next arrows moved out of the header and into absolute left-0 / right-0 buttons, vertically centered via top:50% + translateY(-50%), with backdrop blur + rgba(0,0,0,0.35) so they stay legible over both dark and bright SQ2/SQ3 backgrounds. Track content padded (px-14/16/20) so arrows never overlap text. Verified via Playwright: arrow clicks advance step indicator 01→02→03, prev returns 03→02."
 
-  - task: "Approach copy overhaul (new headline, no toggle captions, metaphor-only small card)"
+  - task: "Work: only-one-video-plays-at-a-time (auto-pause others when one plays)"
     implemented: true
     working: true
-    file: "/app/frontend/src/components/site/Approach.jsx"
+    file: "/app/frontend/src/components/site/Work.jsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
       - working: true
         agent: "main"
-        comment: "Headline now static: 'Most brands push content, ignoring what pulls audiences.' with push in var(--mo-mute) italic and pulls in var(--mo-accent) italic. Toggle caption lines (THE OWL AWAKE/ASLEEP) deleted. Small glass card shows ONLY the metaphor line per mode with generous padding (px-8 py-9): Pull='Like a crowd gathering around a great performer.', Push='Like handing flyers to strangers.'. Layout, toggle, monitor, Examples card all unchanged. Verified via screenshots in both modes."
+        comment: "Lifted 'playing' state from each WorkCard up to the parent Work component as playingIdx (defaults to -1). WorkCard now takes isPlaying (boolean) + onPlay(index) props. Clicking Play sets playingIdx to that card's index; the previous card's iframe unmounts and its play button + thumbnail re-render (which is effectively 'pause' for embedded YouTube). Verified via Playwright: clicked play-0 → iframe-0 mounted, iframe-1/2 absent. Then clicked play-2 → iframe-0 unmounted, play-0 button reappeared, iframe-2 mounted."
 
-  - task: "Stats section: leaves background removed, heading '// The results speak'"
+  - task: "Stats: SQ2/SQ3 night-sky images stack with 0px gap, no crop"
     implemented: true
     working: true
     file: "/app/frontend/src/components/site/Stats.jsx"
@@ -151,35 +151,40 @@ frontend:
     status_history:
       - working: true
         agent: "main"
-        comment: "Background image div + readability overlay removed; section now transparent over the site-wide orb backdrop. Eyebrow replaced. Verified via screenshot + DOM check (0 background images in section)."
+        comment: "Container div gets lineHeight:0 + fontSize:0 to eliminate any inline whitespace gap; each <img> gets display:block, verticalAlign:bottom, margin:0, padding:0, border:0. h-auto w-full preserves natural aspect (no crop). DOM check confirms: SQ2 bottom = 2894px, SQ3 top = 2894px → gap = 0px."
 
-  - task: "Section order swap (How it works before Recent work) + eyebrow heading rewrites + Safari webkit backdrop prefixes"
+  - task: "Work: remove 'AI · Short' / 'Tech · Short' kicker tags + custom local thumbnails"
     implemented: true
     working: true
-    file: "/app/frontend/src/pages/Home.jsx"
+    file: "/app/frontend/src/components/site/Work.jsx"
     stuck_count: 0
-    priority: "medium"
+    priority: "high"
     needs_retesting: false
     status_history:
       - working: true
         agent: "main"
-        comment: "Home.jsx order now Hero, Stats, Approach, HowItWorks, Work, Voices, Contact, FAQ (verified via DOM: ['top','stats-section','approach','process-section','work',...]). Eyebrows rewritten: Hero '// The storytelling studio for founders', Stats '// The results speak', Approach '// Why pull wins', HowItWorks '// Simple by design', Work '// Proof in the wild', Voices '// Earned, not bought', FAQ '// Before you ask'. WebkitBackdropFilter added beside backdropFilter inline styles in Nav, Footer, Work, PremiumToggle for older Safari. Unused night-to-day/day-to-night videos (~55MB) deleted."
+        comment: "Removed the kicker line from the WorkCard overlay entirely. Items[] no longer carries a 'kicker' field — replaced with 'thumb' pointing at /images/work/thumb-mira.jpg, thumb-zuck.jpg, thumb-openai.jpg. The three PNG posters uploaded by the user were downloaded, resized to 1080w JPEGs (~300-450KB each) and stored in /app/frontend/public/images/work/. Story-to-poster mapping: (1) Mira Murati poster → 'The Woman Who Built ChatGPT Just Returned with Thinking Machines Lab'; (2) Zuck vs Government poster → 'China Forced Meta to Reverse a $2 Billion Deal'; (3) Elon-vs-Sam poster with red-headed narrator → 'The OpenAI Lawsuit Explained: Elon Musk vs Sam Altman'. Verified visually via screenshot."
 
 metadata:
   created_by: "main_agent"
-  version: "1.3"
-  test_sequence: 4
+  version: "1.4"
+  test_sequence: 5
   run_ui: true
 
 test_plan:
   current_focus:
-    - "New Push/Pull workspace video wired in with same scrub logic (night=Pull, day=Push)"
-    - "Approach copy overhaul (new headline, no toggle captions, metaphor-only small card)"
+    - "Voices: new allstarsteven Instagram comment with verified badge + real avatar"
+    - "HowItWorks: fully center-aligned layout + arrows moved to left/right sides"
+    - "Work: only-one-video-plays-at-a-time (auto-pause others when one plays)"
+    - "Work: remove 'AI · Short' / 'Tech · Short' kicker tags + custom local thumbnails"
+    - "Stats: SQ2/SQ3 night-sky images stack with 0px gap, no crop"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
+  - agent: "main"
+    message: "Iteration 6 complete. Files changed: Voices.jsx (new comment + avatar image support + BadgeCheck verified icon), HowItWorks.jsx (fully centered layout + side-anchored arrows), Work.jsx (playingIdx lifted to parent for auto-pause; kicker removed; local thumbnails wired), Stats.jsx (0px gap between SQ2 and SQ3 hardened). New assets in /app/frontend/public/images/: avatars/allstarsteven.jpg (cropped from user's IG screenshot), work/thumb-mira.jpg, work/thumb-zuck.jpg, work/thumb-openai.jpg. Self-verified via Playwright: (a) allstarsteven card renders with blue verified icon and avatar; (b) HowItWorks arrows advance 01→02→03 and prev returns; (c) clicking work-play-0 then work-play-2 unmounts iframe-0 (proof of auto-pause); (d) DOM check: night-sky.jpg bottom=2894, night-sky-2.jpg top=2894, gap=0px."
   - agent: "main"
     message: "Iteration 5 complete, self-verified via screenshots + DOM checks. Changes: (a) Approach.jsx — Examples card always visible on the monitor (both modes, content swaps; isPush gating removed), video lazy-loads via IntersectionObserver (preload=none -> auto near viewport, verified readyState 4 after scroll); (b) eyebrows rolled back to originals except Stats ('// The results speak'); (c) Stats 300+ caption now 'Videos produced.'; (d) HowItWorks.jsx fully redesigned — vertical 6-step flow (process-step-0..5 testids, old carousel testids process-prev/next/dot-* and step-indicator REMOVED), heading 'How We Create Content That Pulls People In.'; (e) index.css — orbs no longer use filter:blur (Windows GPU perf), .mo-glass/.mo-glass-strong lighter + brightness boost + text-shadow. Verified: all 6 step titles render, pull-mode card visible with pull examples, headings/captions correct."
   - agent: "main"

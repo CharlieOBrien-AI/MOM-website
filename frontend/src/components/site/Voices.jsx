@@ -1,4 +1,4 @@
-import { ThumbsUp, ThumbsDown, Heart, MoreVertical, ChevronDown } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Heart, MoreVertical, ChevronDown, BadgeCheck } from "lucide-react";
 import GlassSurface from "@/components/glass/GlassSurface";
 import Reveal from "./Reveal";
 import { VOICES } from "@/constants/testIds";
@@ -55,6 +55,15 @@ const comments = [
     likes: "2",
     creatorHeart: true,
     heartOutline: false,
+  },
+  {
+    platform: "instagram",
+    avatarImage: "/images/avatars/allstarsteven.jpg",
+    user: "allstarsteven",
+    verified: true,
+    lines: ["Your content quality is 🔥"],
+    meta: "4w",
+    viewReplies: 1,
   },
   {
     platform: "instagram",
@@ -190,24 +199,44 @@ function YouTubeComment({ c }) {
 function InstagramComment({ c }) {
   return (
     <div className="flex gap-3.5" style={{ fontFamily: ytFont }}>
-      <div
-        className="grid h-9 w-9 flex-none place-items-center rounded-full text-[14px] font-medium text-white"
-        style={{ background: c.avatarBg }}
-      >
-        {c.avatarText}
-      </div>
+      {c.avatarImage ? (
+        <img
+          src={c.avatarImage}
+          alt={c.user}
+          className="h-9 w-9 flex-none rounded-full object-cover"
+          style={{ display: "block" }}
+        />
+      ) : (
+        <div
+          className="grid h-9 w-9 flex-none place-items-center rounded-full text-[14px] font-medium text-white"
+          style={{ background: c.avatarBg }}
+        >
+          {c.avatarText}
+        </div>
+      )}
 
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-4">
           <p className="text-[14px] leading-[1.5] text-white">
-            <span className="font-semibold">{c.user}</span> {c.lines[0]}
+            <span className="font-semibold">{c.user}</span>
+            {c.verified ? (
+              <BadgeCheck
+                size={14}
+                className="ml-1 inline-block align-[-2px] flex-none"
+                fill="#3897f0"
+                color="#000"
+                strokeWidth={2.2}
+                aria-label="Verified"
+              />
+            ) : null}{" "}
+            {c.lines[0]}
           </p>
           <Heart size={16} color="#f1f1f1" strokeWidth={1.7} className="mt-1 flex-none" />
         </div>
 
         <div className="mt-2 flex items-center gap-4 text-[13px]" style={{ color: "#a8a8a8" }}>
           <span>{c.meta}</span>
-          <span className="font-medium">{c.likesLabel}</span>
+          {c.likesLabel ? <span className="font-medium">{c.likesLabel}</span> : null}
           <span className="font-medium">Reply</span>
         </div>
 

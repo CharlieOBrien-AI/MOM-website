@@ -9,26 +9,21 @@ const items = [
   {
     id: "1IVDAVZa-YA",
     title: "The Woman Who Built ChatGPT Just Returned with Thinking Machines Lab",
-    kicker: "AI · Short",
+    thumb: "/images/work/thumb-mira.jpg",
   },
   {
     id: "hvxb_A3Husg",
     title: "China Forced Meta to Reverse a $2 Billion Deal",
-    kicker: "Tech · Short",
+    thumb: "/images/work/thumb-zuck.jpg",
   },
   {
     id: "jt37NLgpmIQ",
     title: "The OpenAI Lawsuit Explained: Elon Musk vs Sam Altman",
-    kicker: "AI · Short",
+    thumb: "/images/work/thumb-openai.jpg",
   },
 ];
 
-function WorkCard({ it, index }) {
-  const [playing, setPlaying] = useState(false);
-  const [thumb, setThumb] = useState(
-    `https://i.ytimg.com/vi/${it.id}/oar2.jpg`
-  );
-
+function WorkCard({ it, index, isPlaying, onPlay }) {
   return (
     <GlassSurface
       data-testid={`work-card-${index}`}
@@ -37,7 +32,7 @@ function WorkCard({ it, index }) {
       tilt={3}
       style={{ aspectRatio: "9 / 16" }}
     >
-      {playing ? (
+      {isPlaying ? (
         <iframe
           data-testid={`work-iframe-${index}`}
           src={`https://www.youtube.com/embed/${it.id}?autoplay=1&playsinline=1&rel=0`}
@@ -52,26 +47,23 @@ function WorkCard({ it, index }) {
           type="button"
           data-testid={`work-play-${index}`}
           aria-label={`Play: ${it.title}`}
-          onClick={() => setPlaying(true)}
+          onClick={() => onPlay(index)}
           className="absolute inset-0 block h-full w-full cursor-pointer text-left"
           style={{ border: 0, background: "transparent" }}
         >
           <img
-            src={thumb}
+            src={it.thumb}
             alt={it.title}
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
             style={{ borderRadius: "inherit" }}
-            onError={() =>
-              setThumb(`https://i.ytimg.com/vi/${it.id}/hqdefault.jpg`)
-            }
           />
           <span
             aria-hidden="true"
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.82) 100%)",
+                "linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.72) 100%)",
               borderRadius: "inherit",
             }}
           />
@@ -104,18 +96,10 @@ function WorkCard({ it, index }) {
                 fontFamily: "Instrument Serif, serif",
                 fontSize: "22px",
                 lineHeight: 1.15,
+                textShadow: "0 2px 12px rgba(0,0,0,0.55)",
               }}
             >
               {it.title}
-            </span>
-            <span
-              className="mt-2 block text-[11px] tracking-[0.18em] uppercase"
-              style={{
-                color: "var(--mo-fg-dim)",
-                fontFamily: "JetBrains Mono, monospace",
-              }}
-            >
-              {it.kicker}
             </span>
           </span>
         </button>
@@ -127,10 +111,12 @@ function WorkCard({ it, index }) {
 export default function Work() {
   const total = items.length;
   const [idx, setIdx] = useState(0);
+  const [playingIdx, setPlayingIdx] = useState(-1);
   const touchRef = useRef({ x: 0, y: 0 });
 
   const next = () => setIdx((i) => (i + 1) % total);
   const prev = () => setIdx((i) => (i - 1 + total) % total);
+  const handlePlay = (i) => setPlayingIdx(i);
 
   const onTouchStart = (e) => {
     if (e.touches && e.touches[0]) {
@@ -192,7 +178,7 @@ export default function Work() {
       <div className="hidden grid-cols-3 gap-5 md:grid">
         {items.map((it, i) => (
           <Reveal key={it.id} delay={i * 130}>
-            <WorkCard it={it} index={i} />
+            <WorkCard it={it} index={i} isPlaying={playingIdx === i} onPlay={handlePlay} />
           </Reveal>
         ))}
       </div>
@@ -219,7 +205,7 @@ export default function Work() {
                 className="px-1"
                 style={{ width: `${100 / total}%`, flexShrink: 0 }}
               >
-                <WorkCard it={it} index={i} />
+                <WorkCard it={it} index={i} isPlaying={playingIdx === i} onPlay={handlePlay} />
               </div>
             ))}
           </div>

@@ -111,6 +111,14 @@ Create a premium, cinematic landing page hero that feels calm, elegant, and inte
 - Push/Pull lag fix: owl-workspace.mp4 re-encoded 2560→1920×1072 + denoise (19MB→7.8MB, ~60% lighter decode); scrubTo now seek-gated (only issues a new currentTime after the previous 'seeked' fires — no more decoder flooding; wall-clock easing skips frames gracefully).
 - Our Work: 3 real YouTube shorts (1IVDAVZa-YA, hvxb_A3Husg, jt37NLgpmIQ — Charlie O'Brien channel) as 9:16 click-to-play cards (oar2.jpg thumbnail → hqdefault fallback, iframe embed with autoplay on click, `work-play-{i}` / `work-iframe-{i}` testids). "See all" links to the channel's shorts page. NOTE: YouTube embeds show "unavailable" in headless test browsers (bot detection) but work in real browsers — oEmbed + thumbnails verified 200.
 
+## Iteration 14 (Jul 2026)
+- Voices: 8th comment added — @allstarsteven ("Your content quality is 🔥"), Instagram style with real avatar photo (`/images/avatars/allstarsteven.jpg`, cropped from user's screenshot with the IG gradient ring preserved) and a blue verified BadgeCheck icon rendered inline with the username; 4w + View replies (1). `InstagramComment` renderer now supports optional `avatarImage` and `verified` fields.
+- HowItWorks: fully center-aligned — heading, step number, title, description, icon and dots all centered; step content column stacked (icon → (Step n) → title → description) inside `text-center`. Prev/Next arrows moved out of the header and pinned to the LEFT and RIGHT of the current step content (absolute + top:50% + `translateY(-50%)`, backdrop blur, `rgba(0,0,0,0.35)` disc). Track content padded (px-14/16/20) so arrows never overlap text.
+- Work: only-one-video-plays-at-a-time. `playing` state lifted from each `WorkCard` up to the parent `Work` component as `playingIdx`. Clicking Play on any card triggers `onPlay(i)`, which sets `playingIdx` — the previously-playing card's iframe unmounts (effective pause) and its thumbnail + play button re-render.
+- Work: kicker tags ("AI · Short", "Tech · Short") REMOVED from the card overlay.
+- Work: custom local thumbnails wired — `/images/work/thumb-mira.jpg` (Mira Murati poster, "Thinking Machines Lab" story), `thumb-zuck.jpg` (Zuck vs Government, "China Meta Deal" story), `thumb-openai.jpg` (Elon vs Sam narrator, "OpenAI Lawsuit" story). PNG sources (2–3MB each) were re-encoded to progressive JPEGs at 1080w q=88 (~300–450KB each).
+- Stats: SQ2/SQ3 stacking hardened. Container div gets `line-height: 0` + `font-size: 0`; each `<img>` gets `display: block`, `verticalAlign: bottom`, `margin: 0`, `padding: 0`, `border: 0`. DOM-verified 0px gap (SQ2 bottom = 2894 → SQ3 top = 2894).
+
 ## Prioritized Backlog
 - P1 — Contact form → email backend (currently `mailto:` on the Book-a-call CTA).
 - P1 — Additional case-study pages (Work cards currently link to `#contact`).
