@@ -72,23 +72,27 @@ export default function Stats() {
       data-testid={STATS.root}
       style={{ position: "relative", background: "transparent" }}
     >
-      {/* Night-sky artwork — full image end-to-end (no crop); it's taller
-          than the section, so it bleeds a little into the next section. */}
-      <img
-        src="/images/night-sky.jpg"
-        alt=""
+      {/* Night-sky artwork stack — SQ2 then SQ3 directly below it, both
+          full-width at natural aspect (no crop, no filter), bleeding into
+          the following sections. */}
+      <div
         aria-hidden="true"
-        draggable={false}
         className="pointer-events-none absolute left-0 top-0 w-full select-none"
-        style={{
-          height: "auto",
-          zIndex: 0,
-          WebkitMaskImage:
-            "linear-gradient(180deg, black 0%, black 82%, transparent 100%)",
-          maskImage:
-            "linear-gradient(180deg, black 0%, black 82%, transparent 100%)",
-        }}
-      />
+        style={{ zIndex: 0 }}
+      >
+        <img
+          src="/images/night-sky.jpg"
+          alt=""
+          draggable={false}
+          className="block h-auto w-full"
+        />
+        <img
+          src="/images/night-sky-2.jpg"
+          alt=""
+          draggable={false}
+          className="block h-auto w-full"
+        />
+      </div>
       <div className="mx-auto max-w-[1240px] section-px py-[70px]" style={{ position: "relative", zIndex: 2 }}>
         <Reveal>
           <div className="mono-eyebrow mb-10">

@@ -1,9 +1,19 @@
+import { useEffect, useState } from "react";
 import HeroScrubVideo from "./HeroScrubVideo";
 import TextRotator from "./TextRotator";
 import GlassSurface from "@/components/glass/GlassSurface";
 import { HERO } from "@/constants/testIds";
 
 export default function Hero() {
+  // Headline choreography: "30 videos a month" starts pure white with no
+  // strikethrough and nothing below it; after ~3.5s the strike draws in,
+  // the text dims to grey and the rotator line fades up.
+  const [struck, setStruck] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setStruck(true), 3500);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <section
       id="top"
@@ -37,23 +47,38 @@ export default function Hero() {
             We help you build{" "}
             <span
               className="relative whitespace-nowrap"
-              style={{ color: "var(--mo-mute)" }}
+              style={{
+                color: struck ? "var(--mo-mute)" : "#ffffff",
+                transition: "color 900ms ease",
+              }}
             >
               <span style={{ fontStyle: "italic" }}>30 videos a month</span>
               <span
                 aria-hidden="true"
-                className="absolute left-0 right-0 top-[54%] block mo-strike-draw"
+                data-testid="hero-strike"
+                className="absolute left-0 top-[54%] block"
                 style={{
                   height: "3px",
+                  width: struck ? "100%" : "0%",
                   background: "var(--mo-accent-warm)",
+                  transition: "width 900ms cubic-bezier(0.65, 0, 0.35, 1)",
                 }}
               />
             </span>
             <br />
-            <TextRotator
-              words={["trust.", "loyalty.", "a community."]}
-              style={{ color: "var(--mo-accent)", fontStyle: "italic" }}
-            />
+            <span
+              data-testid="hero-rotator-line"
+              style={{
+                opacity: struck ? 1 : 0,
+                transition: "opacity 800ms ease 350ms",
+              }}
+            >
+              <TextRotator
+                words={["trust.", "loyalty.", "a community."]}
+                active={struck}
+                style={{ color: "var(--mo-accent)", fontStyle: "italic" }}
+              />
+            </span>
           </h1>
 
           <p

@@ -29,6 +29,7 @@ const SLOT_EM = 1.35;
 export default function TextRotator({
   words = [],
   interval = 2500,
+  active = true,
   className = "",
   style = {},
 }) {
@@ -38,7 +39,7 @@ export default function TextRotator({
   const rollWords = words.length > 0 ? [...words, words[0]] : words;
 
   useEffect(() => {
-    if (words.length < 2) return;
+    if (words.length < 2 || !active) return;
     const n = words.length;
     indexRef.current = 0;
 
@@ -66,7 +67,7 @@ export default function TextRotator({
 
     const id = setInterval(tick, interval);
     return () => clearInterval(id);
-  }, [words, interval]);
+  }, [words, interval, active]);
 
   if (words.length === 0) return null;
 
