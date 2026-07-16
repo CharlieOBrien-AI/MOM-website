@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import GlassSurface from "@/components/glass/GlassSurface";
 import PremiumToggle from "./PremiumToggle";
 import Reveal from "./Reveal";
@@ -38,11 +39,21 @@ const MONITOR_RADIUS = "clamp(3px, 0.42vw, 8px)";
 
 const TRANSITION_MS = 2600; // duration of the night↔day scrub
 
-// Push-mode example reels — user-supplied ads, shown as-is (no titles).
+// Push-mode example reels — user-supplied ads. Tiles autoplay a muted
+// preview; the play button opens the full 720p version WITH sound.
 const PUSH_VIDEOS = [
-  "/videos/examples/push-1.mp4",
-  "/videos/examples/push-2.mp4",
-  "/videos/examples/push-3.mp4",
+  {
+    preview: "/videos/examples/push-1.mp4",
+    full: "/videos/examples/push-1-hd.mp4",
+  },
+  {
+    preview: "/videos/examples/push-2.mp4",
+    full: "/videos/examples/push-2-hd.mp4",
+  },
+  {
+    preview: "/videos/examples/push-3.mp4",
+    full: "/videos/examples/push-3-hd.mp4",
+  },
 ];
 
 /**
@@ -50,6 +61,7 @@ const PUSH_VIDEOS = [
  */
 export default function Approach() {
   const [mode, setMode] = useState("pull");
+  const [lightbox, setLightbox] = useState(null); // src of the full-quality video
 
   const copy = {
     pull: {
@@ -338,8 +350,13 @@ export default function Approach() {
         } grid grid-cols-3`}
       >
         {mode === "push"
-          ? PUSH_VIDEOS.map((src, i) => (
-              <VideoTile key={src} src={src} index={i} />
+          ? PUSH_VIDEOS.map((v, i) => (
+              <VideoTile
+                key={v.preview}
+                src={v.preview}
+                index={i}
+                onPlay={() => setLightbox(v.full)}
+              />
             ))
           : active.examples.map((ex, i) => (
               <ReelPreview
@@ -497,14 +514,19 @@ export default function Approach() {
         </div>
       </GlassSurface>
       </Reveal>
+
+      {lightbox && (
+        <VideoLightbox src={lightbox} onClose={() => setLightbox(null)} />
+      )}
     </section>
   );
 }
 
 // ---------------------------------------------------------------------------
-// VideoTile — one autoplaying, muted example reel (Push mode). No titles.
+// VideoTile — one autoplaying, muted example reel (Push mode). The play
+// button opens the full version with sound in a lightbox.
 // ---------------------------------------------------------------------------
-function VideoTile({ src, index }) {
+function VideoTile({ src, index, onPlay }) {
   return (
     <GlassSurface
       className="relative overflow-hidden rounded-lg"
@@ -528,7 +550,101 @@ function VideoTile({ src, index }) {
         <source src={src} type="video/mp4" />
         <source src={src.replace(".mp4", ".webm")} type="video/webm" />
       </video>
+      <button
+        type="button"
+        data-testid={`push-example-play-${index + 1}`}
+        aria-label="Play this video with sound"
+        onClick={onPlay}
+        className="group absolute inset-0 z-[5] grid cursor-pointer place-items-center"
+        style={{ background: "transparent", border: "none" }}
+      >
+        <span
+          className="grid h-9 w-9 place-items-center rounded-full border transition-transform duration-300 group-hover:scale-110"
+          style={{
+            borderColor: "rgba(255,255,255,0.45)",
+            background: "rgba(8,8,10,0.55)",
+            WebkitBackdropFilter: "blur(6px)",
+            backdropFilter: "blur(6px)",
+          }}
+        >
+          <span
+            aria-hidden="true"
+            className="ml-0.5 block h-0 w-0"
+            style={{
+              borderLeft: "8px solid white",
+              borderTop: "5.5px solid transparent",
+              borderBottom: "5.5px solid transparent",
+            }}
+          />
+        </span>
+      </button>
     </GlassSurface>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// VideoLightbox — fullscreen overlay playing one example WITH sound.
+// ---------------------------------------------------------------------------
+function VideoLightbox({ src, onClose }) {
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      data-testid="push-video-lightbox"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-10"
+      style={{
+        background: "rgba(4,4,8,0.9)",
+        WebkitBackdropFilter: "blur(14px)",
+        backdropFilter: "blur(14px)",
+      }}
+      onClick={onClose}
+    >
+      <button
+        type="button"
+        data-testid="lightbox-close-btn"
+        aria-label="Close video"
+        onClick={onClose}
+        className="absolute right-5 top-5 grid h-11 w-11 place-items-center rounded-full border text-white transition-transform duration-200 hover:scale-105"
+        style={{
+          borderColor: "rgba(255,255,255,0.3)",
+          background: "rgba(20,20,26,0.65)",
+          fontFamily: "JetBrains Mono, monospace",
+          fontSize: "18px",
+          lineHeight: 1,
+        }}
+      >
+        ×
+      </button>
+      <div
+        className="relative h-full max-h-[84vh]"
+        style={{ aspectRatio: "9 / 16" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <video
+          data-testid="lightbox-video"
+          autoPlay
+          controls
+          playsInline
+          className="h-full w-full rounded-xl object-contain"
+          style={{ background: "#000" }}
+        >
+          <source src={src} type="video/mp4" />
+          <source src={src.replace(".mp4", ".webm")} type="video/webm" />
+        </video>
+      </div>
+    </div>,
+    document.body
   );
 }
 

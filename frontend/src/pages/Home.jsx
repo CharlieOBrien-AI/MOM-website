@@ -1,6 +1,5 @@
 import Nav from "@/components/site/Nav";
 import Hero from "@/components/site/Hero";
-import NightSkyBreak from "@/components/site/NightSkyBreak";
 import Stats from "@/components/site/Stats";
 import Approach from "@/components/site/Approach";
 import Work from "@/components/site/Work";
@@ -23,7 +22,6 @@ export default function Home() {
         <Nav />
         <main>
           <Hero />
-          <NightSkyBreak />
           <Stats />
           <Approach />
           <HowItWorks />

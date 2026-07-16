@@ -72,7 +72,7 @@ export default function Stats() {
       data-testid={STATS.root}
       style={{
         position: "relative",
-        background: "transparent",
+        background: "#06060a url(/images/night-sky.jpg) center / cover no-repeat",
         overflow: "hidden",
       }}
     >

@@ -77,6 +77,13 @@ Create a premium, cinematic landing page hero that feels calm, elegant, and inte
 - Push/Pull toggle reverted to the ORIGINAL segmented pill (sliding white pill, JetBrains Mono labels) restored from git history; SkyToggle no longer used.
 - Verified via browser automation: hero scrub on low tier, push/pull toggle both directions, day-still crossfade fallback (no-video path), push videos playing, mobile layout.
 
+## Iteration 9 (Jun 2026) — PC feedback fixes
+- Hero text-disappearing bug fixed: video tier z-indexes had escaped their wrapper (no stacking context) and painted over the headline — video wrapper now `isolate`, content `z-10`, and tier z-indexes removed (DOM order only).
+- Hero quality: 360p tier REMOVED. Starts directly on GOOD 720p (`owl-hero-mid.mp4`, 11.7MB CRF24 all-intra + VP9 WebM fallback for no-H.264 browsers); BEST 1080p (`owl-hero.mp4`) is force-downloaded via fetch()→blob (immune to Chrome suspending <video> preloads — the root cause of "never fully loads"), then frame-synced + crossfaded in. Fetch starts when base is fully buffered (or 12s fallback). Scrub now rides the buffer edge instead of freezing when the cursor maps past the download head.
+- Hero filter removed: no CSS contrast/saturate filter, no radial/linear washes, no noise overlay on the hero video (mobile keeps only the small bottom blend into the next section).
+- Push examples: play button on each tile opens a lightbox (portal to body, Esc/backdrop/× to close, `push-video-lightbox` / `lightbox-video` / `lightbox-close-btn` testids) playing the full 720×1280 version WITH sound (`push-{n}-hd.mp4` CRF23+AAC, `-hd.webm` VP9+Opus fallback). Tiles remain muted autoplaying previews.
+- Night-sky artwork is now the Stats (section 2) BACKGROUND (`center / cover`, no overlay, no filter) — the separate NightSkyBreak section was removed/deleted.
+
 ## Prioritized Backlog
 - P1 — Contact form → email backend (currently `mailto:` on the Book-a-call CTA).
 - P1 — Additional case-study pages (Work cards currently link to `#contact`).

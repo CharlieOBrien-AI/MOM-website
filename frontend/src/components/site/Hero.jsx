@@ -12,12 +12,12 @@ export default function Hero() {
     >
       {/* Video layer — mobile/tablet: in-flow 16:9 block (full frame, no crop);
           desktop: fills the aspect-locked section so the frame maps 1:1. */}
-      <div className="relative aspect-video w-full lg:absolute lg:inset-0 lg:aspect-auto">
+      <div className="relative isolate aspect-video w-full lg:absolute lg:inset-0 lg:aspect-auto">
         <HeroScrubVideo />
       </div>
 
-      {/* Content */}
-      <div className="relative mx-auto w-full max-w-[1240px] section-px py-12 lg:py-0 lg:pt-24">
+      {/* Content — explicit z-index keeps the copy above the video layers */}
+      <div className="relative z-10 mx-auto w-full max-w-[1240px] section-px py-12 lg:py-0 lg:pt-24">
         <div className="max-w-[880px] stagger">
           <div className="mono-eyebrow" data-testid="hero-eyebrow">
             <span style={{ color: "var(--mo-accent)" }}>//</span> Storytelling-first content studio
