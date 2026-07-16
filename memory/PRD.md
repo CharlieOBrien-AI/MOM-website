@@ -68,12 +68,20 @@ Create a premium, cinematic landing page hero that feels calm, elegant, and inte
 - Hero video sharpness: re-encoded `owl-hero.mp4` at 1920×1080 all-intra x264 QP 21 (was ~12.4 Mbps → now ~21 Mbps, ~40 MB), `-preset slower -tune film -aq-mode 3 -psy-rd 1.2,0.15` + `unsharp` filter for perceived detail. Removed the 720p VP9 WebM (never picked by browsers that decode H.264; scrubbing needs all-intra mp4). Poster JPG regenerated at higher quality (~150 KB, `q:v 2` + unsharp).
 - Cleanup: `owl-hero.webm` source line removed from `HeroScrubVideo.jsx`; old WebM/backup files deleted from `public/videos/`.
 
+## Iteration 8 (Jun 2026)
+- Push/Pull slow-connection fix: until `owl-workspace.mp4` is FULLY buffered, the Push/Pull transition is a smooth night↔day crossfade between two stills (`owl-workspace-night.jpg` / new `owl-workspace-day.jpg`); once fully buffered the video is parked on the current mode's frame and the real rAF scrub takes over (`videoLive` state in Approach.jsx). No more mid-download jank.
+- Hero progressive quality: 3-tier ladder `owl-hero-low.mp4` (640×360 all-intra, 1.7MB — interactive in seconds) → `owl-hero-mid.mp4` (1280×720, 9.5MB) → `owl-hero.mp4` (1080p, 41MB). Each higher tier streams in the background and is frame-synced + crossfaded in once fully buffered (loadStage/stage chain in HeroScrubVideo.jsx). Low tier has a VP9 WebM fallback (headless / no-H.264 browsers).
+- Examples card corners now match the LG monitor's near-square screen corners: `borderRadius: clamp(3px, 0.42vw, 8px)` (desktop on-monitor card only; mobile card keeps rounded-2xl).
+- Push examples = 3 user-supplied ad reels (no titles/names), autoplaying muted loops on the monitor: `/videos/examples/push-{1,2,3}.mp4` (360×640 CRF27, ~1MB each) + VP9 WebM fallbacks. Pull examples unchanged.
+- New NightSkyBreak section directly below the hero: user's purple night-sky/tree artwork as a plain full-width image (`images/night-sky.jpg`) — no filter, no zoom, no crop.
+- Push/Pull toggle reverted to the ORIGINAL segmented pill (sliding white pill, JetBrains Mono labels) restored from git history; SkyToggle no longer used.
+- Verified via browser automation: hero scrub on low tier, push/pull toggle both directions, day-still crossfade fallback (no-video path), push videos playing, mobile layout.
+
 ## Prioritized Backlog
 - P1 — Contact form → email backend (currently `mailto:` on the Book-a-call CTA).
 - P1 — Additional case-study pages (Work cards currently link to `#contact`).
 - P2 — Analytics (scroll depth, toggle usage).
 - P2 — Mobile-specific polish for the scrub interaction (currently maps horizontal touch position, good but untested on device).
-- P2 — CDN-optimize / lazy-load videos for slower connections.
 
 ## Non-goals (per user)
 - No backend, no database, no auth.

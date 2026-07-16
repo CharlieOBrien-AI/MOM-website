@@ -9,23 +9,16 @@ import { APPROACH } from "@/constants/testIds";
 // Frame 0  = NIGHT (moon, awake owl, dark room)
 // Last frame = DAY (sunshine, sleeping owl, bright room)
 // Video is 2560 × 1430 (≈1.79:1), all-intra H.264 for smooth bidirectional
-// scrubbing on every platform (Windows Chrome/Edge, macOS Safari).
-// Duration ≈ 5s @ 24fps.
+// scrubbing on every platform. Duration ≈ 5s @ 24fps.
 //
-// The physical monitor screen inside the frame (the display area,
-// measured programmatically from the day frame) occupies:
-//   x: 47.15% – 79.85%   (width  ≈32.4%)
-//   y: 28.70% – 68.20%   (height ≈39.1%)
-// We use slightly inset values below to anchor the Examples card so it
-// sits exactly ON the monitor screen, with no cropping or overhang.
-//
-// The video is served from /public/videos so it lives on the same
-// origin as the app — no CORS, faster loads. A JPG of the first frame
-// (night state) is used as the poster so the section looks correct
-// even before the video is buffered.
+// Slow-connection strategy: until the video is FULLY buffered, the Push/Pull
+// transition is a smooth crossfade between two stills (night/day keyframes).
+// Once the whole file is buffered, the real video scrub takes over — so the
+// animation is never janky mid-download.
 // ---------------------------------------------------------------------------
 const WORKSPACE_VIDEO_URL = "/videos/owl-workspace.mp4";
 const WORKSPACE_POSTER_URL = "/images/owl-workspace-night.jpg";
+const WORKSPACE_DAY_URL = "/images/owl-workspace-day.jpg";
 
 // Natural aspect of the workspace video — the wrapper matches it exactly
 // so percentage-anchored overlays map 1:1 onto video pixels (zero crop).
@@ -39,14 +32,21 @@ const SCREEN = {
   height: 39.1, // %
 };
 
+// The LG monitor in the frame has near-square corners — the Examples card
+// mirrors that (small radius, scales with the projected screen size).
+const MONITOR_RADIUS = "clamp(3px, 0.42vw, 8px)";
+
 const TRANSITION_MS = 2600; // duration of the night↔day scrub
+
+// Push-mode example reels — user-supplied ads, shown as-is (no titles).
+const PUSH_VIDEOS = [
+  "/videos/examples/push-1.mp4",
+  "/videos/examples/push-2.mp4",
+  "/videos/examples/push-3.mp4",
+];
 
 /**
  * Approach — Push / Pull section.
- *
- * The Push/Pull toggle scrubs a night↔day video of the same Midnight Owl
- * workspace and (in Push mode) drops the Examples card onto the monitor
- * screen. The whole thing is wrapped in a single "glass island" panel.
  */
 export default function Approach() {
   const [mode, setMode] = useState("pull");
@@ -62,27 +62,22 @@ export default function Approach() {
     },
     push: {
       metaphor: "Like handing flyers to strangers.",
-      examples: [
-        { kicker: "AD · Reach", title: "Check out our new feature." },
-        { kicker: "AD · Reach", title: "We're hiring — join the team." },
-        { kicker: "AD · Reach", title: "Industry leader in synergy." },
-      ],
+      examples: [],
     },
   };
   const active = copy[mode];
 
   // -------------------------------------------------------------------------
-  // Video scrub controller.
-  //
-  // HTML5 <video> doesn't reliably support negative playbackRate across
-  // browsers, so we drive both directions manually via requestAnimationFrame
-  // and video.currentTime. This gives us a smooth night → day AND day →
-  // night transition using a single source file.
+  // Video scrub controller — manual rAF-driven currentTime in both directions.
   // -------------------------------------------------------------------------
   const videoRef = useRef(null);
   const rafRef = useRef(null);
   const modeRef = useRef(mode);
-  const readyRef = useRef(false);
+
+  // videoLive = the file is fully buffered AND parked on the right frame;
+  // until then the still-image crossfade handles Push/Pull transitions.
+  const [videoLive, setVideoLive] = useState(false);
+  const videoLiveRef = useRef(false);
 
   const scrubTo = useCallback((targetTime, durationMs = TRANSITION_MS) => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -125,31 +120,25 @@ export default function Approach() {
   useEffect(() => {
     modeRef.current = mode;
   }, [mode]);
+  useEffect(() => {
+    videoLiveRef.current = videoLive;
+  }, [videoLive]);
 
   // On mount: defer the network fetch until the section is near the
-  // viewport (saves ~19MB on initial page load — important on Windows
-  // machines / slower connections), then park at frame 0 (NIGHT).
+  // viewport (saves ~19MB on initial page load), then park at frame 0.
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const init = () => {
-      readyRef.current = true;
       try {
         video.pause();
         video.currentTime = 0;
       } catch (_) {}
     };
-    const onError = () => {
-      // Video failed — poster stays visible so the section still reads.
-      readyRef.current = false;
-    };
 
     video.addEventListener("loadedmetadata", init, { once: true });
-    video.addEventListener("error", onError);
 
-    // Lazy fetch: kick the real download only when the user is within
-    // ~1.5 viewports of the section. Poster (night JPG) shows meanwhile.
     let started = false;
     const startLoad = () => {
       if (started) return;
@@ -179,33 +168,67 @@ export default function Approach() {
 
     return () => {
       video.removeEventListener("loadedmetadata", init);
-      video.removeEventListener("error", onError);
       if (io) io.disconnect();
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
-  // Whenever the mode changes, scrub the video toward the correct end.
+  // Watch buffering: once the file is FULLY buffered, park the video on the
+  // frame matching the current mode, then hand the transition over to the
+  // real video scrub (stills fade away).
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const run = () => {
-      const target = modeRef.current === "push" ? video.duration : 0;
-      scrubTo(target);
+    let interval = null;
+    let cancelled = false;
+
+    const check = () => {
+      if (cancelled || videoLiveRef.current) return;
+      const d = video.duration;
+      if (!Number.isFinite(d) || d <= 0) return;
+      const b = video.buffered;
+      if (!(b.length > 0 && b.end(b.length - 1) >= d - 0.3)) return;
+
+      cancelled = true;
+      if (interval) clearInterval(interval);
+
+      const target = modeRef.current === "push" ? Math.max(0, d - 0.05) : 0;
+      const goLive = () => setVideoLive(true);
+      if (Math.abs(video.currentTime - target) < 0.02) {
+        goLive();
+        return;
+      }
+      video.addEventListener("seeked", goLive, { once: true });
+      try {
+        video.currentTime = target;
+      } catch (_) {
+        video.removeEventListener("seeked", goLive);
+        goLive();
+      }
     };
 
-    if (readyRef.current && Number.isFinite(video.duration) && video.duration > 0) {
-      run();
-    } else {
-      const onReady = () => {
-        readyRef.current = true;
-        run();
-      };
-      video.addEventListener("loadedmetadata", onReady, { once: true });
-      return () => video.removeEventListener("loadedmetadata", onReady);
-    }
-  }, [mode, scrubTo]);
+    video.addEventListener("progress", check);
+    video.addEventListener("canplaythrough", check);
+    interval = setInterval(check, 700);
+    check();
+
+    return () => {
+      cancelled = true;
+      video.removeEventListener("progress", check);
+      video.removeEventListener("canplaythrough", check);
+      if (interval) clearInterval(interval);
+    };
+  }, []);
+
+  // Whenever the mode changes AND the video is live, scrub toward the end.
+  // (Before that, the still-image crossfade below handles the transition.)
+  useEffect(() => {
+    if (!videoLive) return;
+    const video = videoRef.current;
+    if (!video) return;
+    scrubTo(mode === "push" ? video.duration : 0);
+  }, [mode, videoLive, scrubTo]);
 
   // -------------------------------------------------------------------------
   // Reusable content blocks — same markup in every layout.
@@ -270,10 +293,19 @@ export default function Approach() {
   const ExamplesCardBlock = ({ onMonitor = false }) => (
     <GlassSurface
       interactive={false}
-      className={`mo-glass-strong rounded-2xl ${
-        onMonitor ? "p-3 sm:p-3.5" : "p-6 sm:p-7"
+      className={`mo-glass-strong ${
+        onMonitor ? "p-3 sm:p-3.5" : "rounded-2xl p-6 sm:p-7"
       }`}
-      style={onMonitor ? { height: "100%", width: "100%" } : undefined}
+      style={
+        onMonitor
+          ? {
+              height: "100%",
+              width: "100%",
+              borderRadius: MONITOR_RADIUS,
+              overflow: "hidden",
+            }
+          : undefined
+      }
     >
       <div className="flex items-center justify-between">
         <div
@@ -305,15 +337,19 @@ export default function Approach() {
           onMonitor ? "mt-2.5 gap-2" : "mt-5 gap-3"
         } grid grid-cols-3`}
       >
-        {active.examples.map((ex, i) => (
-          <ReelPreview
-            key={`${mode}-${i}`}
-            mode={mode}
-            kicker={ex.kicker}
-            title={ex.title}
-            compact={onMonitor}
-          />
-        ))}
+        {mode === "push"
+          ? PUSH_VIDEOS.map((src, i) => (
+              <VideoTile key={src} src={src} index={i} />
+            ))
+          : active.examples.map((ex, i) => (
+              <ReelPreview
+                key={`${mode}-${i}`}
+                mode={mode}
+                kicker={ex.kicker}
+                title={ex.title}
+                compact={onMonitor}
+              />
+            ))}
       </div>
 
       <div
@@ -345,30 +381,18 @@ export default function Approach() {
         paddingBottom: "80px",
       }}
     >
-      {/* =====================================================================
-          GLASS ISLAND — the entire section lives inside one large glass box.
-          The video is the ambient backdrop of this box; the copy sits on the
-          left, and the Examples card is anchored exactly to the monitor
-          screen (in Push mode only).
-         ===================================================================== */}
       <Reveal>
       <GlassSurface
         interactive={false}
         className="relative mx-auto w-full overflow-hidden rounded-[28px] mo-glass-strong"
         style={{ maxWidth: "1720px" }}
       >
-        {/* Aspect-locked wrapper matches the video's natural aspect exactly.
-            Everything is positioned in percentages of this wrapper so that
-            the Examples card lands on the monitor screen at every viewport
-            size — with zero crop, video pixels map 1:1 to overlay %. */}
+        {/* Aspect-locked wrapper matches the video's natural aspect exactly. */}
         <div
           className="relative w-full"
           style={{ aspectRatio: VIDEO_ASPECT }}
         >
-          {/* Video backdrop — natural aspect, no zoom, no crop.
-              Local-served MP4 avoids CORS/range-request quirks on some CDNs.
-              A JPG poster of the first frame (night) is shown while the
-              video is buffering, so the section reads correctly instantly. */}
+          {/* Video backdrop — natural aspect, no zoom, no crop. */}
           <video
             ref={videoRef}
             className="absolute inset-0 h-full w-full select-none"
@@ -380,15 +404,38 @@ export default function Approach() {
             aria-hidden="true"
             tabIndex={-1}
           >
-            {/* High-quality H.264 first — decoded natively on Windows
-                (Chrome/Edge/Firefox) and macOS (Safari). VP9 WebM is a
-                fallback for browsers without H.264 support. */}
             <source src={WORKSPACE_VIDEO_URL} type="video/mp4" />
             <source src="/videos/owl-workspace.webm" type="video/webm" />
           </video>
 
-          {/* Left-heavy readability wash (neutral dark, NO purple). Keeps
-              the heading crisp against the busy backdrop. */}
+          {/* Still-image crossfade layers — the smooth fallback transition
+              while the video is still streaming in. Night sits above the
+              video; day fades in over it in Push mode. Both disappear once
+              the fully-buffered video takes over. */}
+          <img
+            src={WORKSPACE_POSTER_URL}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 h-full w-full"
+            style={{
+              objectFit: "cover",
+              opacity: videoLive ? 0 : 1,
+              transition: "opacity 700ms ease",
+            }}
+          />
+          <img
+            src={WORKSPACE_DAY_URL}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 h-full w-full"
+            style={{
+              objectFit: "cover",
+              opacity: !videoLive && mode === "push" ? 1 : 0,
+              transition: `opacity ${TRANSITION_MS * 0.7}ms cubic-bezier(0.45, 0, 0.25, 1)`,
+            }}
+          />
+
+          {/* Left-heavy readability wash (neutral dark, NO purple). */}
           <div
             className="pointer-events-none absolute inset-0"
             style={{
@@ -397,8 +444,7 @@ export default function Approach() {
             }}
           />
 
-          {/* Subtle inner border glow so the island feels like a real
-              piece of glass sitting above the page. */}
+          {/* Subtle inner border glow. */}
           <div
             className="pointer-events-none absolute inset-0 rounded-[28px]"
             style={{
@@ -407,10 +453,7 @@ export default function Approach() {
             }}
           />
 
-          {/* --------------------------------------------------------------
-              HEADING BLOCK — left side of the glass island.
-              Anchored in percentages so it stays aligned with the video.
-             -------------------------------------------------------------- */}
+          {/* HEADING BLOCK — left side of the glass island. */}
           <div
             className="absolute hidden lg:flex flex-col justify-center"
             style={{
@@ -426,12 +469,7 @@ export default function Approach() {
             </div>
           </div>
 
-          {/* --------------------------------------------------------------
-              EXAMPLES CARD — pinned to the monitor screen in BOTH modes.
-              Coordinates come straight from the video-frame analysis and
-              match the display area exactly (no cropping). Content swaps
-              with the Push/Pull mode.
-             -------------------------------------------------------------- */}
+          {/* EXAMPLES CARD — pinned to the monitor screen in BOTH modes. */}
           <div
             data-testid={APPROACH.captionCard}
             className="absolute hidden lg:block"
@@ -445,27 +483,9 @@ export default function Approach() {
           >
             <ExamplesCardBlock onMonitor />
           </div>
-
-          {/* --------------------------------------------------------------
-              MOBILE / SMALL SCREEN FALLBACK — stacked layout inside the
-              same glass island. The video still plays at natural aspect
-              across the top, and the heading + examples sit below.
-             -------------------------------------------------------------- */}
-          <div
-            className="lg:hidden absolute inset-0 flex flex-col"
-            style={{ zIndex: 3 }}
-          >
-            {/* Push examples fill the monitor on mobile too, so we don't
-                render the card overlay separately. Instead we let the
-                fallback layout own everything. */}
-          </div>
         </div>
 
-        {/* ------------------------------------------------------------------
-            MOBILE STACKED CONTENT — sits BELOW the video-aspect wrapper.
-            This block is only visible below the lg breakpoint. It gives
-            small screens a usable, readable version of the same content.
-           ------------------------------------------------------------------ */}
+        {/* MOBILE STACKED CONTENT — below the video-aspect wrapper. */}
         <div
           className="relative flex flex-col gap-8 p-6 pb-8 lg:hidden"
           style={{ background: "var(--mo-bg-elev)" }}
@@ -482,9 +502,38 @@ export default function Approach() {
 }
 
 // ---------------------------------------------------------------------------
-// ReelPreview — one video-thumbnail tile inside the Examples card.
-// In Push mode the card lives on the monitor so the tiles use a slightly
-// more compact scale.
+// VideoTile — one autoplaying, muted example reel (Push mode). No titles.
+// ---------------------------------------------------------------------------
+function VideoTile({ src, index }) {
+  return (
+    <GlassSurface
+      className="relative overflow-hidden rounded-lg"
+      contentClassName="absolute inset-0"
+      tilt={4}
+      style={{ aspectRatio: "9 / 14" }}
+    >
+      <video
+        data-testid={`push-example-video-${index + 1}`}
+        muted
+        autoPlay
+        loop
+        playsInline
+        preload="auto"
+        disablePictureInPicture
+        aria-hidden="true"
+        tabIndex={-1}
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{ borderRadius: "inherit" }}
+      >
+        <source src={src} type="video/mp4" />
+        <source src={src.replace(".mp4", ".webm")} type="video/webm" />
+      </video>
+    </GlassSurface>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ReelPreview — one video-thumbnail tile inside the Examples card (Pull mode).
 // ---------------------------------------------------------------------------
 function ReelPreview({ mode, kicker, title, compact = false }) {
   const tileStyle =
