@@ -66,6 +66,28 @@ const comments = [
     likesLabel: "7 likes",
     viewReplies: 1,
   },
+  {
+    platform: "instagram",
+    avatarBg: "#6b4450",
+    avatarText: "A",
+    user: "angelin1769",
+    lines: ["Followed ! This page deserve more credit in my opinion 🥹"],
+    meta: "6w",
+    likesLabel: "1 like",
+    viewReplies: 1,
+  },
+  {
+    platform: "instagram",
+    avatarBg: "#54503e",
+    avatarText: "V",
+    user: "vinaydembla",
+    lines: [
+      '"Don\'t stop learning" must be the motto of this account, because indeed one never stops learning here.',
+    ],
+    meta: "17w",
+    likesLabel: "2 likes",
+    viewReplies: 1,
+  },
 ];
 
 const ytFont = "Roboto, 'Helvetica Neue', Arial, sans-serif";
@@ -212,7 +234,7 @@ export default function Voices() {
             <span style={{ color: "var(--mo-accent)" }}>//</span> What people say
           </div>
           <h2
-            className="mx-auto max-w-[680px] text-white"
+            className="mx-auto max-w-[720px] text-white"
             style={{
               fontFamily: "Instrument Serif, serif",
               fontSize: "clamp(36px, 5vw, 68px)",
@@ -220,7 +242,9 @@ export default function Voices() {
               letterSpacing: "-0.015em",
             }}
           >
-            {"People can buy followers. They can't buy"}{" "}
+            {"People can buy followers."}
+            <br />
+            {"They can't buy"}{" "}
             <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
               this.
             </span>

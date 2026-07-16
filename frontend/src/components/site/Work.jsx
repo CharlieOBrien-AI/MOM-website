@@ -4,104 +4,122 @@ import GlassSurface from "@/components/glass/GlassSurface";
 import Reveal from "./Reveal";
 import { WORK } from "@/constants/testIds";
 
+// Real published shorts — click a card to play it right on the page.
 const items = [
   {
-    title: "The $40k hiring mistake",
-    kicker: "Founder story",
-    hue: "linear-gradient(155deg, rgba(26,20,16,0.55) 0%, rgba(10,10,11,0.35) 70%)",
-    accent: "#c48a44",
+    id: "1IVDAVZa-YA",
+    title: "The Woman Who Built ChatGPT Just Returned with Thinking Machines Lab",
+    kicker: "AI · Short",
   },
   {
-    title: "Why we killed our best feature",
-    kicker: "Behind the scenes",
-    hue: "linear-gradient(155deg, rgba(16,20,24,0.55) 0%, rgba(10,10,11,0.35) 70%)",
-    accent: "#7fa1c0",
+    id: "hvxb_A3Husg",
+    title: "China Forced Meta to Reverse a $2 Billion Deal",
+    kicker: "Tech · Short",
   },
   {
-    title: "What I wish I knew at year one",
-    kicker: "Lessons",
-    hue: "linear-gradient(155deg, rgba(21,16,15,0.55) 0%, rgba(10,10,11,0.35) 70%)",
-    accent: "#d4a256",
+    id: "jt37NLgpmIQ",
+    title: "The OpenAI Lawsuit Explained: Elon Musk vs Sam Altman",
+    kicker: "AI · Short",
   },
 ];
 
 function WorkCard({ it, index }) {
+  const [playing, setPlaying] = useState(false);
+  const [thumb, setThumb] = useState(
+    `https://i.ytimg.com/vi/${it.id}/oar2.jpg`
+  );
+
   return (
     <GlassSurface
-      as="a"
-      href="#contact"
       data-testid={`work-card-${index}`}
-      className="group block rounded-2xl"
+      className="group block overflow-hidden rounded-2xl"
       contentClassName="absolute inset-0"
-      tilt={4}
-      style={{ aspectRatio: "9 / 13" }}
+      tilt={3}
+      style={{ aspectRatio: "9 / 16" }}
     >
-      {/* Colored inner wash so each tile has its own hue over the glass */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{ background: it.hue, borderRadius: "inherit" }}
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 opacity-80 transition-transform duration-[900ms] ease-out group-hover:scale-105"
-        style={{
-          background: `radial-gradient(80% 60% at 50% 30%, ${it.accent}33, transparent 70%)`,
-          borderRadius: "inherit",
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.75) 100%)",
-          borderRadius: "inherit",
-        }}
-      />
-
-      <div
-        className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full border transition-transform duration-500 group-hover:scale-110"
-        style={{
-          borderColor: "rgba(255,255,255,0.28)",
-          background: "rgba(10,10,11,0.35)",
-          WebkitBackdropFilter: "blur(6px)",
-          backdropFilter: "blur(6px)",
-          zIndex: 4,
-        }}
-      >
-        <span
-          aria-hidden="true"
-          className="ml-0.5 block h-0 w-0"
-          style={{
-            borderLeft: "9px solid white",
-            borderTop: "6px solid transparent",
-            borderBottom: "6px solid transparent",
-          }}
+      {playing ? (
+        <iframe
+          data-testid={`work-iframe-${index}`}
+          src={`https://www.youtube.com/embed/${it.id}?autoplay=1&playsinline=1&rel=0`}
+          title={it.title}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          className="absolute inset-0 h-full w-full"
+          style={{ border: 0, borderRadius: "inherit", background: "#000" }}
         />
-      </div>
+      ) : (
+        <button
+          type="button"
+          data-testid={`work-play-${index}`}
+          aria-label={`Play: ${it.title}`}
+          onClick={() => setPlaying(true)}
+          className="absolute inset-0 block h-full w-full cursor-pointer text-left"
+          style={{ border: 0, background: "transparent" }}
+        >
+          <img
+            src={thumb}
+            alt={it.title}
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
+            style={{ borderRadius: "inherit" }}
+            onError={() =>
+              setThumb(`https://i.ytimg.com/vi/${it.id}/hqdefault.jpg`)
+            }
+          />
+          <span
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.82) 100%)",
+              borderRadius: "inherit",
+            }}
+          />
 
-      <div className="absolute inset-x-5 bottom-5" style={{ zIndex: 4 }}>
-        <div
-          className="text-white"
-          style={{
-            fontFamily: "Instrument Serif, serif",
-            fontSize: "26px",
-            lineHeight: 1.1,
-          }}
-        >
-          {it.title}
-        </div>
-        <div
-          className="mt-2 text-[11px] tracking-[0.18em] uppercase"
-          style={{
-            color: "var(--mo-fg-dim)",
-            fontFamily: "JetBrains Mono, monospace",
-          }}
-        >
-          {it.kicker}
-        </div>
-      </div>
+          <span
+            className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full border transition-transform duration-500 group-hover:scale-110"
+            style={{
+              borderColor: "rgba(255,255,255,0.28)",
+              background: "rgba(10,10,11,0.35)",
+              WebkitBackdropFilter: "blur(6px)",
+              backdropFilter: "blur(6px)",
+              zIndex: 4,
+            }}
+          >
+            <span
+              aria-hidden="true"
+              className="ml-0.5 block h-0 w-0"
+              style={{
+                borderLeft: "9px solid white",
+                borderTop: "6px solid transparent",
+                borderBottom: "6px solid transparent",
+              }}
+            />
+          </span>
+
+          <span className="absolute inset-x-5 bottom-5 block" style={{ zIndex: 4 }}>
+            <span
+              className="block text-white"
+              style={{
+                fontFamily: "Instrument Serif, serif",
+                fontSize: "22px",
+                lineHeight: 1.15,
+              }}
+            >
+              {it.title}
+            </span>
+            <span
+              className="mt-2 block text-[11px] tracking-[0.18em] uppercase"
+              style={{
+                color: "var(--mo-fg-dim)",
+                fontFamily: "JetBrains Mono, monospace",
+              }}
+            >
+              {it.kicker}
+            </span>
+          </span>
+        </button>
+      )}
     </GlassSurface>
   );
 }
@@ -156,7 +174,9 @@ export default function Work() {
             </span>
           </h2>
           <a
-            href="#contact"
+            href="https://www.youtube.com/@CharlieOBrienAI/shorts"
+            target="_blank"
+            rel="noreferrer"
             className="text-[11px] tracking-[0.18em] uppercase transition-colors hover:text-[var(--mo-fg)]"
             style={{
               color: "var(--mo-fg-dim)",
@@ -171,13 +191,13 @@ export default function Work() {
       {/* Desktop / tablet — 3-up grid */}
       <div className="hidden grid-cols-3 gap-5 md:grid">
         {items.map((it, i) => (
-          <Reveal key={i} delay={i * 130}>
+          <Reveal key={it.id} delay={i * 130}>
             <WorkCard it={it} index={i} />
           </Reveal>
         ))}
       </div>
 
-      {/* Mobile — swipeable one-card carousel (same pattern as How it works) */}
+      {/* Mobile — swipeable one-card carousel */}
       <Reveal className="md:hidden" data-testid="work-carousel">
         <div
           className="overflow-hidden"
@@ -194,7 +214,7 @@ export default function Work() {
           >
             {items.map((it, i) => (
               <div
-                key={i}
+                key={it.id}
                 data-testid={`work-slide-${i}`}
                 className="px-1"
                 style={{ width: `${100 / total}%`, flexShrink: 0 }}

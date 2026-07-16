@@ -104,6 +104,13 @@ Create a premium, cinematic landing page hero that feels calm, elegant, and inte
 - FAQ: answers split into short paragraph lines (arrays), nothing open by default.
 - Hero rotator: "community." → "a community.".
 
+## Iteration 13 (Jun 2026)
+- Voices: +2 Instagram comments (angelin1769 6w/1 like 🥹, vinaydembla 17w/2 likes) — 7 total; heading forced to two lines ("People can buy followers.<br/>They can't buy this.").
+- Windows font fix: Roboto (400/500/700) added to the Google Fonts link in index.html so comment cards render identically on every OS (previously fell back to a broken local font on Windows).
+- Hero noise fix: both tiers re-encoded with hqdn3d denoise — owl-hero-base.mp4 (CRF25, 19MB), owl-hero.mp4 (CRF21, 25MB, was 41MB grainy). Original backed to /tmp/owl-hero-orig.mp4 (ephemeral).
+- Push/Pull lag fix: owl-workspace.mp4 re-encoded 2560→1920×1072 + denoise (19MB→7.8MB, ~60% lighter decode); scrubTo now seek-gated (only issues a new currentTime after the previous 'seeked' fires — no more decoder flooding; wall-clock easing skips frames gracefully).
+- Our Work: 3 real YouTube shorts (1IVDAVZa-YA, hvxb_A3Husg, jt37NLgpmIQ — Charlie O'Brien channel) as 9:16 click-to-play cards (oar2.jpg thumbnail → hqdefault fallback, iframe embed with autoplay on click, `work-play-{i}` / `work-iframe-{i}` testids). "See all" links to the channel's shorts page. NOTE: YouTube embeds show "unavailable" in headless test browsers (bot detection) but work in real browsers — oEmbed + thumbnails verified 200.
+
 ## Prioritized Backlog
 - P1 — Contact form → email backend (currently `mailto:` on the Book-a-call CTA).
 - P1 — Additional case-study pages (Work cards currently link to `#contact`).

@@ -160,6 +160,7 @@ export default function Approach() {
   const videoRef = useRef(null);
   const rafRef = useRef(null);
   const modeRef = useRef(mode);
+  const seekReadyRef = useRef(true);
 
   // videoLive = the file is fully buffered AND parked on the right frame;
   // until then the still-image crossfade handles Push/Pull transitions.
@@ -193,9 +194,16 @@ export default function Approach() {
       const t = Math.min((now - startPerf) / durationMs, 1);
       // ease-in-out cubic
       const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      try {
-        video.currentTime = startCT + delta * e;
-      } catch (_) {}
+      // Only issue a new seek once the previous one has completed — flooding
+      // currentTime every frame overwhelms the decoder and causes the lag
+      // seen on Windows. Frames are skipped as needed; wall-clock easing
+      // keeps the perceived motion smooth.
+      if (seekReadyRef.current || t >= 1) {
+        seekReadyRef.current = false;
+        try {
+          video.currentTime = startCT + delta * e;
+        } catch (_) {}
+      }
       if (t < 1) {
         rafRef.current = requestAnimationFrame(step);
       }
@@ -223,6 +231,10 @@ export default function Approach() {
         video.currentTime = 0;
       } catch (_) {}
     };
+    const onSeeked = () => {
+      seekReadyRef.current = true;
+    };
+    video.addEventListener("seeked", onSeeked);
 
     video.addEventListener("loadedmetadata", init, { once: true });
 
@@ -255,6 +267,7 @@ export default function Approach() {
 
     return () => {
       video.removeEventListener("loadedmetadata", init);
+      video.removeEventListener("seeked", onSeeked);
       if (io) io.disconnect();
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
