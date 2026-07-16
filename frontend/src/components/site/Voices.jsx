@@ -17,7 +17,7 @@ export default function Voices() {
       data-testid={VOICES.root}
       style={{ background: "transparent", position: "relative" }}
     >
-      <div className="mx-auto max-w-[1240px] section-px py-[120px] text-center">
+      <div className="mx-auto max-w-[1240px] section-px py-[70px] text-center">
         <Reveal>
         <div className="mono-eyebrow mb-4">
           <span style={{ color: "var(--mo-accent)" }}>//</span> What people say

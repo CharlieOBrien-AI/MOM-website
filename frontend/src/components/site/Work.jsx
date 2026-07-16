@@ -134,7 +134,7 @@ export default function Work() {
     <section
       id="work"
       data-testid={WORK.root}
-      className="mx-auto max-w-[1240px] section-px pb-[120px]"
+      className="mx-auto max-w-[1240px] section-px py-[70px]"
     >
       <Reveal>
         <div className="mono-eyebrow mb-4">

@@ -80,9 +80,16 @@ export default function Stats() {
         aria-hidden="true"
         draggable={false}
         className="pointer-events-none absolute left-0 top-0 w-full select-none"
-        style={{ height: "auto", zIndex: 0 }}
+        style={{
+          height: "auto",
+          zIndex: 0,
+          WebkitMaskImage:
+            "linear-gradient(180deg, black 0%, black 82%, transparent 100%)",
+          maskImage:
+            "linear-gradient(180deg, black 0%, black 82%, transparent 100%)",
+        }}
       />
-      <div className="mx-auto max-w-[1240px] section-px py-[120px]" style={{ position: "relative", zIndex: 2 }}>
+      <div className="mx-auto max-w-[1240px] section-px py-[70px]" style={{ position: "relative", zIndex: 2 }}>
         <Reveal>
           <div className="mono-eyebrow mb-10">
             <span style={{ color: "var(--mo-accent)" }}>//</span> The results speak

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import GlassSurface from "@/components/glass/GlassSurface";
 import PremiumToggle from "./PremiumToggle";
@@ -25,15 +25,59 @@ const WORKSPACE_DAY_URL = "/images/owl-workspace-day.jpg";
 // so percentage-anchored overlays map 1:1 onto video pixels (zero crop).
 const VIDEO_ASPECT = "2560 / 1430";
 
-// Monitor screen region as fractions of the video frame — the EXACT
-// measured display area (x 47.15–79.85%, y 28.70–68.20%), so the card
-// covers the screen edge-to-edge with no gap.
-const SCREEN = {
-  left: 47.15, // %
-  top: 28.7, // %
-  width: 32.7, // %
-  height: 39.5, // %
+// The monitor in the frame is slightly tilted (perspective), so the screen
+// is a QUAD, not an axis-aligned rectangle. Corners measured from the video
+// frame (as % of frame width/height), inset ~0.15% so the card never touches
+// the bezel anti-aliasing. The Examples card is perspective-mapped onto this
+// quad with a computed CSS matrix3d — a true "projected on the screen" fit.
+const SCREEN_QUAD = {
+  tl: [47.22, 27.9],
+  tr: [79.68, 29.38],
+  br: [79.94, 67.62],
+  bl: [47.27, 68.55],
 };
+// Pre-transform card rectangle (% of wrapper) — proportions close to the
+// quad's natural size so content isn't visibly distorted by the mapping.
+const CARD_W = 32.6; // %
+const CARD_H = 39.5; // %
+
+// Solves the 8-DOF homography that maps rect corners -> quad corners and
+// returns it as a CSS matrix3d() string (transform-origin must be 0 0).
+function computeHomography(src, dst) {
+  const A = [];
+  const b = [];
+  for (let i = 0; i < 4; i++) {
+    const [x, y] = src[i];
+    const [X, Y] = dst[i];
+    A.push([x, y, 1, 0, 0, 0, -X * x, -X * y]);
+    b.push(X);
+    A.push([0, 0, 0, x, y, 1, -Y * x, -Y * y]);
+    b.push(Y);
+  }
+  for (let i = 0; i < 8; i++) {
+    let mx = i;
+    for (let r = i + 1; r < 8; r++) {
+      if (Math.abs(A[r][i]) > Math.abs(A[mx][i])) mx = r;
+    }
+    [A[i], A[mx]] = [A[mx], A[i]];
+    [b[i], b[mx]] = [b[mx], b[i]];
+    const p = A[i][i];
+    if (Math.abs(p) < 1e-12) return null;
+    for (let r = i + 1; r < 8; r++) {
+      const f = A[r][i] / p;
+      for (let c = i; c < 8; c++) A[r][c] -= f * A[i][c];
+      b[r] -= f * b[i];
+    }
+  }
+  const hc = new Array(8);
+  for (let i = 7; i >= 0; i--) {
+    let s = b[i];
+    for (let c = i + 1; c < 8; c++) s -= A[i][c] * hc[c];
+    hc[i] = s / A[i][i];
+  }
+  const [a, bb, c, d, e, f, g, hh] = hc;
+  return `matrix3d(${a},${d},0,${g},${bb},${e},0,${hh},0,0,1,0,${c},${f},0,1)`;
+}
 
 // The LG monitor in the frame has near-square corners — the Examples card
 // mirrors that (small radius, scales with the projected screen size).
@@ -64,6 +108,35 @@ const PUSH_VIDEOS = [
 export default function Approach() {
   const [mode, setMode] = useState("pull");
   const [lightbox, setLightbox] = useState(null); // src of the full-quality video
+
+  // Perspective mapping of the Examples card onto the (tilted) monitor screen.
+  const wrapRef = useRef(null);
+  const [cardXf, setCardXf] = useState(null);
+  useLayoutEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const update = () => {
+      const W = el.clientWidth;
+      const H = el.clientHeight;
+      if (!W || !H) return;
+      const w = (CARD_W / 100) * W;
+      const h = (CARD_H / 100) * H;
+      const src = [
+        [0, 0],
+        [w, 0],
+        [w, h],
+        [0, h],
+      ];
+      const dst = [SCREEN_QUAD.tl, SCREEN_QUAD.tr, SCREEN_QUAD.br, SCREEN_QUAD.bl].map(
+        ([px, py]) => [(px / 100) * W, (py / 100) * H]
+      );
+      setCardXf(computeHomography(src, dst));
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   const copy = {
     pull: {
@@ -395,8 +468,8 @@ export default function Approach() {
       className="relative overflow-hidden section-px"
       style={{
         background: "transparent",
-        paddingTop: "48px",
-        paddingBottom: "48px",
+        paddingTop: "70px",
+        paddingBottom: "70px",
       }}
     >
       <Reveal>
@@ -407,6 +480,7 @@ export default function Approach() {
       >
         {/* Aspect-locked wrapper matches the video's natural aspect exactly. */}
         <div
+          ref={wrapRef}
           className="relative w-full"
           style={{ aspectRatio: VIDEO_ASPECT }}
         >
@@ -487,16 +561,18 @@ export default function Approach() {
             </div>
           </div>
 
-          {/* EXAMPLES CARD — pinned to the monitor screen in BOTH modes. */}
+          {/* EXAMPLES CARD — perspective-mapped onto the monitor screen quad. */}
           <div
             data-testid={APPROACH.captionCard}
             className="absolute hidden lg:block"
             style={{
-              left: `${SCREEN.left}%`,
-              top: `${SCREEN.top}%`,
-              width: `${SCREEN.width}%`,
-              height: `${SCREEN.height}%`,
+              left: cardXf ? 0 : `${SCREEN_QUAD.tl[0]}%`,
+              top: cardXf ? 0 : `${SCREEN_QUAD.tr[1]}%`,
+              width: `${CARD_W}%`,
+              height: `${CARD_H}%`,
               zIndex: 4,
+              transform: cardXf || "none",
+              transformOrigin: "0 0",
             }}
           >
             <ExamplesCardBlock onMonitor />

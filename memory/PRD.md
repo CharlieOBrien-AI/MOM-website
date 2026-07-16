@@ -91,6 +91,13 @@ Create a premium, cinematic landing page hero that feels calm, elegant, and inte
 - Push/Pull toggle enlarged: buttons px-6 py-2 text-[11px] → px-8 py-3 text-[12.5px].
 - Section gaps reduced: Approach `minHeight` removed, padding 80→48px; HowItWorks py-120 → pt-64/pb-110. Island-to-next-heading gap now ~138px (was 400+).
 
+## Iteration 11 (Jun 2026)
+- Monitor fit SOLVED properly: the monitor in the video is tilted (~1.5° perspective), so the screen is a QUAD, not a rectangle. Corners measured per-edge from the day frame → `SCREEN_QUAD` (tl 47.22/27.9, tr 79.68/29.38, br 79.94/67.62, bl 47.27/68.55); the Examples card is perspective-mapped onto it with a runtime-computed CSS `matrix3d` homography (`computeHomography` + ResizeObserver in Approach.jsx). Card now looks genuinely projected on the screen.
+- HowItWorks redesigned per user's reference recording (labs.aeoscompany.com style): vertical step rows — "(Step n)" mono label + big serif title left, description middle, large thin-stroke lucide icon right (Telescope/PenTool/Clapperboard/Scissors/Send/HeartHandshake), plus an expandable "+" detail row per step (rotates to ×, grid-rows animation, `process-accordion-{i}` testids). Carousel/arrows/dots removed.
+- FAQ rewritten with user-supplied 5 Q&As (What does Midnight Owl do / Why you / How soon results / On camera? / Cost).
+- Spacing normalized: ALL sections now py-[70px] (Stats, Approach, HowItWorks, Work, Voices, Contact, FAQ) → uniform 140px rhythm between sections.
+- Night-sky bleed gets a soft bottom fade (CSS mask, 82%→100%) so no hard seam where the image ends mid-HowItWorks.
+
 ## Prioritized Backlog
 - P1 — Contact form → email backend (currently `mailto:` on the Book-a-call CTA).
 - P1 — Additional case-study pages (Work cards currently link to `#contact`).

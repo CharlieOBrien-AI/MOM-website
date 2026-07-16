@@ -5,24 +5,24 @@ import { FAQ } from "@/constants/testIds";
 
 const faqs = [
   {
-    q: "How long until this actually works?",
-    a: "Real momentum usually shows around month three. The first few weeks are about finding your voice on camera and learning what your audience leans into. Trust compounds, it does not spike.",
+    q: "What does Midnight Owl actually do?",
+    a: "We make videos people actually want to watch. Most brands push their product and get scrolled past. We do it differently. We start with content that genuinely helps or entertains your audience, so they get familiar with you first. Once they know and like you, your product shows up as the natural next step, not a sales pitch, and that is when they actually buy.",
   },
   {
-    q: "What if I'm not comfortable on camera?",
-    a: "Almost nobody is at first. We run shoots like a conversation, not a performance, and we edit around the awkward bits. Within a couple of sessions most founders forget the camera is there.",
+    q: "Why pick you over another agency?",
+    a: "Most agencies sell convenience. We sell recall. They will post your videos and keep you active, but that does not mean people actually start buying from you. We take someone who has never heard of you and turn them into someone who picks you every time. Getting seen is easy. Getting chosen is the hard part.",
   },
   {
-    q: "How is this different from a social media manager?",
-    a: "A manager posts what you give them. We build the story system, run the shoots, and own the output. You bring the expertise and the face — we handle everything between the idea and the published video.",
+    q: "How soon will I see results?",
+    a: "You will see things move in the first few weeks. The bigger payoff builds after that. Rented attention like ads disappears the moment you stop paying. What we build is yours, and people keep coming back even when we are not actively pushing that week.",
   },
   {
-    q: "Do I still need paid ads?",
-    a: "Not for this to work. Organic pull is the whole point. Plenty of clients run ads alongside, but the audience here is earned, not rented, so it keeps working when the budget stops.",
+    q: "Do I have to be on camera?",
+    a: "No, not unless you want to. If you are building a personal brand, we will make good use of your face on camera. If you are busy or not comfortable filming, we can build an AI version of you, or bring in a presenter instead.",
   },
   {
-    q: "I've worked with an agency before and it didn't work.",
-    a: "Usually because they sold content, not trust, and measured the wrong things. We start with a plan you can judge on the first call, and you can leave any month. No twelve-month lock-in.",
+    q: "How much does it cost?",
+    a: "What it takes to reach your audience is different for every brand. So we talk first, figure out what you actually need, and quote you something fair, instead of throwing a random number at you.",
   },
 ];
 
@@ -89,7 +89,7 @@ export default function FAQSection() {
     <section
       id="faq"
       data-testid={FAQ.root}
-      className="mx-auto max-w-[880px] section-px pb-[120px]"
+      className="mx-auto max-w-[880px] section-px py-[70px]"
     >
       <Reveal>
       <div className="mono-eyebrow mb-4">

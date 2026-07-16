@@ -10,7 +10,7 @@ export default function Contact() {
       className="relative overflow-hidden"
       style={{ background: "transparent" }}
     >
-      <div className="mx-auto max-w-[1240px] section-px pb-[120px]">
+      <div className="mx-auto max-w-[1240px] section-px py-[70px]">
         <Reveal>
         <GlassSurface
           interactive={false}
