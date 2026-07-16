@@ -84,6 +84,13 @@ Create a premium, cinematic landing page hero that feels calm, elegant, and inte
 - Push examples: play button on each tile opens a lightbox (portal to body, Esc/backdrop/× to close, `push-video-lightbox` / `lightbox-video` / `lightbox-close-btn` testids) playing the full 720×1280 version WITH sound (`push-{n}-hd.mp4` CRF23+AAC, `-hd.webm` VP9+Opus fallback). Tiles remain muted autoplaying previews.
 - Night-sky artwork is now the Stats (section 2) BACKGROUND (`center / cover`, no overlay, no filter) — the separate NightSkyBreak section was removed/deleted.
 
+## Iteration 10 (Jun 2026) — polish fixes
+- Monitor gap: Examples card now anchored to the EXACT measured screen bounds (47.15% / 28.7% / 32.7% / 39.5%) — flush against the bezel, no visible screen strip.
+- Hero base quality: 720p base replaced with `owl-hero-base.mp4` (1920×1080 all-intra CRF26, 19MB) so the owl loads directly at 1080p; best-tier blob swap (41MB QP21) unchanged, fetch fallback timer 15s. `owl-hero-mid.mp4` deleted; `owl-hero-mid.webm` (720p) kept as the no-H.264 fallback.
+- Stats background: night-sky image no longer `cover`-cropped — absolute `w-full h-auto` from the section top, full image end-to-end, naturally bleeding under the Approach section (section overflow un-clipped).
+- Push/Pull toggle enlarged: buttons px-6 py-2 text-[11px] → px-8 py-3 text-[12.5px].
+- Section gaps reduced: Approach `minHeight` removed, padding 80→48px; HowItWorks py-120 → pt-64/pb-110. Island-to-next-heading gap now ~138px (was 400+).
+
 ## Prioritized Backlog
 - P1 — Contact form → email backend (currently `mailto:` on the Book-a-call CTA).
 - P1 — Additional case-study pages (Work cards currently link to `#contact`).

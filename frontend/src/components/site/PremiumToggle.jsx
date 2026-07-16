@@ -80,7 +80,7 @@ export default function PremiumToggle({ value, onChange, disabled = false }) {
         tabIndex={value === "push" ? 0 : -1}
         onClick={() => !disabled && onChange("push")}
         disabled={disabled}
-        className="relative z-10 rounded-full px-6 py-2 text-[11px] font-medium tracking-[0.22em] uppercase transition-colors duration-300 outline-none focus-visible:ring-2 focus-visible:ring-[var(--mo-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--mo-bg)]"
+        className="relative z-10 rounded-full px-8 py-3 text-[12.5px] font-medium tracking-[0.22em] uppercase transition-colors duration-300 outline-none focus-visible:ring-2 focus-visible:ring-[var(--mo-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--mo-bg)]"
         style={{
           color: value === "push" ? "var(--mo-bg)" : "var(--mo-fg-dim)",
           fontFamily: "JetBrains Mono, monospace",
@@ -97,7 +97,7 @@ export default function PremiumToggle({ value, onChange, disabled = false }) {
         tabIndex={value === "pull" ? 0 : -1}
         onClick={() => !disabled && onChange("pull")}
         disabled={disabled}
-        className="relative z-10 rounded-full px-6 py-2 text-[11px] font-medium tracking-[0.22em] uppercase transition-colors duration-300 outline-none focus-visible:ring-2 focus-visible:ring-[var(--mo-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--mo-bg)]"
+        className="relative z-10 rounded-full px-8 py-3 text-[12.5px] font-medium tracking-[0.22em] uppercase transition-colors duration-300 outline-none focus-visible:ring-2 focus-visible:ring-[var(--mo-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--mo-bg)]"
         style={{
           color: value === "pull" ? "var(--mo-bg)" : "var(--mo-fg-dim)",
           fontFamily: "JetBrains Mono, monospace",

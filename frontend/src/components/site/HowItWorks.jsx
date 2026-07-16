@@ -93,7 +93,7 @@ export default function HowItWorks() {
       data-testid={PROCESS.root}
       style={{ background: "transparent", position: "relative" }}
     >
-      <div className="mx-auto max-w-[1240px] section-px py-[120px]">
+      <div className="mx-auto max-w-[1240px] section-px pt-[64px] pb-[110px]">
         <Reveal>
         <div className="mono-eyebrow mb-4">
           <span style={{ color: "var(--mo-accent)" }}>//</span> How it works

@@ -2,14 +2,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { HERO } from "@/constants/testIds";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
-// Two-tier quality: the page starts directly on the GOOD 720p encode
+// Two-tier quality: the page starts directly on a GOOD 1080p encode
 // (streams fast, scrub-interactive within seconds), then the BEST 1080p
 // file is force-downloaded in the background via fetch() (Chrome suspends
 // <video> preloading, so fetch->blob guarantees the full file arrives)
 // and swapped in frame-synced once complete.
-const BASE_MP4 = "/videos/owl-hero-mid.mp4"; // 1280×720 all-intra
+const BASE_MP4 = "/videos/owl-hero-base.mp4"; // 1920×1080 all-intra CRF26
 const BASE_WEBM = "/videos/owl-hero-mid.webm"; // fallback for no-H.264 browsers
-const FULL_SRC = "/videos/owl-hero.mp4"; // 1920×1080 all-intra
+const FULL_SRC = "/videos/owl-hero.mp4"; // 1920×1080 all-intra QP21 (best)
 const MOBILE_SRC = "/videos/owl-hero-mobile.mp4";
 const POSTER_SRC = "/images/owl-hero-poster.jpg";
 
@@ -211,7 +211,7 @@ function DesktopScrubVideo() {
     base.addEventListener("progress", check);
     base.addEventListener("canplaythrough", check);
     interval = setInterval(check, 800);
-    timer = setTimeout(startFetch, 12000); // don't wait forever if the base stalls
+    timer = setTimeout(startFetch, 15000); // don't wait forever if the base stalls
     check();
 
     return () => {

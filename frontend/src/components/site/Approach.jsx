@@ -25,12 +25,14 @@ const WORKSPACE_DAY_URL = "/images/owl-workspace-day.jpg";
 // so percentage-anchored overlays map 1:1 onto video pixels (zero crop).
 const VIDEO_ASPECT = "2560 / 1430";
 
-// Monitor screen region as fractions of the video frame.
+// Monitor screen region as fractions of the video frame — the EXACT
+// measured display area (x 47.15–79.85%, y 28.70–68.20%), so the card
+// covers the screen edge-to-edge with no gap.
 const SCREEN = {
-  left: 47.35, // %
-  top: 28.9, // %
-  width: 32.4, // %
-  height: 39.1, // %
+  left: 47.15, // %
+  top: 28.7, // %
+  width: 32.7, // %
+  height: 39.5, // %
 };
 
 // The LG monitor in the frame has near-square corners — the Examples card
@@ -392,10 +394,9 @@ export default function Approach() {
       data-testid={APPROACH.root}
       className="relative overflow-hidden section-px"
       style={{
-        minHeight: "min(120vh, 1080px)",
         background: "transparent",
-        paddingTop: "80px",
-        paddingBottom: "80px",
+        paddingTop: "48px",
+        paddingBottom: "48px",
       }}
     >
       <Reveal>

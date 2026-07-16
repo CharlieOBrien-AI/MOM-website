@@ -70,12 +70,18 @@ export default function Stats() {
   return (
     <section
       data-testid={STATS.root}
-      style={{
-        position: "relative",
-        background: "#06060a url(/images/night-sky.jpg) center / cover no-repeat",
-        overflow: "hidden",
-      }}
+      style={{ position: "relative", background: "transparent" }}
     >
+      {/* Night-sky artwork — full image end-to-end (no crop); it's taller
+          than the section, so it bleeds a little into the next section. */}
+      <img
+        src="/images/night-sky.jpg"
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+        className="pointer-events-none absolute left-0 top-0 w-full select-none"
+        style={{ height: "auto", zIndex: 0 }}
+      />
       <div className="mx-auto max-w-[1240px] section-px py-[120px]" style={{ position: "relative", zIndex: 2 }}>
         <Reveal>
           <div className="mono-eyebrow mb-10">
