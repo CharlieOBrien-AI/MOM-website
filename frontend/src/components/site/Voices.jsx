@@ -1,15 +1,204 @@
+import { ThumbsUp, ThumbsDown, Heart, MoreVertical, ChevronDown } from "lucide-react";
 import GlassSurface from "@/components/glass/GlassSurface";
 import Reveal from "./Reveal";
 import { VOICES } from "@/constants/testIds";
 
-const voices = [
-  { initials: "DO", name: "Dana Okafor", handle: "@dana.builds", quote: "I have watched every single one. Genuinely the only business account I do not skip." },
-  { initials: "MH", name: "Marcus Heng", handle: "@marcusheng", quote: "Sent this to my whole team. The hiring one hit way too close to home." },
-  { initials: "PR", name: "Priya Raman", handle: "@priya.r", quote: "Found you three weeks ago, now I am a customer. That is the whole funnel right there." },
-  { initials: "TV", name: "Theo Vance", handle: "@theovance", quote: "This is the first founder content that does not make me cringe. How." },
-  { initials: "LB", name: "Lena Brandt", handle: "@lenabuilds", quote: "You explained in 40 seconds what my last agency could not in a 30-slide deck." },
-  { initials: "SO", name: "Sam Okonkwo", handle: "@sokonkwo", quote: "Stop reading the comments and go book them. That is my review." },
+// Real comments, replicated faithfully (usernames, likes, hearts, replies).
+const comments = [
+  {
+    platform: "youtube",
+    avatarBg: "#2e7d4f",
+    avatarText: "G",
+    user: "@GangisDankus",
+    time: "1 month ago",
+    lines: ["Story gave me chills bruh, cheers man!"],
+    likes: "1",
+    creatorHeart: true,
+    heartOutline: false,
+  },
+  {
+    platform: "youtube",
+    avatarBg: "#3d6a7a",
+    avatarText: "S",
+    user: "@ShooterMacgavin",
+    time: "1 month ago",
+    lines: [
+      "Just found your channel and have to say thanks for educating the masses on the biggest paradigm shift since the Internet. Most aren't aware just how scary this tech is. Malevolent/ Benevolent.  I've been in tech for 25 years and still shocked they released this kind of power to GenPop that's usually reserved for the NSA's of the world.",
+      "I'm going through every vid because it's great backstory expressed short enough for today's brains to absorb.  Keep em coming!",
+    ],
+    showLess: true,
+    likes: null,
+    creatorHeart: false,
+    heartOutline: true,
+    replies: 1,
+  },
+  {
+    platform: "youtube",
+    avatarBg: "#4a5568",
+    avatarText: "J",
+    user: "@JayJames-kw8er",
+    time: "2 months ago",
+    lines: ["Great channel awesome content! Subscribed! Keep em coming bro!"],
+    likes: null,
+    creatorHeart: false,
+    heartOutline: true,
+  },
+  {
+    platform: "youtube",
+    avatarBg: "#b3231b",
+    avatarText: "33",
+    user: "@shantanu_shanbhag",
+    time: "5 months ago",
+    lines: [
+      "charlie deserves to be a bigger youtuber man his content is honesty much better than the people who are unnecessarily famous",
+    ],
+    likes: "2",
+    creatorHeart: true,
+    heartOutline: false,
+  },
+  {
+    platform: "instagram",
+    avatarBg: "#3b3b40",
+    avatarText: "S",
+    user: "samuelbryan268",
+    lines: ["Your page & content is in the top 1% , great work . Keep pushing 🔥"],
+    meta: "9w",
+    likesLabel: "7 likes",
+    viewReplies: 1,
+  },
 ];
+
+const ytFont = "Roboto, 'Helvetica Neue', Arial, sans-serif";
+
+function CreatorHeart() {
+  return (
+    <span className="relative inline-block h-[22px] w-[22px]" aria-label="Hearted by creator">
+      <span
+        className="absolute inset-0 grid place-items-center rounded-full text-[10px] font-medium text-white"
+        style={{
+          background: "linear-gradient(135deg, #6d3fb0, #2b1b4d)",
+          fontFamily: ytFont,
+        }}
+      >
+        C
+      </span>
+      <Heart
+        size={11}
+        className="absolute -bottom-[3px] -right-[3px]"
+        fill="#ff0033"
+        color="#ff0033"
+      />
+    </span>
+  );
+}
+
+function YouTubeComment({ c }) {
+  return (
+    <div className="flex gap-3.5" style={{ fontFamily: ytFont }}>
+      {/* Avatar */}
+      <div
+        className="grid h-10 w-10 flex-none place-items-center rounded-full text-[15px] font-medium text-white"
+        style={{ background: c.avatarBg, letterSpacing: c.avatarText.length > 1 ? "-0.03em" : 0 }}
+      >
+        {c.avatarText}
+      </div>
+
+      <div className="min-w-0 flex-1">
+        {/* Header row */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-wrap items-baseline gap-2">
+            <span className="text-[13px] font-semibold text-white">{c.user}</span>
+            <span className="text-[12px]" style={{ color: "#aaaaaa" }}>
+              {c.time}
+            </span>
+          </div>
+          <MoreVertical size={16} color="#aaaaaa" className="flex-none" aria-hidden="true" />
+        </div>
+
+        {/* Text */}
+        <div className="mt-1 space-y-1">
+          {c.lines.map((l, i) => (
+            <p key={i} className="text-[14px] leading-[1.45] text-white">
+              {l}
+            </p>
+          ))}
+        </div>
+        {c.showLess && (
+          <div className="mt-2 text-[13px] font-medium" style={{ color: "#aaaaaa" }}>
+            Show less
+          </div>
+        )}
+
+        {/* Action row */}
+        <div className="mt-3 flex items-center gap-5">
+          <span className="flex items-center gap-2">
+            <ThumbsUp size={16} color="#f1f1f1" strokeWidth={1.7} />
+            {c.likes && (
+              <span className="text-[12px]" style={{ color: "#aaaaaa" }}>
+                {c.likes}
+              </span>
+            )}
+          </span>
+          <ThumbsDown size={16} color="#f1f1f1" strokeWidth={1.7} />
+          {c.creatorHeart && <CreatorHeart />}
+          {c.heartOutline && <Heart size={16} color="#f1f1f1" strokeWidth={1.7} />}
+          <span className="text-[12px] font-medium text-white">Reply</span>
+        </div>
+
+        {/* Replies row */}
+        {c.replies ? (
+          <div className="mt-4 flex items-center gap-2.5">
+            <span
+              className="grid h-6 w-6 place-items-center rounded-full text-[9px] font-medium text-white"
+              style={{ background: "linear-gradient(135deg, #6d3fb0, #2b1b4d)" }}
+            >
+              C
+            </span>
+            <span className="text-[13px] font-medium" style={{ color: "#3ea6ff" }}>
+              • {c.replies} reply
+            </span>
+            <ChevronDown size={16} color="#3ea6ff" />
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function InstagramComment({ c }) {
+  return (
+    <div className="flex gap-3.5" style={{ fontFamily: ytFont }}>
+      <div
+        className="grid h-9 w-9 flex-none place-items-center rounded-full text-[14px] font-medium text-white"
+        style={{ background: c.avatarBg }}
+      >
+        {c.avatarText}
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-4">
+          <p className="text-[14px] leading-[1.5] text-white">
+            <span className="font-semibold">{c.user}</span> {c.lines[0]}
+          </p>
+          <Heart size={16} color="#f1f1f1" strokeWidth={1.7} className="mt-1 flex-none" />
+        </div>
+
+        <div className="mt-2 flex items-center gap-4 text-[13px]" style={{ color: "#a8a8a8" }}>
+          <span>{c.meta}</span>
+          <span className="font-medium">{c.likesLabel}</span>
+          <span className="font-medium">Reply</span>
+        </div>
+
+        {c.viewReplies ? (
+          <div className="mt-3.5 flex items-center gap-4 text-[13px]" style={{ color: "#a8a8a8" }}>
+            <span aria-hidden="true" className="inline-block h-px w-8" style={{ background: "#555" }} />
+            <span className="font-medium">View replies ({c.viewReplies})</span>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
 
 export default function Voices() {
   return (
@@ -19,74 +208,40 @@ export default function Voices() {
     >
       <div className="mx-auto max-w-[1240px] section-px py-[70px] text-center">
         <Reveal>
-        <div className="mono-eyebrow mb-4">
-          <span style={{ color: "var(--mo-accent)" }}>//</span> What people say
-        </div>
-        <h2
-          className="mx-auto max-w-[680px] text-white"
-          style={{
-            fontFamily: "Instrument Serif, serif",
-            fontSize: "clamp(36px, 5vw, 68px)",
-            lineHeight: 1.02,
-            letterSpacing: "-0.015em",
-          }}
-        >
-          {"People can buy followers. They can't buy"}{" "}
-          <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
-            this.
-          </span>
-        </h2>
+          <div className="mono-eyebrow mb-4">
+            <span style={{ color: "var(--mo-accent)" }}>//</span> What people say
+          </div>
+          <h2
+            className="mx-auto max-w-[680px] text-white"
+            style={{
+              fontFamily: "Instrument Serif, serif",
+              fontSize: "clamp(36px, 5vw, 68px)",
+              lineHeight: 1.02,
+              letterSpacing: "-0.015em",
+            }}
+          >
+            {"People can buy followers. They can't buy"}{" "}
+            <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
+              this.
+            </span>
+          </h2>
         </Reveal>
 
-        <div className="mt-12 grid gap-5 text-left md:grid-cols-2 lg:grid-cols-3">
-          {voices.map((v, i) => (
-            <Reveal key={v.name} delay={(i % 3) * 110}>
-            <GlassSurface className="h-full rounded-2xl p-6" tilt={3}>
-              <div className="flex items-center gap-3">
-                <div
-                  className="grid h-9 w-9 flex-none place-items-center rounded-full border"
-                  style={{
-                    borderColor: "rgba(164,74,255,0.35)",
-                    background: "rgba(164,74,255,0.10)",
-                    fontFamily: "JetBrains Mono, monospace",
-                    fontSize: "11px",
-                    letterSpacing: "0.08em",
-                    color: "var(--mo-accent-strong)",
-                  }}
-                >
-                  {v.initials}
-                </div>
-                <div>
-                  <div
-                    className="text-[13px]"
-                    style={{
-                      color: "var(--mo-fg)",
-                      fontFamily: "JetBrains Mono, monospace",
-                    }}
-                  >
-                    {v.name}
-                  </div>
-                  <div
-                    className="text-[10px] tracking-[0.14em]"
-                    style={{
-                      color: "var(--mo-mute)",
-                      fontFamily: "JetBrains Mono, monospace",
-                    }}
-                  >
-                    {v.handle}
-                  </div>
-                </div>
-              </div>
-              <p
-                className="mt-4 text-[14px] leading-[1.65]"
-                style={{
-                  color: "var(--mo-fg-dim)",
-                  fontFamily: "JetBrains Mono, monospace",
-                }}
+        <div className="mt-12 columns-1 gap-5 text-left md:columns-2 lg:columns-3">
+          {comments.map((c, i) => (
+            <Reveal key={c.user} delay={(i % 3) * 110} className="mb-5 break-inside-avoid">
+              <GlassSurface
+                data-testid={`voice-comment-${i}`}
+                className="rounded-2xl p-5 sm:p-6"
+                tilt={2.5}
+                style={{ background: "rgba(15,15,15,0.55)" }}
               >
-                {`"${v.quote}"`}
-              </p>
-            </GlassSurface>
+                {c.platform === "youtube" ? (
+                  <YouTubeComment c={c} />
+                ) : (
+                  <InstagramComment c={c} />
+                )}
+              </GlassSurface>
             </Reveal>
           ))}
         </div>

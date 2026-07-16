@@ -98,6 +98,12 @@ Create a premium, cinematic landing page hero that feels calm, elegant, and inte
 - Spacing normalized: ALL sections now py-[70px] (Stats, Approach, HowItWorks, Work, Voices, Contact, FAQ) → uniform 140px rhythm between sections.
 - Night-sky bleed gets a soft bottom fade (CSS mask, 82%→100%) so no hard seam where the image ends mid-HowItWorks.
 
+## Iteration 12 (Jun 2026)
+- HowItWorks: arrows restored — one step visible at a time, prev/next arrows + 01/06 counter + dots + swipe + keyboard reveal steps; each slide keeps the new (Step n)/title/desc/icon/accordion row design. First icon: Telescope → Binoculars.
+- Voices section replaced with faithful replicas of 5 real comments (YouTube dark-theme style: avatar, @user, time, text, ThumbsUp w/ counts, ThumbsDown, creator-heart badge, Reply, "Show less", "• 1 reply ∨"; Instagram style for samuelbryan268 w/ right heart, "9w / 7 likes / Reply / View replies (1)"). Data-driven `comments` array in Voices.jsx — user will supply one more comment later. Masonry columns layout, Roboto font inside cards for authenticity.
+- FAQ: answers split into short paragraph lines (arrays), nothing open by default.
+- Hero rotator: "community." → "a community.".
+
 ## Prioritized Backlog
 - P1 — Contact form → email backend (currently `mailto:` on the Book-a-call CTA).
 - P1 — Additional case-study pages (Work cards currently link to `#contact`).

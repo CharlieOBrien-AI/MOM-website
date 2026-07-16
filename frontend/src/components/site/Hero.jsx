@@ -51,7 +51,7 @@ export default function Hero() {
             </span>
             <br />
             <TextRotator
-              words={["trust.", "loyalty.", "community."]}
+              words={["trust.", "loyalty.", "a community."]}
               style={{ color: "var(--mo-accent)", fontStyle: "italic" }}
             />
           </h1>

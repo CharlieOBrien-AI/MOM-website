@@ -1,23 +1,22 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  Telescope,
+  Binoculars,
   PenTool,
   Clapperboard,
   Scissors,
   Send,
   HeartHandshake,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import Reveal from "./Reveal";
 import { PROCESS } from "@/constants/testIds";
 
-// Step rows in the style of the reference: "(Step n)" + big title on the
-// left, description in the middle, line icon on the right, and an
-// expandable detail row ("+") underneath each step.
 const steps = [
   {
     title: "Audience Research",
     desc: "We dive into your world and your audience's. What they watch, what they skip, and what they already care about.",
-    icon: Telescope,
+    icon: Binoculars,
     detailLabel: "We learn from your audience",
     bullets: ["Competitor research", "Audience psychology", "Topic validation"],
   },
@@ -65,11 +64,7 @@ const steps = [
 function StepRow({ step, index, open, onToggle }) {
   const Icon = step.icon;
   return (
-    <div
-      data-testid={`process-step-${index}`}
-      className="border-t py-12 lg:py-14"
-      style={{ borderColor: "var(--mo-line)" }}
-    >
+    <div data-testid={`process-step-${index}`} className="pt-2">
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(240px,0.9fr)_1.3fr_auto] lg:gap-14">
         {/* (Step n) + big title */}
         <div>
@@ -113,11 +108,8 @@ function StepRow({ step, index, open, onToggle }) {
       </div>
 
       {/* Expandable detail row */}
-      <div className="mt-10 lg:ml-[calc(min(240px,100%)*0+0px)]">
-        <div
-          className="border-t"
-          style={{ borderColor: "var(--mo-line)" }}
-        >
+      <div className="mt-10">
+        <div className="border-t" style={{ borderColor: "var(--mo-line)" }}>
           <button
             type="button"
             data-testid={`process-accordion-${index}`}
@@ -155,7 +147,7 @@ function StepRow({ step, index, open, onToggle }) {
             }}
           >
             <div className="overflow-hidden">
-              <ul className="mb-6 space-y-3">
+              <ul className="mb-4 space-y-3">
                 {step.bullets.map((b) => (
                   <li
                     key={b}
@@ -178,7 +170,46 @@ function StepRow({ step, index, open, onToggle }) {
 }
 
 export default function HowItWorks() {
+  const total = steps.length;
+  const [idx, setIdx] = useState(0);
   const [openIdx, setOpenIdx] = useState(-1);
+  const trackRef = useRef(null);
+
+  const next = () => setIdx((i) => (i + 1) % total);
+  const prev = () => setIdx((i) => (i - 1 + total) % total);
+
+  const touchRef = useRef({ x: 0, y: 0 });
+  const onTouchStart = (e) => {
+    if (e.touches && e.touches[0]) {
+      touchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+  };
+  const onTouchEnd = (e) => {
+    const t = e.changedTouches && e.changedTouches[0];
+    if (!t) return;
+    const dx = t.clientX - touchRef.current.x;
+    const dy = t.clientY - touchRef.current.y;
+    if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) next();
+      else prev();
+    }
+  };
+
+  // Keyboard support when the section is in view
+  useEffect(() => {
+    const onKey = (e) => {
+      if (!trackRef.current) return;
+      const rect = trackRef.current.getBoundingClientRect();
+      const inView =
+        rect.top < window.innerHeight * 0.75 &&
+        rect.bottom > window.innerHeight * 0.25;
+      if (!inView) return;
+      if (e.key === "ArrowRight") next();
+      else if (e.key === "ArrowLeft") prev();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
 
   return (
     <section
@@ -190,35 +221,125 @@ export default function HowItWorks() {
           <div className="mono-eyebrow mb-4">
             <span style={{ color: "var(--mo-accent)" }}>//</span> How it works
           </div>
-          <h2
-            className="text-white"
-            style={{
-              fontFamily: "Instrument Serif, serif",
-              fontSize: "clamp(36px, 5vw, 68px)",
-              lineHeight: 1.05,
-              letterSpacing: "-0.015em",
-              maxWidth: "900px",
-            }}
-          >
-            {"How We Create Content That"}{" "}
-            <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
-              Pulls People In.
-            </span>
-          </h2>
+
+          <div className="flex flex-wrap items-end justify-between gap-8">
+            <h2
+              className="text-white"
+              style={{
+                fontFamily: "Instrument Serif, serif",
+                fontSize: "clamp(36px, 5vw, 68px)",
+                lineHeight: 1.05,
+                letterSpacing: "-0.015em",
+                maxWidth: "900px",
+              }}
+            >
+              {"How We Create Content That"}{" "}
+              <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
+                Pulls People In.
+              </span>
+            </h2>
+
+            <div className="flex items-center gap-3">
+              <div
+                className="text-[11px] tracking-[0.24em] uppercase"
+                data-testid="process-step-indicator"
+                style={{
+                  color: "var(--mo-fg-dim)",
+                  fontFamily: "JetBrains Mono, monospace",
+                }}
+              >
+                <span style={{ color: "var(--mo-accent)" }}>
+                  {String(idx + 1).padStart(2, "0")}
+                </span>
+                {" / "}
+                {String(total).padStart(2, "0")}
+              </div>
+              <button
+                type="button"
+                onClick={prev}
+                data-testid="process-prev"
+                aria-label="Previous step"
+                className="grid h-11 w-11 place-items-center rounded-full border transition-all duration-300 hover:-translate-x-0.5 hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)]"
+                style={{
+                  borderColor: "var(--mo-line-strong)",
+                  color: "var(--mo-fg-dim)",
+                  background: "rgba(255,255,255,0.02)",
+                }}
+              >
+                <ChevronLeft size={18} strokeWidth={1.6} />
+              </button>
+              <button
+                type="button"
+                onClick={next}
+                data-testid="process-next"
+                aria-label="Next step"
+                className="grid h-11 w-11 place-items-center rounded-full border transition-all duration-300 hover:translate-x-0.5 hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)]"
+                style={{
+                  borderColor: "var(--mo-line-strong)",
+                  color: "var(--mo-fg-dim)",
+                  background: "rgba(255,255,255,0.02)",
+                }}
+              >
+                <ChevronRight size={18} strokeWidth={1.6} />
+              </button>
+            </div>
+          </div>
         </Reveal>
 
-        <div className="mt-14">
-          {steps.map((s, i) => (
-            <Reveal key={s.title} delay={Math.min(i * 60, 180)}>
-              <StepRow
-                step={s}
-                index={i}
-                open={openIdx === i}
-                onToggle={() => setOpenIdx(openIdx === i ? -1 : i)}
+        {/* One step at a time — arrows / swipe / keyboard reveal the next */}
+        <Reveal delay={130}>
+          <div
+            ref={trackRef}
+            className="mt-12 overflow-hidden border-t"
+            style={{ borderColor: "var(--mo-line)" }}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+          >
+            <div
+              className="flex"
+              style={{
+                width: `${total * 100}%`,
+                transform: `translate3d(-${(idx * 100) / total}%, 0, 0)`,
+                transition: "transform 600ms cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+            >
+              {steps.map((s, i) => (
+                <div
+                  key={s.title}
+                  className="py-10 lg:py-12"
+                  style={{ width: `${100 / total}%`, flexShrink: 0 }}
+                >
+                  <StepRow
+                    step={s}
+                    index={i}
+                    open={openIdx === i}
+                    onToggle={() => setOpenIdx(openIdx === i ? -1 : i)}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Dot indicators */}
+          <div className="mt-8 flex items-center justify-center gap-2">
+            {steps.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                data-testid={`process-dot-${i}`}
+                aria-label={`Go to step ${i + 1}`}
+                onClick={() => setIdx(i)}
+                className="rounded-full transition-all duration-300"
+                style={{
+                  height: 6,
+                  width: i === idx ? 24 : 6,
+                  background:
+                    i === idx ? "var(--mo-accent)" : "rgba(255,255,255,0.12)",
+                }}
               />
-            </Reveal>
-          ))}
-        </div>
+            ))}
+          </div>
+        </Reveal>
       </div>
     </section>
   );

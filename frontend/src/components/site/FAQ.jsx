@@ -6,23 +6,44 @@ import { FAQ } from "@/constants/testIds";
 const faqs = [
   {
     q: "What does Midnight Owl actually do?",
-    a: "We make videos people actually want to watch. Most brands push their product and get scrolled past. We do it differently. We start with content that genuinely helps or entertains your audience, so they get familiar with you first. Once they know and like you, your product shows up as the natural next step, not a sales pitch, and that is when they actually buy.",
+    a: [
+      "We make videos people actually want to watch.",
+      "Most brands push their product and get scrolled past. We do it differently.",
+      "We start with content that genuinely helps or entertains your audience, so they get familiar with you first.",
+      "Once they know and like you, your product shows up as the natural next step, not a sales pitch, and that is when they actually buy.",
+    ],
   },
   {
     q: "Why pick you over another agency?",
-    a: "Most agencies sell convenience. We sell recall. They will post your videos and keep you active, but that does not mean people actually start buying from you. We take someone who has never heard of you and turn them into someone who picks you every time. Getting seen is easy. Getting chosen is the hard part.",
+    a: [
+      "Most agencies sell convenience. We sell recall.",
+      "They will post your videos and keep you active, but that does not mean people actually start buying from you.",
+      "We take someone who has never heard of you and turn them into someone who picks you every time.",
+      "Getting seen is easy. Getting chosen is the hard part.",
+    ],
   },
   {
     q: "How soon will I see results?",
-    a: "You will see things move in the first few weeks. The bigger payoff builds after that. Rented attention like ads disappears the moment you stop paying. What we build is yours, and people keep coming back even when we are not actively pushing that week.",
+    a: [
+      "You will see things move in the first few weeks. The bigger payoff builds after that.",
+      "Rented attention like ads disappears the moment you stop paying.",
+      "What we build is yours, and people keep coming back even when we are not actively pushing that week.",
+    ],
   },
   {
     q: "Do I have to be on camera?",
-    a: "No, not unless you want to. If you are building a personal brand, we will make good use of your face on camera. If you are busy or not comfortable filming, we can build an AI version of you, or bring in a presenter instead.",
+    a: [
+      "No, not unless you want to.",
+      "If you are building a personal brand, we will make good use of your face on camera.",
+      "If you are busy or not comfortable filming, we can build an AI version of you, or bring in a presenter instead.",
+    ],
   },
   {
     q: "How much does it cost?",
-    a: "What it takes to reach your audience is different for every brand. So we talk first, figure out what you actually need, and quote you something fair, instead of throwing a random number at you.",
+    a: [
+      "What it takes to reach your audience is different for every brand.",
+      "So we talk first, figure out what you actually need, and quote you something fair, instead of throwing a random number at you.",
+    ],
   },
 ];
 
@@ -67,15 +88,20 @@ function Item({ q, a, idx, open, onToggle }) {
         style={{ gridTemplateRows: open ? "1fr" : "0fr", transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)" }}
       >
         <div className="overflow-hidden">
-          <p
-            className="mb-6 max-w-[640px] text-[13.5px] leading-[1.7]"
-            style={{
-              color: "var(--mo-fg-dim)",
-              fontFamily: "JetBrains Mono, monospace",
-            }}
-          >
-            {a}
-          </p>
+          <div className="mb-6 max-w-[640px] space-y-3">
+            {a.map((line, i) => (
+              <p
+                key={i}
+                className="text-[13.5px] leading-[1.7]"
+                style={{
+                  color: "var(--mo-fg-dim)",
+                  fontFamily: "JetBrains Mono, monospace",
+                }}
+              >
+                {line}
+              </p>
+            ))}
+          </div>
         </div>
       </div>
     </GlassSurface>
@@ -83,7 +109,7 @@ function Item({ q, a, idx, open, onToggle }) {
 }
 
 export default function FAQSection() {
-  const [openIdx, setOpenIdx] = useState(0);
+  const [openIdx, setOpenIdx] = useState(-1);
 
   return (
     <section
