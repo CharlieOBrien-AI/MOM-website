@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import GlassSurface from "@/components/glass/GlassSurface";
 import Reveal from "./Reveal";
@@ -114,6 +114,32 @@ export default function Work() {
   const [playingIdx, setPlayingIdx] = useState(-1);
   const touchRef = useRef({ x: 0, y: 0 });
 
+  // Render exactly ONE layout (desktop grid OR mobile carousel) at a time
+  // so we never mount two iframes with autoplay for the same story.
+  // Tailwind's `hidden md:grid` only sets display:none — iframes underneath
+  // would still play audio, so we gate at the React tree level.
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width: 767px)").matches;
+  });
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = (e) => {
+      const next = "matches" in e ? e.matches : mq.matches;
+      setIsMobile(next);
+      // If the layout changes while a video is playing, unmount it so no
+      // orphaned iframe keeps playing audio in the now-hidden tree.
+      setPlayingIdx(-1);
+    };
+    if (mq.addEventListener) mq.addEventListener("change", update);
+    else if (mq.addListener) mq.addListener(update);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", update);
+      else if (mq.removeListener) mq.removeListener(update);
+    };
+  }, []);
+
   const next = () => setIdx((i) => (i + 1) % total);
   const prev = () => setIdx((i) => (i - 1 + total) % total);
   const handlePlay = (i) => setPlayingIdx(i);
@@ -174,17 +200,20 @@ export default function Work() {
         </div>
       </Reveal>
 
-      {/* Desktop / tablet — 3-up grid */}
-      <div className="hidden grid-cols-3 gap-5 md:grid">
-        {items.map((it, i) => (
-          <Reveal key={it.id} delay={i * 130}>
-            <WorkCard it={it} index={i} isPlaying={playingIdx === i} onPlay={handlePlay} />
-          </Reveal>
-        ))}
-      </div>
+      {/* Desktop / tablet — 3-up grid (only mounted on md+ so no orphan iframe) */}
+      {!isMobile && (
+        <div className="grid grid-cols-3 gap-5">
+          {items.map((it, i) => (
+            <Reveal key={it.id} delay={i * 130}>
+              <WorkCard it={it} index={i} isPlaying={playingIdx === i} onPlay={handlePlay} />
+            </Reveal>
+          ))}
+        </div>
+      )}
 
-      {/* Mobile — swipeable one-card carousel */}
-      <Reveal className="md:hidden" data-testid="work-carousel">
+      {/* Mobile — swipeable one-card carousel (only mounted below md) */}
+      {isMobile && (
+      <Reveal data-testid="work-carousel">
         <div
           className="overflow-hidden"
           onTouchStart={onTouchStart}
@@ -278,6 +307,7 @@ export default function Work() {
           </div>
         </div>
       </Reveal>
+      )}
     </section>
   );
 }
