@@ -540,6 +540,15 @@ export default function Approach() {
             }}
           />
 
+          {/* Uniform black tint — darkens the whole scene 2+ background per
+              user request; sits above video + still layers but below the
+              left-side readability wash. */}
+          <div
+            className="pointer-events-none absolute inset-0"
+            aria-hidden="true"
+            style={{ background: "rgba(0, 0, 0, 0.45)" }}
+          />
+
           {/* Left-heavy readability wash (neutral dark, NO purple). */}
           <div
             className="pointer-events-none absolute inset-0"

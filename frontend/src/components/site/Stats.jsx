@@ -74,7 +74,8 @@ export default function Stats() {
     >
       {/* Night-sky artwork stack — SQ2 then SQ3 directly below it, both
           full-width at natural aspect (no crop, no filter), bleeding into
-          the following sections. */}
+          the following sections. A black tint sits on top so scenes 2+
+          read darker than the hero. */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute left-0 top-0 w-full select-none"
@@ -93,6 +94,15 @@ export default function Stats() {
           draggable={false}
           className="h-auto w-full"
           style={{ display: "block", margin: 0, padding: 0, border: 0, verticalAlign: "bottom" }}
+        />
+        {/* Black tint overlay — darkens the bright purple sky from scene 2
+            onwards so the site reads darker after the hero. Same size as
+            the stacked images, sits above them but still behind section
+            content (which has its own zIndex:2). */}
+        <div
+          className="absolute inset-0"
+          aria-hidden="true"
+          style={{ background: "rgba(0, 0, 0, 0.55)" }}
         />
       </div>
       <div className="mx-auto max-w-[1240px] section-px py-[70px]" style={{ position: "relative", zIndex: 2 }}>

@@ -150,7 +150,7 @@ frontend:
         agent: "testing"
         comment: "BUG FIX VERIFIED via comprehensive Playwright testing. DESKTOP (1440x900): Only 3 play buttons render (not 6) proving single layout. Clicking play-0 mounts exactly 1 iframe (PRIMARY BUG FIX - no double audio). Switching to play-2 unmounts iframe-0 and mounts iframe-2 (auto-pause working, audio stops). MOBILE (390x800): Only 3 play buttons, exactly 1 iframe mounts, desktop layout not rendered. CROSS-VIEWPORT: Resizing from desktop (with iframe-1 playing) to mobile unmounts all iframes (playingIdx reset, no orphan audio). REGRESSION CHECKS: (A) Custom thumbnails present (thumb-mira.jpg, thumb-zuck.jpg, thumb-openai.jpg); (B) No 'AI · Short' or 'Tech · Short' kicker tags; (C) Voices section has allstarsteven comment with verified badge, 'Your content quality is 🔥', 4w, View replies (1); (D) HowItWorks/Process arrows advance step indicator 01→02→03, prev button works. All tests PASSED. The matchMedia hook implementation successfully prevents double iframe mounting - only ONE iframe can exist in DOM at any time."
 
-  - task: "Stats: SQ2/SQ3 night-sky images stack with 0px gap, no crop"
+  - task: "Stats: SQ2/SQ3 night-sky images stack with 0px gap, no crop + black tint overlay"
     implemented: true
     working: true
     file: "/app/frontend/src/components/site/Stats.jsx"
@@ -161,6 +161,33 @@ frontend:
       - working: true
         agent: "main"
         comment: "Container div gets lineHeight:0 + fontSize:0 to eliminate any inline whitespace gap; each <img> gets display:block, verticalAlign:bottom, margin:0, padding:0, border:0. h-auto w-full preserves natural aspect (no crop). DOM check confirms: SQ2 bottom = 2894px, SQ3 top = 2894px → gap = 0px."
+      - working: true
+        agent: "main"
+        comment: "Iteration 7 addition: added a full-cover black tint overlay (rgba(0,0,0,0.55)) as a sibling of the two <img>s inside the same absolute wrapper. It fills the exact bleed area of SQ2+SQ3 (~3628px height) and sits above them but below section content (which uses zIndex 2). Result: scenes 2+ (Stats + the areas the night-sky bleeds into) now read visibly darker than the hero, without touching the hero itself. Verified via screenshot: Stats section is noticeably darker; Hero is unchanged bright purple."
+
+  - task: "Approach: uniform black tint overlay on top of workspace video"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/site/Approach.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added rgba(0,0,0,0.45) full-cover overlay between the day-image crossfade layer and the left-side readability wash, so the whole workspace scene (moon, owl, desk, city) reads uniformly darker across the full width — consistent with the black tint on the Stats/SQ2/SQ3 bleed. Left-side readability wash preserved so the headline copy still has strong contrast. Verified via screenshot: the desk/moon/owl composition is dimmer overall, monitor still glows, no washed-out patches."
+
+  - task: "Remove white flash following the cursor (mo-glass-sheen)"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/index.css"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "User reported a white 'flash' following the cursor over glass cards. Root cause: `.mo-glass-sheen` — a 320px radial white/purple gradient at CSS-var-driven position (--gx/--gy, updated on mousemove) that went from opacity 0 → 1 on hover with mix-blend-mode: screen. Fix: `.mo-glass-interactive:hover .mo-glass-sheen { opacity: 0 }` (was `1`). The DOM element still exists (for backward compat / minimal churn) but never becomes visible. Verified: Playwright hovered the center of a stats glass card → computed opacity of the sheen span is `0` (was `1`). All other glass properties (rim highlights, tilt, ripple on click) remain unchanged."
 
   - task: "Work: remove 'AI · Short' / 'Tech · Short' kicker tags + custom local thumbnails"
     implemented: true
@@ -187,6 +214,8 @@ test_plan:
   test_priority: "stuck_first"
 
 agent_communication:
+  - agent: "main"
+    message: "Iteration 6.2 (visual polish). Two additive changes to the site: (1) Removed the white flash following the cursor over glass surfaces — `.mo-glass-interactive:hover .mo-glass-sheen { opacity: 0 }` in /app/frontend/src/index.css (was `1`). Sheen DOM stays but never becomes visible. Playwright-verified: computed opacity is 0 on hover. (2) Added a black tint to the background from scene 2 onwards — semi-transparent rgba(0,0,0,0.55) overlay inside the SQ2/SQ3 wrapper in Stats.jsx (covers full 2×image height, no crop, no gap), plus rgba(0,0,0,0.45) overlay on the Approach workspace video in Approach.jsx. Hero (scene 1) untouched. Screenshot-verified: Stats + Approach both read visibly darker; Hero still bright purple."
   - agent: "main"
     message: "Iteration 6.1 (bug fix). User reported audio playing twice + audio not stopping after pause. Root cause: both the desktop grid (`hidden md:grid`) and mobile carousel (`md:hidden`) were rendering the same items — Tailwind display:none does NOT stop iframe autoplay audio, so two iframes played in parallel. Fix in /app/frontend/src/components/site/Work.jsx: added synchronous `isMobile` state seeded from matchMedia('(max-width: 767px)'), only mounts one layout at a time; layout-change also resets `playingIdx` to -1 so no orphan iframe survives a resize. Only ONE <iframe> can now exist in the DOM. Ready for testing agent to verify (1) only one iframe mounts on Play regardless of viewport, (2) clicking a second card's Play unmounts the first iframe (audio should stop). Please test at both a desktop viewport (>=768w) and a mobile viewport (<768w) — use data-testids work-play-0/1/2, work-iframe-0/1/2. NOTE: this sandbox's headless Chromium may show 'Video unavailable' because YouTube blocks headless — that's fine, we're testing iframe mount/unmount behavior, not the video plays itself."
   - agent: "main"
