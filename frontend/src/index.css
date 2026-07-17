@@ -44,7 +44,7 @@
   }
 
   html {
-    background: #06060a;
+    background: #000;
     color-scheme: dark;
   }
 
@@ -201,15 +201,23 @@
    ───────────────────────────────────────────────────────────────────────── */
 
 @layer utilities {
-  /* Site-wide backdrop: fixed layer of slow-drifting violet orbs behind
-     every glass surface, so panels have real color/light to refract. */
+  /* Site-wide backdrop: pure black. Per user request the orb / vignette /
+     grain gradient system is disabled — anywhere no section-owned imagery
+     (hero video, SQ2/SQ3 images, workspace video) is visible, the page
+     reads pure black. */
   .mo-bg-orbs {
     position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
     overflow: hidden;
-    background: #06060a;
+    background: #000;
+  }
+
+  .mo-bg-vignette,
+  .mo-orb,
+  .mo-bg-grain {
+    display: none !important;
   }
 
   .mo-bg-vignette {

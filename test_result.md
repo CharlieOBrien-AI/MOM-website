@@ -165,7 +165,19 @@ frontend:
         agent: "main"
         comment: "Iteration 7 addition: added a full-cover black tint overlay (rgba(0,0,0,0.55)) as a sibling of the two <img>s inside the same absolute wrapper. It fills the exact bleed area of SQ2+SQ3 (~3628px height) and sits above them but below section content (which uses zIndex 2). Result: scenes 2+ (Stats + the areas the night-sky bleeds into) now read visibly darker than the hero, without touching the hero itself. Verified via screenshot: Stats section is noticeably darker; Hero is unchanged bright purple."
 
-  - task: "Approach: uniform black tint overlay on top of workspace video"
+  - task: "Pure-black backdrop — orb / vignette / grain gradients disabled site-wide"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/index.css"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "USER REQUEST: 'Below the SQ3 image, remove all the gradient and replace it with fully black. The rest of the background is black'. Below SQ3 (page-y > ~4708px, i.e. Voices / Contact / FAQ / Footer areas) the fixed GlassBackground orb+vignette layer was still visible through the transparent sections, showing purple/violet gradient washes. FIX in index.css: `.mo-bg-orbs { background: #000 }` (was `#06060a`), `.mo-bg-vignette, .mo-orb, .mo-bg-grain { display: none !important }`. Also `html { background: #000 }` (was `#06060a`). Now every area not covered by a section-owned visual (hero video, SQ2/SQ3, workspace video, glass cards) renders as pure #000. Verified via screenshot: Voices/Contact/FAQ backgrounds are pure black — no purple orb glow; Hero still looks beautiful (its own video provides all the color); Stats/Approach unchanged."
+
+  - task: "Approach: uniform black tint overlay on top of workspace video (REVERTED)"
     implemented: false
     working: true
     file: "/app/frontend/src/components/site/Approach.jsx"
