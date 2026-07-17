@@ -36,8 +36,9 @@ export default function PremiumToggle({ value, onChange, disabled = false }) {
     if (disabled) return;
     if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) {
       e.preventDefault();
-      if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "Home") onChange("push");
-      else onChange("pull");
+      // Pull is now on the LEFT (default), Push on the RIGHT.
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "Home") onChange("pull");
+      else onChange("push");
     }
   };
 
@@ -65,29 +66,13 @@ export default function PremiumToggle({ value, onChange, disabled = false }) {
           width: pill.width,
           background: "var(--mo-fg)",
           transition:
-            "left 320ms cubic-bezier(0.4, 0, 0.2, 1), width 320ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 320ms ease",
+            "left 320ms var(--ease-out-strong), width 320ms var(--ease-out-strong), box-shadow 320ms ease",
           boxShadow:
             "0 0 0 1px rgba(255,255,255,0.05), 0 8px 24px -8px rgba(164,74,255,0.35), 0 0 32px -8px rgba(164,74,255,0.25)",
         }}
       />
 
-      <button
-        ref={pushRef}
-        type="button"
-        role="radio"
-        aria-checked={value === "push"}
-        data-testid={APPROACH.togglePush}
-        tabIndex={value === "push" ? 0 : -1}
-        onClick={() => !disabled && onChange("push")}
-        disabled={disabled}
-        className="relative z-10 rounded-full px-8 py-3 text-[12.5px] font-medium tracking-[0.22em] uppercase transition-colors duration-300 outline-none focus-visible:ring-2 focus-visible:ring-[var(--mo-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--mo-bg)]"
-        style={{
-          color: value === "push" ? "var(--mo-bg)" : "var(--mo-fg-dim)",
-          fontFamily: "JetBrains Mono, monospace",
-        }}
-      >
-        Push
-      </button>
+      {/* Pull is now on the LEFT — it's the default mode. */}
       <button
         ref={pullRef}
         type="button"
@@ -97,13 +82,30 @@ export default function PremiumToggle({ value, onChange, disabled = false }) {
         tabIndex={value === "pull" ? 0 : -1}
         onClick={() => !disabled && onChange("pull")}
         disabled={disabled}
-        className="relative z-10 rounded-full px-8 py-3 text-[12.5px] font-medium tracking-[0.22em] uppercase transition-colors duration-300 outline-none focus-visible:ring-2 focus-visible:ring-[var(--mo-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--mo-bg)]"
+        className="mo-press relative z-10 rounded-full px-8 py-3 text-[12.5px] font-medium tracking-[0.22em] uppercase transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-[var(--mo-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--mo-bg)]"
         style={{
           color: value === "pull" ? "var(--mo-bg)" : "var(--mo-fg-dim)",
           fontFamily: "JetBrains Mono, monospace",
         }}
       >
         Pull
+      </button>
+      <button
+        ref={pushRef}
+        type="button"
+        role="radio"
+        aria-checked={value === "push"}
+        data-testid={APPROACH.togglePush}
+        tabIndex={value === "push" ? 0 : -1}
+        onClick={() => !disabled && onChange("push")}
+        disabled={disabled}
+        className="mo-press relative z-10 rounded-full px-8 py-3 text-[12.5px] font-medium tracking-[0.22em] uppercase transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-[var(--mo-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--mo-bg)]"
+        style={{
+          color: value === "push" ? "var(--mo-bg)" : "var(--mo-fg-dim)",
+          fontFamily: "JetBrains Mono, monospace",
+        }}
+      >
+        Push
       </button>
     </div>
   );

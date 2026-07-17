@@ -115,24 +115,25 @@ function StepRow({ step, index, open, onToggle }) {
             data-testid={`process-accordion-${index}`}
             aria-expanded={open}
             onClick={onToggle}
-            className="flex w-full items-center justify-between gap-6 py-5 text-left"
+            className="mo-press flex w-full items-center justify-between gap-6 py-5 text-left"
           >
             <span
               className="text-[18px] sm:text-[21px]"
               style={{
                 fontFamily: "Instrument Serif, serif",
                 color: open ? "var(--mo-fg)" : "var(--mo-fg-dim)",
-                transition: "color 250ms ease",
+                transition: "color 220ms ease",
               }}
             >
               {step.detailLabel}
             </span>
             <span
-              className="grid h-9 w-9 flex-none place-items-center rounded-full border text-[16px] transition-transform duration-300"
+              className="grid h-9 w-9 flex-none place-items-center rounded-full border text-[16px]"
               style={{
                 borderColor: "rgba(164,74,255,0.35)",
                 color: "var(--mo-accent)",
                 transform: open ? "rotate(45deg)" : "rotate(0deg)",
+                transition: "transform 260ms var(--ease-out-strong)",
               }}
             >
               +
@@ -140,14 +141,23 @@ function StepRow({ step, index, open, onToggle }) {
           </button>
 
           <div
-            className="grid transition-[grid-template-rows] duration-500"
+            className="grid"
             style={{
               gridTemplateRows: open ? "1fr" : "0fr",
-              transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+              transition: "grid-template-rows 420ms var(--ease-out-strong)",
             }}
           >
             <div className="overflow-hidden">
-              <ul className="mb-4 space-y-3">
+              <ul
+                className="mb-4 space-y-3"
+                style={{
+                  opacity: open ? 1 : 0,
+                  transform: open ? "translateY(0)" : "translateY(-6px)",
+                  transition: open
+                    ? "opacity 260ms ease 140ms, transform 320ms var(--ease-out-strong) 140ms"
+                    : "opacity 140ms ease, transform 200ms var(--ease-out-strong)",
+                }}
+              >
                 {step.bullets.map((b) => (
                   <li
                     key={b}

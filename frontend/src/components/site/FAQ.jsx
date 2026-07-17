@@ -59,7 +59,7 @@ function Item({ q, a, idx, open, onToggle }) {
         type="button"
         aria-expanded={open}
         data-testid={`faq-item-${idx}`}
-        className="flex w-full items-center justify-between gap-6 px-6 py-6 text-left transition-colors duration-200 hover:text-white"
+        className="mo-press flex w-full items-center justify-between gap-6 px-6 py-6 text-left transition-colors duration-200 hover:text-white"
       >
         <span
           className="text-[18px] sm:text-[22px]"
@@ -88,11 +88,20 @@ function Item({ q, a, idx, open, onToggle }) {
         className="grid px-6"
         style={{
           gridTemplateRows: open ? "1fr" : "0fr",
-          transition: "grid-template-rows 300ms var(--ease-out-strong)",
+          transition: "grid-template-rows 420ms var(--ease-out-strong)",
         }}
       >
         <div className="overflow-hidden">
-          <div className="mb-6 max-w-[640px] space-y-3">
+          <div
+            className="mb-6 max-w-[640px] space-y-3"
+            style={{
+              opacity: open ? 1 : 0,
+              transform: open ? "translateY(0)" : "translateY(-6px)",
+              transition: open
+                ? "opacity 260ms ease 140ms, transform 320ms var(--ease-out-strong) 140ms"
+                : "opacity 140ms ease, transform 200ms var(--ease-out-strong)",
+            }}
+          >
             {a.map((line, i) => (
               <p
                 key={i}

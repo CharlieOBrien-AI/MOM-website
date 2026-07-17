@@ -182,9 +182,11 @@
     transform: scale(0.97);
   }
   /* Compose with an existing translate — set --mo-press-base to preserve the
-     current transform (e.g. `translateY(-50%)` on the HowItWorks arrows). */
+     current transform (e.g. `translateY(-50%)` on the HowItWorks arrows).
+     `!important` is required here because callers set `transform` inline
+     for positioning, and inline styles beat regular class rules. */
   .mo-press[data-base]:active {
-    transform: var(--mo-press-base) scale(0.97);
+    transform: var(--mo-press-base, none) scale(0.97) !important;
   }
 
   /* Strikethrough draw-in — used on the Hero heading's crossed-out phrase.
