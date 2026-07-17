@@ -189,6 +189,61 @@
     transform: var(--mo-press-base, none) scale(0.97) !important;
   }
 
+  /* Keyed enter animations for state swaps — attach with a `key` prop so
+     React remounts on change and CSS re-runs the animation from scratch.
+     Purpose per find-animation-opportunities: "Preventing a jarring change".
+     Only animates transform + opacity so it stays cheap on the GPU. */
+  .mo-key-fade-up {
+    animation: mo-key-fade-up-kf 220ms var(--ease-out-strong) both;
+  }
+  @keyframes mo-key-fade-up-kf {
+    from { opacity: 0; transform: translate3d(0, 6px, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+  .mo-key-fade {
+    animation: mo-key-fade-kf 200ms var(--ease-out-strong) both;
+  }
+  @keyframes mo-key-fade-kf {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* Staggered group entrance — set `--i` per child (inline style) to control
+     order. Group entrances are decorative and short (300ms cap incl. delay),
+     so they never block interaction. */
+  .mo-stagger-in > * {
+    animation: mo-stagger-item 320ms var(--ease-out-strong) both;
+    animation-delay: calc(var(--i, 0) * 60ms);
+  }
+  @keyframes mo-stagger-item {
+    from { opacity: 0; transform: translate3d(0, 6px, 0) scale(0.98); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  }
+
+  /* Underline draw — used on nav links. Scales from the left, gated behind
+     hover:hover so tap devices don't stick. */
+  .mo-underline {
+    position: relative;
+  }
+  .mo-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 220ms var(--ease-out-strong);
+    pointer-events: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .mo-underline:hover::after {
+      transform: scaleX(1);
+    }
+  }
+
   /* Strikethrough draw-in — used on the Hero heading's crossed-out phrase.
      Starts already at scaleX(0) (no flash during the delay), then draws
      left-to-right once, right as the heading finishes fading in. */
@@ -438,6 +493,7 @@
   @media (hover: hover) and (pointer: fine) {
     .mo-glass-interactive:hover {
       border-color: rgba(255, 255, 255, 0.18);
+      transform: var(--mo-glass-tilt, none) translateY(-2px);
       box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.22),
         inset 0 -1px 0 rgba(0, 0, 0, 0.4),

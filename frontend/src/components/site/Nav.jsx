@@ -71,7 +71,7 @@ export default function Nav() {
               key={l.href}
               href={l.href}
               data-testid={l.testid}
-              className="mo-press text-[11px] tracking-[0.16em] uppercase transition-colors duration-200 hover:text-[var(--mo-fg)]"
+              className="mo-press mo-underline text-[11px] tracking-[0.16em] uppercase transition-colors duration-200 hover:text-[var(--mo-fg)]"
               style={{
                 color: "var(--mo-fg-dim)",
                 fontFamily: "JetBrains Mono, monospace",

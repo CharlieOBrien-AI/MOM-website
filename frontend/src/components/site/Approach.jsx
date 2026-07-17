@@ -381,10 +381,13 @@ export default function Approach() {
             fontStyle: "italic",
             lineHeight: 1.3,
             letterSpacing: "-0.01em",
-            transition: "opacity 280ms ease",
           }}
         >
-          {active.metaphor}
+          {/* Keyed so the fade+lift restarts on each mode swap — otherwise
+              the text snap-changes and breaks the demo illusion. */}
+          <span key={mode} className="mo-key-fade-up inline-block">
+            {active.metaphor}
+          </span>
         </div>
       </GlassSurface>
     </>
@@ -428,32 +431,38 @@ export default function Approach() {
             fontFamily: "JetBrains Mono, monospace",
           }}
         >
-          {mode === "pull" ? "Made to hold" : "Made to broadcast"}
+          {/* Keyed crossfade so the label doesn't teleport on mode swap. */}
+          <span key={mode} className="mo-key-fade inline-block">
+            {mode === "pull" ? "Made to hold" : "Made to broadcast"}
+          </span>
         </div>
       </div>
 
       <div
+        key={`grid-${mode}`}
         className={`${
           onMonitor ? "mt-2.5 gap-2" : "mt-5 gap-3"
-        } grid grid-cols-3`}
+        } mo-stagger-in grid grid-cols-3`}
       >
         {mode === "push"
           ? PUSH_VIDEOS.map((v, i) => (
-              <VideoTile
-                key={v.preview}
-                src={v.preview}
-                index={i}
-                onPlay={() => setLightbox(v.full)}
-              />
+              <div key={v.preview} style={{ "--i": i }}>
+                <VideoTile
+                  src={v.preview}
+                  index={i}
+                  onPlay={() => setLightbox(v.full)}
+                />
+              </div>
             ))
           : active.examples.map((ex, i) => (
-              <ReelPreview
-                key={`${mode}-${i}`}
-                mode={mode}
-                kicker={ex.kicker}
-                title={ex.title}
-                compact={onMonitor}
-              />
+              <div key={`${mode}-${i}`} style={{ "--i": i }}>
+                <ReelPreview
+                  mode={mode}
+                  kicker={ex.kicker}
+                  title={ex.title}
+                  compact={onMonitor}
+                />
+              </div>
             ))}
       </div>
 
@@ -467,9 +476,12 @@ export default function Approach() {
           fontFamily: "JetBrains Mono, monospace",
         }}
       >
-        {mode === "pull"
-          ? "People lean in. Retention holds. Trust compounds."
-          : "People scroll past. Reach rented. No trust built."}
+        {/* Keyed crossfade for the tagline too — same mode swap moment. */}
+        <span key={`caption-${mode}`} className="mo-key-fade inline-block">
+          {mode === "pull"
+            ? "People lean in. Retention holds. Trust compounds."
+            : "People scroll past. Reach rented. No trust built."}
+        </span>
       </div>
     </GlassSurface>
   );
