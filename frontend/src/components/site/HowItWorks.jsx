@@ -262,8 +262,9 @@ export default function HowItWorks() {
               type="button"
               onClick={prev}
               data-testid="process-prev"
+              data-base
               aria-label="Previous step"
-              className="absolute left-0 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border transition-all duration-300 hover:-translate-x-0.5 hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)] sm:h-12 sm:w-12 md:left-2 lg:left-4"
+              className="mo-press absolute left-0 top-1/2 z-10 grid h-11 w-11 place-items-center rounded-full border transition-[border-color,color] duration-200 ease-out hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)] sm:h-12 sm:w-12 md:left-2 lg:left-4"
               style={{
                 borderColor: "var(--mo-line-strong)",
                 color: "var(--mo-fg-dim)",
@@ -271,6 +272,7 @@ export default function HowItWorks() {
                 WebkitBackdropFilter: "blur(6px)",
                 backdropFilter: "blur(6px)",
                 transform: "translateY(-50%)",
+                "--mo-press-base": "translateY(-50%)",
               }}
             >
               <ChevronLeft size={20} strokeWidth={1.6} />
@@ -281,8 +283,9 @@ export default function HowItWorks() {
               type="button"
               onClick={next}
               data-testid="process-next"
+              data-base
               aria-label="Next step"
-              className="absolute right-0 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border transition-all duration-300 hover:translate-x-0.5 hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)] sm:h-12 sm:w-12 md:right-2 lg:right-4"
+              className="mo-press absolute right-0 top-1/2 z-10 grid h-11 w-11 place-items-center rounded-full border transition-[border-color,color] duration-200 ease-out hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)] sm:h-12 sm:w-12 md:right-2 lg:right-4"
               style={{
                 borderColor: "var(--mo-line-strong)",
                 color: "var(--mo-fg-dim)",
@@ -290,6 +293,7 @@ export default function HowItWorks() {
                 WebkitBackdropFilter: "blur(6px)",
                 backdropFilter: "blur(6px)",
                 transform: "translateY(-50%)",
+                "--mo-press-base": "translateY(-50%)",
               }}
             >
               <ChevronRight size={20} strokeWidth={1.6} />
@@ -308,7 +312,7 @@ export default function HowItWorks() {
                 style={{
                   width: `${total * 100}%`,
                   transform: `translate3d(-${(idx * 100) / total}%, 0, 0)`,
-                  transition: "transform 600ms cubic-bezier(0.4, 0, 0.2, 1)",
+                  transition: "transform 500ms var(--ease-out-strong)",
                 }}
               >
                 {steps.map((s, i) => (
@@ -338,12 +342,14 @@ export default function HowItWorks() {
                 data-testid={`process-dot-${i}`}
                 aria-label={`Go to step ${i + 1}`}
                 onClick={() => setIdx(i)}
-                className="rounded-full transition-all duration-300"
+                className="mo-press rounded-full"
                 style={{
                   height: 6,
                   width: i === idx ? 24 : 6,
                   background:
                     i === idx ? "var(--mo-accent)" : "rgba(255,255,255,0.12)",
+                  transition:
+                    "width 260ms var(--ease-out-strong), background-color 260ms ease",
                 }}
               />
             ))}

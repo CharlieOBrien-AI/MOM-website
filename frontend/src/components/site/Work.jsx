@@ -55,7 +55,7 @@ function WorkCard({ it, index, isPlaying, onPlay }) {
             src={it.thumb}
             alt={it.title}
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
             style={{ borderRadius: "inherit" }}
           />
           <span
@@ -69,7 +69,7 @@ function WorkCard({ it, index, isPlaying, onPlay }) {
           />
 
           <span
-            className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full border transition-transform duration-500 group-hover:scale-110"
+            className="mo-press absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full border transition-transform duration-200 ease-out group-hover:scale-105"
             style={{
               borderColor: "rgba(255,255,255,0.28)",
               background: "rgba(10,10,11,0.35)",
@@ -189,7 +189,7 @@ export default function Work() {
             href="https://www.youtube.com/@CharlieOBrienAI/shorts"
             target="_blank"
             rel="noreferrer"
-            className="text-[11px] tracking-[0.18em] uppercase transition-colors hover:text-[var(--mo-fg)]"
+            className="mo-press text-[11px] tracking-[0.18em] uppercase transition-colors duration-200 hover:text-[var(--mo-fg)]"
             style={{
               color: "var(--mo-fg-dim)",
               fontFamily: "JetBrains Mono, monospace",
@@ -224,7 +224,7 @@ export default function Work() {
             style={{
               width: `${total * 100}%`,
               transform: `translate3d(-${(idx * 100) / total}%, 0, 0)`,
-              transition: "transform 550ms cubic-bezier(0.4, 0, 0.2, 1)",
+              transition: "transform 500ms var(--ease-out-strong)",
             }}
           >
             {items.map((it, i) => (
@@ -264,12 +264,14 @@ export default function Work() {
                 data-testid={`work-dot-${i}`}
                 aria-label={`Go to story ${i + 1}`}
                 onClick={() => setIdx(i)}
-                className="rounded-full transition-all duration-300"
+                className="mo-press rounded-full"
                 style={{
                   height: 6,
                   width: i === idx ? 24 : 6,
                   background:
                     i === idx ? "var(--mo-accent)" : "rgba(255,255,255,0.12)",
+                  transition:
+                    "width 260ms var(--ease-out-strong), background-color 260ms ease",
                 }}
               />
             ))}
@@ -281,7 +283,7 @@ export default function Work() {
               onClick={prev}
               data-testid="work-prev"
               aria-label="Previous story"
-              className="grid h-10 w-10 place-items-center rounded-full border transition-all duration-300 hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)]"
+              className="mo-press grid h-10 w-10 place-items-center rounded-full border transition-[border-color,color] duration-200 ease-out hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)]"
               style={{
                 borderColor: "var(--mo-line-strong)",
                 color: "var(--mo-fg-dim)",
@@ -295,7 +297,7 @@ export default function Work() {
               onClick={next}
               data-testid="work-next"
               aria-label="Next story"
-              className="grid h-10 w-10 place-items-center rounded-full border transition-all duration-300 hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)]"
+              className="mo-press grid h-10 w-10 place-items-center rounded-full border transition-[border-color,color] duration-200 ease-out hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)]"
               style={{
                 borderColor: "var(--mo-line-strong)",
                 color: "var(--mo-fg-dim)",

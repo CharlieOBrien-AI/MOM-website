@@ -23,8 +23,10 @@ export default function Nav() {
   return (
     <header
       data-testid={NAV.root}
-      className="fixed inset-x-0 top-0 z-50 transition-all duration-500"
+      className="fixed inset-x-0 top-0 z-50"
       style={{
+        transition:
+          "background 300ms var(--ease-out-strong), border-color 300ms var(--ease-out-strong), box-shadow 300ms var(--ease-out-strong)",
         background: scrolled
           ? "linear-gradient(180deg, rgba(10,8,22,0.55), rgba(10,8,22,0.35))"
           : "linear-gradient(180deg, rgba(10,8,22,0.20), rgba(10,8,22,0.05))",
@@ -33,7 +35,6 @@ export default function Nav() {
           : "1px solid transparent",
         WebkitBackdropFilter: "blur(22px) saturate(160%)",
         backdropFilter: "blur(22px) saturate(160%)",
-        WebkitBackdropFilter: "blur(22px) saturate(160%)",
         boxShadow: scrolled
           ? "inset 0 1px 0 rgba(255,255,255,0.10), 0 12px 40px -20px rgba(0,0,0,0.5)"
           : "inset 0 1px 0 rgba(255,255,255,0.05)",
@@ -70,7 +71,7 @@ export default function Nav() {
               key={l.href}
               href={l.href}
               data-testid={l.testid}
-              className="text-[11px] tracking-[0.16em] uppercase transition-colors hover:text-[var(--mo-fg)]"
+              className="mo-press text-[11px] tracking-[0.16em] uppercase transition-colors duration-200 hover:text-[var(--mo-fg)]"
               style={{
                 color: "var(--mo-fg-dim)",
                 fontFamily: "JetBrains Mono, monospace",
@@ -86,7 +87,7 @@ export default function Nav() {
           href="#contact"
           data-testid={NAV.cta}
           tilt={2.5}
-          className="mo-glass-pill mo-glass-lit group inline-flex items-center gap-2 px-4 py-2 text-[11px] font-medium tracking-[0.14em] uppercase"
+          className="mo-glass-pill mo-glass-lit mo-press group inline-flex items-center gap-2 px-4 py-2 text-[11px] font-medium tracking-[0.14em] uppercase"
           style={{
             fontFamily: "JetBrains Mono, monospace",
             color: "var(--mo-fg)",
@@ -97,7 +98,7 @@ export default function Nav() {
           Start a project
           <span
             aria-hidden="true"
-            className="inline-block transition-transform duration-300 group-hover:translate-x-0.5"
+            className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-0.5"
           >
             →
           </span>

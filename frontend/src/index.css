@@ -41,6 +41,21 @@
     --input: 240 5% 14%;
     --ring: 267 100% 64%;
     --radius: 0.75rem;
+
+    /* Motion tokens (Emil Kowalski, animations.dev) — strong custom easings
+       replace the too-weak built-in CSS easings site-wide. Applied via var()
+       so every timing decision lives in one place. */
+    --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);         /* responsive UI enter/exit */
+    --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);     /* on-screen movement */
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);             /* iOS-style drawer curve */
+    --ease-out-quart: cubic-bezier(0.22, 1, 0.36, 1);          /* legacy alias, kept for gentle marketing reveals */
+
+    /* Duration tokens — UI stays < 300ms (Emil rule). Reveal/marketing can be longer. */
+    --dur-press: 160ms;    /* :active feedback */
+    --dur-tooltip: 180ms;  /* small popovers / tooltips */
+    --dur-ui: 220ms;       /* hover, focus, dropdowns */
+    --dur-modal: 300ms;    /* modals, sheets */
+    --dur-reveal: 600ms;   /* scroll-in reveals (marketing) */
   }
 
   html {
@@ -129,11 +144,11 @@
   }
 
   .fade-in-up {
-    animation: fadeInUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: fadeInUp 600ms var(--ease-out-strong) both;
   }
 
   .fade-in {
-    animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: fadeIn 400ms var(--ease-out-strong) both;
   }
 
   @keyframes fadeInUp {
@@ -146,13 +161,31 @@
     to { opacity: 1; }
   }
 
-  .stagger > * { opacity: 0; animation: fadeInUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-  .stagger > *:nth-child(1) { animation-delay: 0.05s; }
-  .stagger > *:nth-child(2) { animation-delay: 0.15s; }
-  .stagger > *:nth-child(3) { animation-delay: 0.25s; }
-  .stagger > *:nth-child(4) { animation-delay: 0.35s; }
-  .stagger > *:nth-child(5) { animation-delay: 0.45s; }
-  .stagger > *:nth-child(6) { animation-delay: 0.55s; }
+  .stagger > * { opacity: 0; animation: fadeInUp 500ms var(--ease-out-strong) forwards; }
+  .stagger > *:nth-child(1) { animation-delay: 40ms; }
+  .stagger > *:nth-child(2) { animation-delay: 90ms; }
+  .stagger > *:nth-child(3) { animation-delay: 140ms; }
+  .stagger > *:nth-child(4) { animation-delay: 190ms; }
+  .stagger > *:nth-child(5) { animation-delay: 240ms; }
+  .stagger > *:nth-child(6) { animation-delay: 290ms; }
+
+  /* Press feedback — the single biggest UI polish upgrade.
+     Attach `.mo-press` to any clickable element (buttons, arrows, CTAs).
+     Gives the instant physical confirmation that separates crisp UI from dead UI.
+     `scale(0.97)` matches Emil's spec; `--dur-press` (160ms) matches Sonner. */
+  .mo-press {
+    transition: transform var(--dur-press) var(--ease-out-strong);
+    -webkit-tap-highlight-color: transparent;
+    will-change: transform;
+  }
+  .mo-press:active {
+    transform: scale(0.97);
+  }
+  /* Compose with an existing translate — set --mo-press-base to preserve the
+     current transform (e.g. `translateY(-50%)` on the HowItWorks arrows). */
+  .mo-press[data-base]:active {
+    transform: var(--mo-press-base) scale(0.97);
+  }
 
   /* Strikethrough draw-in — used on the Hero heading's crossed-out phrase.
      Starts already at scaleX(0) (no flash during the delay), then draws
@@ -162,8 +195,8 @@
     opacity: 0;
     transform: translate3d(0, 26px, 0);
     transition:
-      opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity var(--dur-reveal) var(--ease-out-strong),
+      transform var(--dur-reveal) var(--ease-out-strong);
     will-change: opacity, transform;
   }
   .mo-reveal.is-visible {
@@ -174,7 +207,7 @@
   .mo-strike-draw {
     transform: scaleX(0);
     transform-origin: left center;
-    animation: mo-strike-draw-kf 0.6s cubic-bezier(0.65, 0, 0.35, 1) 1.05s forwards;
+    animation: mo-strike-draw-kf 500ms var(--ease-in-out-strong) 1.05s forwards;
   }
 
   @keyframes mo-strike-draw-kf {
@@ -182,17 +215,64 @@
   }
 }
 
+/* Accessibility — three independent signals (per apple-design skill).
+
+   1. prefers-reduced-motion: keep opacity/color transitions that aid
+      comprehension; DROP transform-based motion (which causes vestibular
+      discomfort). Reduced ≠ zero.
+   2. prefers-reduced-transparency: drop backdrop blur; use solid surfaces.
+   3. prefers-contrast: more: firm up borders/text against low-contrast tints. */
 @media (prefers-reduced-motion: reduce) {
+  /* Kill translate/scale/rotate motion but keep short opacity fades. */
+  .mo-reveal,
+  .fade-in-up,
+  .stagger > * {
+    animation: fadeIn 200ms ease both !important;
+    transform: none !important;
+  }
+  .mo-reveal.is-visible {
+    transform: none !important;
+  }
+  .mo-strike-draw {
+    animation: none !important;
+    transform: none !important;
+  }
+  .mo-orb {
+    animation: none !important;
+  }
+  .mo-press:active {
+    transform: none !important;
+  }
+  .mo-glass,
+  .mo-glass-interactive {
+    --mo-glass-tilt: none !important;
+    transition: opacity 200ms ease, border-color 200ms ease !important;
+    transform: none !important;
+  }
+  /* Global escape hatch for anything not enumerated above — but keep short
+     opacity/color transitions so state changes remain legible. */
   *,
   *::before,
   *::after {
-    animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
-  .mo-glass {
-    --mo-glass-tilt: none !important;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .mo-glass,
+  .mo-glass-strong {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: rgba(16, 16, 22, 0.94) !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .mo-glass,
+  .mo-glass-strong {
+    border-color: rgba(255, 255, 255, 0.35) !important;
+    background: rgba(10, 10, 14, 0.96) !important;
   }
 }
 
@@ -336,9 +416,9 @@
     text-shadow: 0 1px 2px rgba(6, 6, 10, 0.35);
     transform: var(--mo-glass-tilt);
     transition:
-      transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 380ms ease,
-      border-color 380ms ease;
+      transform 420ms var(--ease-out-strong),
+      box-shadow 260ms ease,
+      border-color 260ms ease;
     transform-style: preserve-3d;
   }
 
@@ -351,13 +431,17 @@
     cursor: pointer;
   }
 
-  .mo-glass-interactive:hover {
-    border-color: rgba(255, 255, 255, 0.18);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.22),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.4),
-      0 34px 90px -22px rgba(164, 74, 255, 0.35),
-      0 0 0 1px rgba(255, 255, 255, 0.04);
+  /* Hover states gated behind fine-pointer (skip on touch to prevent
+     sticky-hover after a tap). */
+  @media (hover: hover) and (pointer: fine) {
+    .mo-glass-interactive:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.4),
+        0 34px 90px -22px rgba(164, 74, 255, 0.35),
+        0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
   }
 
   .mo-glass-sheen {
@@ -398,7 +482,9 @@
   .mo-glass-ripple {
     position: absolute;
     border-radius: 999px;
-    transform: translate(-50%, -50%) scale(0);
+    /* Start from a small non-zero scale — nothing in the real world appears
+       from nothing (Emil rule). Still reads as "ripple grows from touch point". */
+    transform: translate(-50%, -50%) scale(0.05);
     pointer-events: none;
     background: radial-gradient(
       circle,
@@ -406,12 +492,12 @@
       rgba(164, 74, 255, 0.22) 40%,
       rgba(255, 255, 255, 0) 70%
     );
-    animation: mo-ripple 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation: mo-ripple 800ms var(--ease-out-strong) forwards;
     mix-blend-mode: screen;
   }
 
   @keyframes mo-ripple {
-    from { transform: translate(-50%, -50%) scale(0); opacity: 0.9; }
+    from { transform: translate(-50%, -50%) scale(0.05); opacity: 0.9; }
     to   { transform: translate(-50%, -50%) scale(1); opacity: 0; }
   }
 

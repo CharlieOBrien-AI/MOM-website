@@ -99,7 +99,7 @@ export default function Hero() {
               href="#contact"
               data-testid={HERO.ctaPrimary}
               tilt={3}
-              className="mo-glass-pill mo-glass-lit group inline-flex items-center gap-2 px-6 py-3.5 text-[12px] font-medium tracking-[0.16em] uppercase"
+              className="mo-glass-pill mo-glass-lit mo-press group inline-flex items-center gap-2 px-6 py-3.5 text-[12px] font-medium tracking-[0.16em] uppercase"
               style={{
                 fontFamily: "JetBrains Mono, monospace",
                 color: "var(--mo-fg)",
@@ -110,7 +110,7 @@ export default function Hero() {
               {"Let's talk"}
               <span
                 aria-hidden="true"
-                className="transition-transform duration-300 group-hover:translate-x-1"
+                className="transition-transform duration-200 ease-out group-hover:translate-x-1"
               >
                 →
               </span>
@@ -121,7 +121,7 @@ export default function Hero() {
               href="#work"
               data-testid={HERO.ctaSecondary}
               tilt={3}
-              className="mo-glass-pill group inline-flex items-center gap-2 px-6 py-3.5 text-[12px] font-medium tracking-[0.16em] uppercase"
+              className="mo-glass-pill mo-press group inline-flex items-center gap-2 px-6 py-3.5 text-[12px] font-medium tracking-[0.16em] uppercase"
               style={{
                 fontFamily: "JetBrains Mono, monospace",
                 color: "var(--mo-fg)",

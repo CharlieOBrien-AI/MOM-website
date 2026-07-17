@@ -59,24 +59,25 @@ function Item({ q, a, idx, open, onToggle }) {
         type="button"
         aria-expanded={open}
         data-testid={`faq-item-${idx}`}
-        className="flex w-full items-center justify-between gap-6 px-6 py-6 text-left transition-colors hover:text-white"
+        className="flex w-full items-center justify-between gap-6 px-6 py-6 text-left transition-colors duration-200 hover:text-white"
       >
         <span
           className="text-[18px] sm:text-[22px]"
           style={{
             fontFamily: "Instrument Serif, serif",
             color: open ? "var(--mo-fg)" : "var(--mo-fg-dim)",
-            transition: "color 250ms ease",
+            transition: "color 220ms ease",
           }}
         >
           {q}
         </span>
         <span
-          className="grid h-8 w-8 flex-none place-items-center rounded-full border text-[15px] transition-transform duration-300"
+          className="grid h-8 w-8 flex-none place-items-center rounded-full border text-[15px] transition-transform duration-220"
           style={{
             borderColor: "rgba(164,74,255,0.35)",
             color: "var(--mo-accent)",
             transform: open ? "rotate(45deg)" : "rotate(0deg)",
+            transition: "transform 220ms var(--ease-out-strong)",
           }}
         >
           +
@@ -84,8 +85,11 @@ function Item({ q, a, idx, open, onToggle }) {
       </button>
 
       <div
-        className="grid transition-[grid-template-rows] duration-500 px-6"
-        style={{ gridTemplateRows: open ? "1fr" : "0fr", transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)" }}
+        className="grid px-6"
+        style={{
+          gridTemplateRows: open ? "1fr" : "0fr",
+          transition: "grid-template-rows 300ms var(--ease-out-strong)",
+        }}
       >
         <div className="overflow-hidden">
           <div className="mb-6 max-w-[640px] space-y-3">

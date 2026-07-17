@@ -38,7 +38,7 @@ export default function Footer() {
             <a
               key={l}
               href="#top"
-              className="text-[11px] tracking-[0.14em] uppercase transition-colors hover:text-white"
+              className="mo-press text-[11px] tracking-[0.14em] uppercase transition-colors duration-200 hover:text-white"
               style={{
                 color: "var(--mo-fg-dim)",
                 fontFamily: "JetBrains Mono, monospace",
@@ -57,7 +57,7 @@ export default function Footer() {
                 key={label}
                 href="#top"
                 aria-label={label}
-                className="grid h-8 w-8 place-items-center rounded-full border transition-colors hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)]"
+                className="mo-press grid h-8 w-8 place-items-center rounded-full border transition-[border-color,color] duration-200 ease-out hover:border-[var(--mo-accent)] hover:text-[var(--mo-accent)]"
                 style={{
                   borderColor: "var(--mo-line-strong)",
                   color: "var(--mo-fg-dim)",

@@ -649,7 +649,7 @@ function VideoTile({ src, index, onPlay }) {
         style={{ background: "transparent", border: "none" }}
       >
         <span
-          className="grid h-9 w-9 place-items-center rounded-full border transition-transform duration-300 group-hover:scale-110"
+          className="mo-press grid h-9 w-9 place-items-center rounded-full border transition-transform duration-200 ease-out group-hover:scale-105"
           style={{
             borderColor: "rgba(255,255,255,0.45)",
             background: "rgba(8,8,10,0.55)",
@@ -705,7 +705,7 @@ function VideoLightbox({ src, onClose }) {
         data-testid="lightbox-close-btn"
         aria-label="Close video"
         onClick={onClose}
-        className="absolute right-5 top-5 grid h-11 w-11 place-items-center rounded-full border text-white transition-transform duration-200 hover:scale-105"
+        className="mo-press absolute right-5 top-5 grid h-11 w-11 place-items-center rounded-full border text-white transition-transform duration-200 ease-out hover:scale-105"
         style={{
           borderColor: "rgba(255,255,255,0.3)",
           background: "rgba(20,20,26,0.65)",
