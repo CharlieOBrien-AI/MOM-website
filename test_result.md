@@ -166,7 +166,7 @@ frontend:
         comment: "Iteration 7 addition: added a full-cover black tint overlay (rgba(0,0,0,0.55)) as a sibling of the two <img>s inside the same absolute wrapper. It fills the exact bleed area of SQ2+SQ3 (~3628px height) and sits above them but below section content (which uses zIndex 2). Result: scenes 2+ (Stats + the areas the night-sky bleeds into) now read visibly darker than the hero, without touching the hero itself. Verified via screenshot: Stats section is noticeably darker; Hero is unchanged bright purple."
 
   - task: "Approach: uniform black tint overlay on top of workspace video"
-    implemented: true
+    implemented: false
     working: true
     file: "/app/frontend/src/components/site/Approach.jsx"
     stuck_count: 0
@@ -176,6 +176,12 @@ frontend:
       - working: true
         agent: "main"
         comment: "Added rgba(0,0,0,0.45) full-cover overlay between the day-image crossfade layer and the left-side readability wash, so the whole workspace scene (moon, owl, desk, city) reads uniformly darker across the full width — consistent with the black tint on the Stats/SQ2/SQ3 bleed. Left-side readability wash preserved so the headline copy still has strong contrast. Verified via screenshot: the desk/moon/owl composition is dimmer overall, monitor still glows, no washed-out patches."
+      - working: false
+        agent: "user"
+        comment: "USER FEEDBACK: 'The push pull should not have the tint. Only the background.'"
+      - working: true
+        agent: "main"
+        comment: "REVERTED: removed the black tint overlay from the Approach video/still stack. The Push/Pull scene now renders at its original brightness (moon, owl, desk, glowing pink keyboard, lit city all fully visible). The background around the Approach section (the SQ2/SQ3 bleed area) keeps its black tint from Stats.jsx as the user wanted. Verified via screenshot: Approach video is bright again; Stats background stays dark."
 
   - task: "Remove white flash following the cursor (mo-glass-sheen)"
     implemented: true
