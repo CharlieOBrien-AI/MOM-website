@@ -113,10 +113,22 @@ async def _forward_brief_to_sheet(payload: dict) -> bool:
     if not sheet_url:
         return False
     try:
-        async with httpx.AsyncClient(timeout=8.0, follow_redirects=True) as http:
+        # Apps Script `/exec` runs doPost on the initial POST (that's when the
+        # row is appended), then responds with a 302 to
+        # `script.googleusercontent.com/macros/echo?...` which must be
+        # fetched with GET to receive the JSON result. So: POST once, then
+        # follow any 3xx chain with GET.
+        async with httpx.AsyncClient(timeout=12.0, follow_redirects=False) as http:
             r = await http.post(sheet_url, json=payload)
+            hops = 0
+            while r.status_code in (301, 302, 303, 307, 308) and hops < 5:
+                loc = r.headers.get("location")
+                if not loc:
+                    break
+                r = await http.get(loc)
+                hops += 1
             if not (200 <= r.status_code < 300):
-                logger.warning("Sheet webhook non-2xx: %s %s", r.status_code, r.text[:200])
+                logger.warning("Sheet webhook non-2xx: %s %s", r.status_code, (r.text or "")[:200])
                 return False
             # Apps Script returns 200 even for script errors, with an HTML error
             # page. Treat HTML responses as failures so `forwardedToSheet` reflects
