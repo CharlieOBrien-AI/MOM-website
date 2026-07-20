@@ -115,10 +115,25 @@ async def _forward_brief_to_sheet(payload: dict) -> bool:
     try:
         async with httpx.AsyncClient(timeout=8.0, follow_redirects=True) as http:
             r = await http.post(sheet_url, json=payload)
-            if 200 <= r.status_code < 300:
-                return True
-            logger.warning("Sheet webhook non-2xx: %s %s", r.status_code, r.text[:200])
-            return False
+            if not (200 <= r.status_code < 300):
+                logger.warning("Sheet webhook non-2xx: %s %s", r.status_code, r.text[:200])
+                return False
+            # Apps Script returns 200 even for script errors, with an HTML error
+            # page. Treat HTML responses as failures so `forwardedToSheet` reflects
+            # reality. A healthy script returns JSON like {"ok": true}.
+            ct = (r.headers.get("content-type") or "").lower()
+            body = (r.text or "").strip()
+            if "text/html" in ct or body.startswith("<"):
+                logger.warning("Sheet webhook returned HTML (likely Apps Script error): %s", body[:300])
+                return False
+            try:
+                j = r.json()
+                if isinstance(j, dict) and j.get("ok") is False:
+                    logger.warning("Sheet webhook reported failure: %s", body[:300])
+                    return False
+            except Exception:
+                pass  # non-JSON but non-HTML — accept
+            return True
     except Exception as exc:  # noqa: BLE001 — swallow, never break the submit
         logger.warning("Sheet webhook forward failed: %s", exc)
         return False
