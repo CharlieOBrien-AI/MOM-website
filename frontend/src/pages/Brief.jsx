@@ -417,9 +417,9 @@ export default function Brief() {
             <SuccessState />
           ) : (
             <>
-              {/* Intro */}
+              {/* Intro — trimmed to just the headline. No paragraph subtext. */}
               <Reveal>
-                <div className="mb-14">
+                <div className="mb-12">
                   <div
                     className="mono-eyebrow mb-6"
                     style={{ color: "var(--mo-accent)" }}
@@ -440,19 +440,16 @@ export default function Brief() {
                       project.
                     </span>
                   </h1>
-                  <p
-                    className="mt-8 max-w-[640px] text-[14.5px] leading-[1.75]"
-                    style={{ ...monoStyle, color: "var(--mo-fg-dim)" }}
-                  >
-                    Thanks for showing interest in working with Midnight Owl
-                    Media. Give us a quick overview of what you're working on.
-                    We'll take a bird's-eye view, understand what you need, and
-                    get back to you within 24 hours.
-                  </p>
                 </div>
               </Reveal>
 
-              <form onSubmit={onSubmit} noValidate>
+              {/* Form panel — themed glass card so the whole thing reads as
+                  a single focused surface on-brand with the site. */}
+              <Reveal>
+                <div
+                  className="mo-glass mo-glass-lit relative rounded-[28px] p-6 sm:p-10 md:p-14"
+                >
+                  <form onSubmit={onSubmit} noValidate>
                 {/* Summary banner — appears when user tries to submit with
                     invalid fields. Tells them exactly how many things need
                     fixing, so the disabled-submit mystery is gone. */}
@@ -487,11 +484,7 @@ export default function Brief() {
                   </Reveal>
                 ) : null}
 
-                <Section
-                  number="01"
-                  title="What's your name?"
-                  hint="Let's start with an introduction."
-                >
+                <Section number="01" title="Your name">
                   <Field
                     label="Full name"
                     required
@@ -501,7 +494,7 @@ export default function Brief() {
                     <Input
                       value={form.name}
                       onChange={update("name")}
-                      placeholder="Enter your full name"
+                      placeholder="Full name"
                       required
                       error={errors.name}
                       data-testid="brief-input-name"
@@ -509,14 +502,10 @@ export default function Brief() {
                   </Field>
                 </Section>
 
-                <Section
-                  number="02"
-                  title="How can we reach you?"
-                  hint="Share the best way for our team to contact you."
-                >
+                <Section number="02" title="Contact">
                   <div className="grid gap-5 sm:grid-cols-2">
                     <Field
-                      label="Phone number"
+                      label="Phone"
                       error={errors.phone}
                       fieldRef={fieldRefs.phone}
                     >
@@ -524,13 +513,13 @@ export default function Brief() {
                         type="tel"
                         value={form.phone}
                         onChange={update("phone")}
-                        placeholder="Enter your phone number"
+                        placeholder="Phone"
                         error={errors.phone}
                         data-testid="brief-input-phone"
                       />
                     </Field>
                     <Field
-                      label="Email address"
+                      label="Email"
                       required
                       error={errors.email}
                       fieldRef={fieldRefs.email}
@@ -539,7 +528,7 @@ export default function Brief() {
                         type="email"
                         value={form.email}
                         onChange={update("email")}
-                        placeholder="Enter your email address"
+                        placeholder="you@company.com"
                         required
                         error={errors.email}
                         data-testid="brief-input-email"
@@ -548,29 +537,25 @@ export default function Brief() {
                   </div>
                 </Section>
 
-                <Section
-                  number="03"
-                  title="Tell us about your brand"
-                  hint="A little context helps us understand your business better."
-                >
+                <Section number="03" title="Brand">
                   <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label="Company name">
+                    <Field label="Company">
                       <Input
                         value={form.company}
                         onChange={update("company")}
-                        placeholder="Enter your company name"
+                        placeholder="Company"
                         data-testid="brief-input-company"
                       />
                     </Field>
                     <Field
-                      label="Website or social media link"
+                      label="Website / social"
                       error={errors.website}
                       fieldRef={fieldRefs.website}
                     >
                       <Input
                         value={form.website}
                         onChange={update("website")}
-                        placeholder="Paste your link here"
+                        placeholder="Paste link"
                         error={errors.website}
                         data-testid="brief-input-website"
                       />
@@ -578,11 +563,7 @@ export default function Brief() {
                   </div>
                 </Section>
 
-                <Section
-                  number="04"
-                  title="What do you need?"
-                  hint="Select the services you're interested in."
-                >
+                <Section number="04" title="Services">
                   <div ref={fieldRefs.services}>
                     <div className="grid gap-3 sm:grid-cols-2">
                       {SERVICES.map((s) => (
@@ -606,16 +587,12 @@ export default function Brief() {
                   </div>
                 </Section>
 
-                <Section
-                  number="05"
-                  title="Tell us about the project"
-                  hint="Share your goals, ideas, timeline, budget, or anything else we should know. The more context we have, the better we can understand the project."
-                >
+                <Section number="05" title="Project">
                   <div ref={fieldRefs.projectDetails}>
                     <TextArea
                       value={form.projectDetails}
                       onChange={update("projectDetails")}
-                      placeholder="Start typing your brief here..."
+                      placeholder="Goals, ideas, timeline, budget…"
                       error={errors.projectDetails}
                     />
                     {errors.projectDetails ? (
@@ -630,11 +607,7 @@ export default function Brief() {
                   </div>
                 </Section>
 
-                <Section
-                  number="06"
-                  title="Ready to send?"
-                  hint="We'll review your brief and get back to you within 24 hours."
-                >
+                <Section number="06" title="Send">
                   <div className="flex flex-col items-start gap-4">
                     <GlassSurface
                       as="button"
@@ -646,11 +619,9 @@ export default function Brief() {
                       style={{
                         ...monoStyle,
                         color: "var(--mo-fg)",
-                        background:
-                          "linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.06) 60%), linear-gradient(180deg, rgba(24,18,46,0.35), rgba(10,8,22,0.5))",
                       }}
                     >
-                      {status === "submitting" ? "Sending…" : "Send your brief"}
+                      {status === "submitting" ? "Sending…" : "Send brief"}
                       {status === "submitting" ? null : (
                         <span
                           aria-hidden="true"
@@ -660,13 +631,6 @@ export default function Brief() {
                         </span>
                       )}
                     </GlassSurface>
-
-                    <p
-                      className="text-[11px] tracking-[0.18em] uppercase"
-                      style={{ ...monoStyle, color: "var(--mo-fg-dim)" }}
-                    >
-                      Your information stays private with our team.
-                    </p>
 
                     {status === "error" ? (
                       <p
@@ -680,6 +644,8 @@ export default function Brief() {
                   </div>
                 </Section>
               </form>
+                </div>
+              </Reveal>
             </>
           )}
         </main>
