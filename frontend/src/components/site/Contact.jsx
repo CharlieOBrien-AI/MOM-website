@@ -1,4 +1,5 @@
 import GlassSurface from "@/components/glass/GlassSurface";
+import { Link } from "react-router-dom";
 import Reveal from "./Reveal";
 import { CONTACT } from "@/constants/testIds";
 
@@ -88,20 +89,20 @@ export default function Contact() {
 
           <div className="relative mt-10 inline-flex">
             <GlassSurface
-              as="a"
-              href="mailto:hello@midnightowl.media"
+              as={Link}
+              to="/brief"
               data-testid={CONTACT.cta}
-              className="mo-glass-pill mo-glass-lit group inline-flex items-center gap-2 px-8 py-4 text-[12px] font-medium tracking-[0.18em] uppercase"
+              className="mo-glass-pill mo-glass-lit mo-press group inline-flex items-center gap-2 px-8 py-4 text-[12px] font-medium tracking-[0.18em] uppercase"
               tilt={2.5}
               style={{
                 fontFamily: "JetBrains Mono, monospace",
                 color: "var(--mo-fg)",
               }}
             >
-              Book a call
+              Get In Touch
               <span
                 aria-hidden="true"
-                className="transition-transform duration-300 group-hover:translate-x-1"
+                className="transition-transform duration-200 ease-out group-hover:translate-x-1"
               >
                 →
               </span>

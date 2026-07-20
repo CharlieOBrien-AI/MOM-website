@@ -3,6 +3,7 @@ import "lenis/dist/lenis.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ReactLenis } from "lenis/react";
 import Home from "@/pages/Home";
+import Brief from "@/pages/Brief";
 
 // Global Lenis config — production-tuned for both desktop and mobile.
 // Base options come from the user-provided snippet; everything below adds
@@ -47,6 +48,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/brief" element={<Brief />} />
             <Route path="*" element={<Home />} />
           </Routes>
         </BrowserRouter>

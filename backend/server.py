@@ -1,12 +1,14 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
+import asyncio
+import httpx
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
+from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
 
@@ -37,6 +39,39 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+
+class BriefCreate(BaseModel):
+    """Incoming payload from the /brief page form.
+
+    All fields optional so partial submissions don't 422 in the client — the
+    validation UI on the frontend enforces required fields before submitting.
+    """
+    model_config = ConfigDict(extra="ignore")
+
+    name: str = ""
+    phone: str = ""
+    email: str = ""
+    company: str = ""
+    website: str = ""
+    services: List[str] = Field(default_factory=list)
+    projectDetails: str = ""
+
+
+class Brief(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    phone: str
+    email: str
+    company: str
+    website: str
+    services: List[str]
+    projectDetails: str
+    submittedAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    forwardedToSheet: bool = False
+
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
@@ -65,6 +100,79 @@ async def get_status_checks():
             check['timestamp'] = datetime.fromisoformat(check['timestamp'])
     
     return status_checks
+
+
+async def _forward_brief_to_sheet(payload: dict) -> bool:
+    """Best-effort fan-out to a Google Apps Script Web App webhook.
+
+    Returns True on 2xx, False otherwise. Never raises — the primary storage
+    is MongoDB; Sheet forwarding is a nice-to-have and must not block or
+    fail the user submission.
+    """
+    sheet_url = os.environ.get('GOOGLE_SHEET_WEBHOOK_URL', '').strip()
+    if not sheet_url:
+        return False
+    try:
+        async with httpx.AsyncClient(timeout=8.0, follow_redirects=True) as http:
+            r = await http.post(sheet_url, json=payload)
+            if 200 <= r.status_code < 300:
+                return True
+            logger.warning("Sheet webhook non-2xx: %s %s", r.status_code, r.text[:200])
+            return False
+    except Exception as exc:  # noqa: BLE001 — swallow, never break the submit
+        logger.warning("Sheet webhook forward failed: %s", exc)
+        return False
+
+
+@api_router.post("/brief", response_model=Brief)
+async def submit_brief(input: BriefCreate):
+    """Accept a project brief from the /brief page.
+
+    Flow: validate → persist to MongoDB → (optional) fan out to a Google
+    Sheet via Apps Script webhook. Sheet forwarding is intentionally
+    fire-and-return so a slow/broken sheet doesn't slow the user down.
+    """
+    brief = Brief(
+        name=input.name.strip(),
+        phone=input.phone.strip(),
+        email=input.email.strip(),
+        company=input.company.strip(),
+        website=input.website.strip(),
+        services=[s.strip() for s in input.services if s and s.strip()],
+        projectDetails=input.projectDetails.strip(),
+    )
+
+    doc = brief.model_dump()
+    doc['submittedAt'] = doc['submittedAt'].isoformat()
+    await db.briefs.insert_one(doc)
+
+    # motor mutates `doc` in-place by adding a Mongo `_id: ObjectId(...)`,
+    # which is not JSON-serializable. Build a clean, JSON-safe payload for
+    # the outbound webhook from the pydantic model instead.
+    outbound = brief.model_dump()
+    outbound['submittedAt'] = doc['submittedAt']
+
+    # Fan out to Google Sheet (best-effort, awaited so we can update the
+    # forwardedToSheet flag on the returned object).
+    forwarded = await _forward_brief_to_sheet(outbound)
+    if forwarded:
+        await db.briefs.update_one({"id": brief.id}, {"$set": {"forwardedToSheet": True}})
+        brief.forwardedToSheet = True
+
+    return brief
+
+
+@api_router.get("/brief", response_model=List[Brief])
+async def list_briefs(limit: int = 100):
+    """Small admin endpoint to review submissions from the DB.
+
+    Not linked from the UI — intentional. Query via the API URL directly.
+    """
+    rows = await db.briefs.find({}, {"_id": 0}).sort("submittedAt", -1).to_list(min(max(limit, 1), 500))
+    for r in rows:
+        if isinstance(r.get('submittedAt'), str):
+            r['submittedAt'] = datetime.fromisoformat(r['submittedAt'])
+    return rows
 
 # Include the router in the main app
 app.include_router(api_router)

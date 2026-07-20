@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import GlassSurface from "@/components/glass/GlassSurface";
 import { NAV } from "@/constants/testIds";
 
@@ -83,8 +84,8 @@ export default function Nav() {
         </nav>
 
         <GlassSurface
-          as="a"
-          href="#contact"
+          as={Link}
+          to="/brief"
           data-testid={NAV.cta}
           tilt={2.5}
           className="mo-glass-pill mo-glass-lit mo-press group inline-flex items-center gap-2 px-4 py-2 text-[11px] font-medium tracking-[0.14em] uppercase"
@@ -95,7 +96,7 @@ export default function Nav() {
               "linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.06) 60%), linear-gradient(180deg, rgba(24,18,46,0.35), rgba(10,8,22,0.5))",
           }}
         >
-          Start a project
+          Schedule a call
           <span
             aria-hidden="true"
             className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-0.5"

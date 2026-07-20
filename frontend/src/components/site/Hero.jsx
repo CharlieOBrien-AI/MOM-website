@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import HeroScrubVideo from "./HeroScrubVideo";
 import TextRotator from "./TextRotator";
 import GlassSurface from "@/components/glass/GlassSurface";
@@ -95,8 +96,8 @@ export default function Hero() {
 
           <div className="mt-10 flex flex-wrap items-center gap-3">
             <GlassSurface
-              as="a"
-              href="#contact"
+              as={Link}
+              to="/brief"
               data-testid={HERO.ctaPrimary}
               tilt={3}
               className="mo-glass-pill mo-glass-lit mo-press group inline-flex items-center gap-2 px-6 py-3.5 text-[12px] font-medium tracking-[0.16em] uppercase"
@@ -107,7 +108,7 @@ export default function Hero() {
                   "linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.06) 60%), linear-gradient(180deg, rgba(24,18,46,0.35), rgba(10,8,22,0.5))",
               }}
             >
-              {"Let's talk"}
+              Schedule a call
               <span
                 aria-hidden="true"
                 className="transition-transform duration-200 ease-out group-hover:translate-x-1"
