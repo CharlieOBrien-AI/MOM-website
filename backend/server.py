@@ -105,9 +105,9 @@ async def get_status_checks():
 async def _forward_brief_to_sheet(payload: dict) -> bool:
     """Best-effort fan-out to a Google Apps Script Web App webhook.
 
-    Returns True on 2xx, False otherwise. Never raises — the primary storage
-    is MongoDB; Sheet forwarding is a nice-to-have and must not block or
-    fail the user submission.
+    Returns True on 2xx JSON success, False otherwise. Never raises — the
+    primary storage is MongoDB; Sheet forwarding is a nice-to-have and must
+    not block or fail the user submission.
     """
     sheet_url = os.environ.get('GOOGLE_SHEET_WEBHOOK_URL', '').strip()
     if not sheet_url:
@@ -151,6 +151,73 @@ async def _forward_brief_to_sheet(payload: dict) -> bool:
         return False
 
 
+async def _forward_brief_to_slack(payload: dict) -> bool:
+    """Best-effort Slack Incoming Webhook fan-out for new brief arrivals.
+
+    Sends a nicely formatted Block Kit message so the team sees who submitted
+    at a glance. Silent no-op if SLACK_WEBHOOK_URL is not configured. Never
+    raises — Slack is a notification channel, not primary storage; if it's
+    down we still saved the brief in MongoDB (and the sheet).
+    """
+    slack_url = os.environ.get('SLACK_WEBHOOK_URL', '').strip()
+    if not slack_url:
+        return False
+
+    name = (payload.get('name') or '').strip() or "(no name)"
+    email = (payload.get('email') or '').strip() or "—"
+    phone = (payload.get('phone') or '').strip() or "—"
+    company = (payload.get('company') or '').strip() or "—"
+    website = (payload.get('website') or '').strip() or "—"
+    services = payload.get('services') or []
+    services_str = ", ".join(services) if services else "—"
+    details = (payload.get('projectDetails') or '').strip() or "—"
+    # Truncate long descriptions so the Slack notification stays readable.
+    if len(details) > 900:
+        details = details[:897] + "…"
+
+    message = {
+        "text": f"New brief from {name} ({email})",  # fallback for notifications
+        "blocks": [
+            {
+                "type": "header",
+                "text": {"type": "plain_text", "text": "🦉 New project brief"},
+            },
+            {
+                "type": "section",
+                "fields": [
+                    {"type": "mrkdwn", "text": f"*Name*\n{name}"},
+                    {"type": "mrkdwn", "text": f"*Email*\n{email}"},
+                    {"type": "mrkdwn", "text": f"*Phone*\n{phone}"},
+                    {"type": "mrkdwn", "text": f"*Company*\n{company}"},
+                    {"type": "mrkdwn", "text": f"*Website / Social*\n{website}"},
+                    {"type": "mrkdwn", "text": f"*Services*\n{services_str}"},
+                ],
+            },
+            {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": f"*Project details*\n{details}"},
+            },
+            {
+                "type": "context",
+                "elements": [
+                    {"type": "mrkdwn", "text": f"Submitted at {payload.get('submittedAt', '')}"},
+                ],
+            },
+        ],
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as http:
+            r = await http.post(slack_url, json=message)
+            if 200 <= r.status_code < 300:
+                return True
+            logger.warning("Slack webhook non-2xx: %s %s", r.status_code, (r.text or "")[:200])
+            return False
+    except Exception as exc:  # noqa: BLE001 — swallow, never break the submit
+        logger.warning("Slack webhook forward failed: %s", exc)
+        return False
+
+
 @api_router.post("/brief", response_model=Brief)
 async def submit_brief(input: BriefCreate):
     """Accept a project brief from the /brief page.
@@ -179,12 +246,20 @@ async def submit_brief(input: BriefCreate):
     outbound = brief.model_dump()
     outbound['submittedAt'] = doc['submittedAt']
 
-    # Fan out to Google Sheet (best-effort, awaited so we can update the
-    # forwardedToSheet flag on the returned object).
-    forwarded = await _forward_brief_to_sheet(outbound)
-    if forwarded:
+    # Fan out to Google Sheet + Slack in parallel (best-effort). Both are
+    # awaited so we can reflect status back on the response object, but
+    # asyncio.gather runs them concurrently so we don't stack latencies.
+    forwarded_sheet, forwarded_slack = await asyncio.gather(
+        _forward_brief_to_sheet(outbound),
+        _forward_brief_to_slack(outbound),
+    )
+    if forwarded_sheet:
         await db.briefs.update_one({"id": brief.id}, {"$set": {"forwardedToSheet": True}})
         brief.forwardedToSheet = True
+    if forwarded_slack:
+        # Persist for admin visibility; not part of the public response model
+        # (kept as a Mongo-only field to avoid a schema migration for a nice-to-have).
+        await db.briefs.update_one({"id": brief.id}, {"$set": {"forwardedToSlack": True}})
 
     return brief
 

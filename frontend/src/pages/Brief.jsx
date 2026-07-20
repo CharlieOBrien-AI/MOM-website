@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import GlassSurface from "@/components/glass/GlassSurface";
 import GlassBackground from "@/components/glass/GlassBackground";
@@ -60,16 +60,42 @@ function Section({ number, title, hint, children }) {
   );
 }
 
-function Field({ label, children }) {
+function Field({ label, required, error, hint, children, fieldRef }) {
+  const hasError = Boolean(error);
   return (
-    <div className="mb-5">
+    <div className="mb-5" ref={fieldRef}>
       <label
         className="mb-2 block text-[11px] tracking-[0.22em] uppercase"
-        style={{ ...monoStyle, color: "var(--mo-fg-dim)" }}
+        style={{ ...monoStyle, color: hasError ? "#ff8a8a" : "var(--mo-fg-dim)" }}
       >
         {label}
+        {required ? (
+          <span
+            aria-hidden="true"
+            className="ml-1"
+            style={{ color: hasError ? "#ff8a8a" : "var(--mo-accent)" }}
+          >
+            *
+          </span>
+        ) : null}
       </label>
       {children}
+      {hasError ? (
+        <p
+          role="alert"
+          className="mt-2 text-[12.5px] leading-[1.5]"
+          style={{ ...monoStyle, color: "#ff8a8a" }}
+        >
+          {error}
+        </p>
+      ) : hint ? (
+        <p
+          className="mt-2 text-[12px] leading-[1.5]"
+          style={{ ...monoStyle, color: "var(--mo-fg-dim)" }}
+        >
+          {hint}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -79,7 +105,9 @@ function Field({ label, children }) {
  * accent color with a scaleX motion (matches the .mo-underline aesthetic
  * from the nav links). Only animates transform + color/border, per skills.
  */
-function Input({ value, onChange, placeholder, type = "text", required }) {
+function Input({ value, onChange, placeholder, type = "text", required, error, ...rest }) {
+  const errColor = "#ff8a8a";
+  const restColor = error ? errColor : "var(--mo-line-strong)";
   return (
     <input
       type={type}
@@ -87,44 +115,49 @@ function Input({ value, onChange, placeholder, type = "text", required }) {
       onChange={onChange}
       placeholder={placeholder}
       required={required}
+      aria-invalid={Boolean(error) || undefined}
       className="w-full bg-transparent border-0 border-b py-3 text-[15px] text-white placeholder:text-[color:var(--mo-fg-dim)] focus:outline-none"
       style={{
         ...monoStyle,
-        borderBottomColor: "var(--mo-line-strong)",
+        borderBottomColor: restColor,
         borderBottomWidth: "1px",
         transition:
           "border-color 220ms var(--ease-out-strong), color 220ms ease",
       }}
       onFocus={(e) => {
-        e.currentTarget.style.borderBottomColor = "var(--mo-accent)";
+        e.currentTarget.style.borderBottomColor = error ? errColor : "var(--mo-accent)";
       }}
       onBlur={(e) => {
-        e.currentTarget.style.borderBottomColor = "var(--mo-line-strong)";
+        e.currentTarget.style.borderBottomColor = restColor;
       }}
+      {...rest}
     />
   );
 }
 
-function TextArea({ value, onChange, placeholder }) {
+function TextArea({ value, onChange, placeholder, error }) {
+  const errColor = "#ff8a8a";
+  const restColor = error ? errColor : "var(--mo-line-strong)";
   return (
     <textarea
       value={value}
       onChange={onChange}
       placeholder={placeholder}
       rows={8}
+      aria-invalid={Boolean(error) || undefined}
       className="w-full resize-none bg-transparent border rounded-xl py-4 px-5 text-[15px] text-white placeholder:text-[color:var(--mo-fg-dim)] focus:outline-none"
       style={{
         ...monoStyle,
-        borderColor: "var(--mo-line-strong)",
+        borderColor: restColor,
         lineHeight: 1.7,
         transition: "border-color 220ms var(--ease-out-strong)",
         background: "rgba(255,255,255,0.02)",
       }}
       onFocus={(e) => {
-        e.currentTarget.style.borderColor = "var(--mo-accent)";
+        e.currentTarget.style.borderColor = error ? errColor : "var(--mo-accent)";
       }}
       onBlur={(e) => {
-        e.currentTarget.style.borderColor = "var(--mo-line-strong)";
+        e.currentTarget.style.borderColor = restColor;
       }}
     />
   );
@@ -193,26 +226,133 @@ export default function Brief() {
   });
   const [status, setStatus] = useState("idle"); // idle | submitting | sent | error
   const [errorMsg, setErrorMsg] = useState("");
+  const [errors, setErrors] = useState({}); // { fieldKey: "message" }
+  const [summaryVisible, setSummaryVisible] = useState(false);
 
-  const update = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  // Refs to scroll first invalid field into view on submit.
+  const fieldRefs = {
+    name: useRef(null),
+    phone: useRef(null),
+    email: useRef(null),
+    website: useRef(null),
+    services: useRef(null),
+    projectDetails: useRef(null),
+  };
 
-  const toggleService = (s) =>
+  const update = (k) => (e) => {
+    const v = e.target.value;
+    setForm((f) => ({ ...f, [k]: v }));
+    // Clear error for this field as soon as the user starts fixing it —
+    // avoids nagging red state while they're typing.
+    if (errors[k]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[k];
+        return next;
+      });
+    }
+  };
+
+  const toggleService = (s) => {
     setForm((f) => ({
       ...f,
       services: f.services.includes(s)
         ? f.services.filter((x) => x !== s)
         : [...f.services, s],
     }));
+    if (errors.services) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.services;
+        return next;
+      });
+    }
+  };
 
-  const canSubmit =
-    form.name.trim() &&
-    form.email.trim() &&
-    /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim()) &&
-    status !== "submitting";
+  /**
+   * validate — returns a { fieldKey: message } object of everything wrong.
+   * Empty object = form is valid.
+   *
+   * Design: friendly, second-person messages that TELL the user how to fix
+   * the problem, never generic "invalid input" strings. Required fields are
+   * kept minimal (name + email + one service + a real description) so we
+   * ask for context without adding friction.
+   */
+  const validate = (f) => {
+    const e = {};
+    const name = f.name.trim();
+    const email = f.email.trim();
+    const phone = f.phone.trim();
+    const website = f.website.trim();
+    const details = f.projectDetails.trim();
+
+    if (!name) {
+      e.name = "Please enter your name so we know who to reply to.";
+    } else if (name.length < 2) {
+      e.name = "That name looks too short — please enter your full name.";
+    }
+
+    if (!email) {
+      e.email = "Please enter your email address so we can reach you.";
+    } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      e.email = "That email doesn't look right — try something like you@company.com.";
+    }
+
+    if (phone) {
+      const digits = phone.replace(/\D/g, "");
+      if (digits.length < 6) {
+        e.phone = "Phone number looks too short — please include the country/area code.";
+      }
+    }
+
+    if (website) {
+      // Loose URL check — accepts bare domains, socials, protocol-less input.
+      const ok = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[^\s]*)?$/i.test(website);
+      if (!ok) {
+        e.website = "That link doesn't look right — paste a website URL or social profile link.";
+      }
+    }
+
+    if (f.services.length === 0) {
+      e.services = "Pick at least one service so we know what you're looking for.";
+    }
+
+    if (!details) {
+      e.projectDetails = "Tell us a bit about the project so our team can review it.";
+    } else if (details.length < 20) {
+      e.projectDetails = "A little more context helps — please share at least a sentence or two.";
+    }
+
+    return e;
+  };
+
+  const errorCount = Object.keys(errors).length;
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!canSubmit) return;
+    if (status === "submitting") return;
+
+    // Run validation and surface errors inline + banner if anything is wrong.
+    const nextErrors = validate(form);
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      setSummaryVisible(true);
+      // Scroll to the first invalid field so users don't have to hunt.
+      const order = ["name", "phone", "email", "website", "services", "projectDetails"];
+      const firstKey = order.find((k) => nextErrors[k]);
+      if (firstKey && fieldRefs[firstKey]?.current) {
+        try {
+          fieldRefs[firstKey].current.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        } catch { /* older browsers — no-op */ }
+      }
+      return;
+    }
+
+    setErrors({});
+    setSummaryVisible(false);
     setStatus("submitting");
     setErrorMsg("");
     try {
@@ -313,17 +453,58 @@ export default function Brief() {
               </Reveal>
 
               <form onSubmit={onSubmit} noValidate>
+                {/* Summary banner — appears when user tries to submit with
+                    invalid fields. Tells them exactly how many things need
+                    fixing, so the disabled-submit mystery is gone. */}
+                {summaryVisible && errorCount > 0 ? (
+                  <Reveal>
+                    <div
+                      role="alert"
+                      data-testid="brief-error-summary"
+                      className="mb-10 rounded-2xl border px-5 py-4"
+                      style={{
+                        borderColor: "rgba(255,138,138,0.45)",
+                        background:
+                          "linear-gradient(135deg, rgba(255,138,138,0.09), rgba(255,138,138,0.03))",
+                      }}
+                    >
+                      <p
+                        className="text-[12px] tracking-[0.22em] uppercase"
+                        style={{ ...monoStyle, color: "#ff8a8a" }}
+                      >
+                        {errorCount === 1
+                          ? "1 thing needs your attention"
+                          : `${errorCount} things need your attention`}
+                      </p>
+                      <p
+                        className="mt-2 text-[13.5px] leading-[1.6]"
+                        style={{ ...monoStyle, color: "var(--mo-fg)" }}
+                      >
+                        We highlighted them below in red — fix those and you're
+                        ready to send.
+                      </p>
+                    </div>
+                  </Reveal>
+                ) : null}
+
                 <Section
                   number="01"
                   title="What's your name?"
                   hint="Let's start with an introduction."
                 >
-                  <Field label="Full name">
+                  <Field
+                    label="Full name"
+                    required
+                    error={errors.name}
+                    fieldRef={fieldRefs.name}
+                  >
                     <Input
                       value={form.name}
                       onChange={update("name")}
                       placeholder="Enter your full name"
                       required
+                      error={errors.name}
+                      data-testid="brief-input-name"
                     />
                   </Field>
                 </Section>
@@ -334,21 +515,34 @@ export default function Brief() {
                   hint="Share the best way for our team to contact you."
                 >
                   <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label="Phone number">
+                    <Field
+                      label="Phone number"
+                      error={errors.phone}
+                      fieldRef={fieldRefs.phone}
+                    >
                       <Input
                         type="tel"
                         value={form.phone}
                         onChange={update("phone")}
                         placeholder="Enter your phone number"
+                        error={errors.phone}
+                        data-testid="brief-input-phone"
                       />
                     </Field>
-                    <Field label="Email address">
+                    <Field
+                      label="Email address"
+                      required
+                      error={errors.email}
+                      fieldRef={fieldRefs.email}
+                    >
                       <Input
                         type="email"
                         value={form.email}
                         onChange={update("email")}
                         placeholder="Enter your email address"
                         required
+                        error={errors.email}
+                        data-testid="brief-input-email"
                       />
                     </Field>
                   </div>
@@ -365,13 +559,20 @@ export default function Brief() {
                         value={form.company}
                         onChange={update("company")}
                         placeholder="Enter your company name"
+                        data-testid="brief-input-company"
                       />
                     </Field>
-                    <Field label="Website or social media link">
+                    <Field
+                      label="Website or social media link"
+                      error={errors.website}
+                      fieldRef={fieldRefs.website}
+                    >
                       <Input
                         value={form.website}
                         onChange={update("website")}
                         placeholder="Paste your link here"
+                        error={errors.website}
+                        data-testid="brief-input-website"
                       />
                     </Field>
                   </div>
@@ -382,15 +583,26 @@ export default function Brief() {
                   title="What do you need?"
                   hint="Select the services you're interested in."
                 >
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {SERVICES.map((s) => (
-                      <ServiceCheck
-                        key={s}
-                        label={s}
-                        checked={form.services.includes(s)}
-                        onToggle={() => toggleService(s)}
-                      />
-                    ))}
+                  <div ref={fieldRefs.services}>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {SERVICES.map((s) => (
+                        <ServiceCheck
+                          key={s}
+                          label={s}
+                          checked={form.services.includes(s)}
+                          onToggle={() => toggleService(s)}
+                        />
+                      ))}
+                    </div>
+                    {errors.services ? (
+                      <p
+                        role="alert"
+                        className="mt-3 text-[12.5px]"
+                        style={{ ...monoStyle, color: "#ff8a8a" }}
+                      >
+                        {errors.services}
+                      </p>
+                    ) : null}
                   </div>
                 </Section>
 
@@ -399,11 +611,23 @@ export default function Brief() {
                   title="Tell us about the project"
                   hint="Share your goals, ideas, timeline, budget, or anything else we should know. The more context we have, the better we can understand the project."
                 >
-                  <TextArea
-                    value={form.projectDetails}
-                    onChange={update("projectDetails")}
-                    placeholder="Start typing your brief here..."
-                  />
+                  <div ref={fieldRefs.projectDetails}>
+                    <TextArea
+                      value={form.projectDetails}
+                      onChange={update("projectDetails")}
+                      placeholder="Start typing your brief here..."
+                      error={errors.projectDetails}
+                    />
+                    {errors.projectDetails ? (
+                      <p
+                        role="alert"
+                        className="mt-2 text-[12.5px]"
+                        style={{ ...monoStyle, color: "#ff8a8a" }}
+                      >
+                        {errors.projectDetails}
+                      </p>
+                    ) : null}
+                  </div>
                 </Section>
 
                 <Section
@@ -415,7 +639,7 @@ export default function Brief() {
                     <GlassSurface
                       as="button"
                       type="submit"
-                      disabled={!canSubmit}
+                      disabled={status === "submitting"}
                       data-testid="brief-submit"
                       tilt={3}
                       className="mo-glass-pill mo-glass-lit mo-press group inline-flex items-center gap-3 px-9 py-4 text-[12px] font-medium tracking-[0.22em] uppercase disabled:opacity-50 disabled:cursor-not-allowed"
