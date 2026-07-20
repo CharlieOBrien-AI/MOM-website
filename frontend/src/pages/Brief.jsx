@@ -21,10 +21,11 @@ const serifStyle = { fontFamily: "Instrument Serif, serif" };
  * section fades up as the user scrolls the brief. Uses the site's existing
  * .mo-glass system so the visual language is consistent with the landing.
  */
-function Section({ number, title, hint, children }) {
+function Section({ number, title, hint, children, first }) {
   return (
     <Reveal>
-      <div className="mb-14 md:mb-20">
+      <div className={`mb-12 md:mb-16 ${first ? "" : "pt-12 md:pt-16 border-t"}`}
+           style={first ? undefined : { borderTopColor: "rgba(255,255,255,0.07)" }}>
         <div className="mb-6 flex items-baseline gap-5">
           <span
             className="text-[13px] tracking-[0.28em]"
@@ -417,9 +418,9 @@ export default function Brief() {
             <SuccessState />
           ) : (
             <>
-              {/* Intro — trimmed to just the headline. No paragraph subtext. */}
+              {/* Intro — headline only, no paragraph subtext. */}
               <Reveal>
-                <div className="mb-12">
+                <div className="mb-14">
                   <div
                     className="mono-eyebrow mb-6"
                     style={{ color: "var(--mo-accent)" }}
@@ -443,13 +444,10 @@ export default function Brief() {
                 </div>
               </Reveal>
 
-              {/* Form panel — themed glass card so the whole thing reads as
-                  a single focused surface on-brand with the site. */}
-              <Reveal>
-                <div
-                  className="mo-glass mo-glass-lit relative rounded-[28px] p-6 sm:p-10 md:p-14"
-                >
-                  <form onSubmit={onSubmit} noValidate>
+              {/* Form — flat on the page (no card), thin hairlines between
+                  sections carry the structure. Inspired by the brutalist-
+                  minimal reference the user shared. */}
+              <form onSubmit={onSubmit} noValidate>
                 {/* Summary banner — appears when user tries to submit with
                     invalid fields. Tells them exactly how many things need
                     fixing, so the disabled-submit mystery is gone. */}
@@ -484,7 +482,7 @@ export default function Brief() {
                   </Reveal>
                 ) : null}
 
-                <Section number="01" title="Your name">
+                <Section number="01" title="Your name" first>
                   <Field
                     label="Full name"
                     required
@@ -644,8 +642,6 @@ export default function Brief() {
                   </div>
                 </Section>
               </form>
-                </div>
-              </Reveal>
             </>
           )}
         </main>

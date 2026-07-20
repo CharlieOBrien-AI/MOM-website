@@ -104,8 +104,6 @@ export default function Hero() {
               style={{
                 fontFamily: "JetBrains Mono, monospace",
                 color: "var(--mo-fg)",
-                background:
-                  "linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.06) 60%), linear-gradient(180deg, rgba(24,18,46,0.35), rgba(10,8,22,0.5))",
               }}
             >
               Schedule a call

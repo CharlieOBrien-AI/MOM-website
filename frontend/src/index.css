@@ -456,19 +456,19 @@
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    /* Real glass on a dark surface: instead of a bright white overlay,
-       use a subtle dark-plum tint that leans into the brand accent. Keeps
-       the light rim highlight (top inset shadow) for depth. */
+    /* On-brand dark glass — subtle plum tint. Lighter than the deep panel
+       so surfaces feel translucent, not opaque. Keeps a light rim highlight
+       for depth. No bright white overlay. */
     background:
-      linear-gradient(135deg, rgba(18, 12, 34, 0.55) 0%, rgba(10, 8, 22, 0.42) 45%, rgba(14, 10, 28, 0.38) 62%, rgba(24, 16, 44, 0.5) 100%),
-      linear-gradient(180deg, rgba(10, 8, 22, 0.42), rgba(6, 4, 14, 0.5));
-    -webkit-backdrop-filter: blur(20px) saturate(175%) brightness(0.94);
-    backdrop-filter: blur(20px) saturate(175%) brightness(0.94);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+      linear-gradient(135deg, rgba(28, 20, 52, 0.42) 0%, rgba(18, 14, 36, 0.32) 45%, rgba(20, 14, 40, 0.28) 62%, rgba(30, 20, 56, 0.38) 100%),
+      linear-gradient(180deg, rgba(16, 12, 30, 0.28), rgba(10, 8, 22, 0.36));
+    -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(0.98);
+    backdrop-filter: blur(20px) saturate(170%) brightness(0.98);
+    border: 1px solid rgba(255, 255, 255, 0.09);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.14),
       inset 0 -1px 0 rgba(0, 0, 0, 0.35),
-      0 20px 60px -22px rgba(0, 0, 0, 0.7),
+      0 20px 60px -22px rgba(0, 0, 0, 0.65),
       0 0 0 1px rgba(255, 255, 255, 0.02);
     /* Keeps text crisp against whatever glows through the glass. */
     text-shadow: 0 1px 2px rgba(6, 6, 10, 0.35);
@@ -571,14 +571,14 @@
   /* Optional variants ---------------------------------------------------- */
 
   /* Slightly denser panel — for bigger surfaces like the Contact card and
-     the Approach video island. Deeper on-brand tint (subtle plum) matching
-     the darkened .mo-glass base above. Blur capped at 24px for Windows perf. */
+     the Approach video island. Deeper on-brand plum tint, still translucent.
+     Blur capped at 24px for Windows perf. */
   .mo-glass-strong {
     background:
-      linear-gradient(135deg, rgba(20, 14, 40, 0.62) 0%, rgba(10, 8, 22, 0.5) 45%, rgba(14, 10, 28, 0.46) 65%, rgba(26, 18, 48, 0.58) 100%),
-      linear-gradient(180deg, rgba(10, 8, 22, 0.5), rgba(6, 4, 14, 0.58));
-    -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(0.92);
-    backdrop-filter: blur(24px) saturate(180%) brightness(0.92);
+      linear-gradient(135deg, rgba(30, 22, 56, 0.5) 0%, rgba(18, 14, 36, 0.4) 45%, rgba(20, 14, 40, 0.36) 65%, rgba(34, 22, 62, 0.46) 100%),
+      linear-gradient(180deg, rgba(16, 12, 30, 0.4), rgba(10, 8, 22, 0.46));
+    -webkit-backdrop-filter: blur(24px) saturate(175%) brightness(0.96);
+    backdrop-filter: blur(24px) saturate(175%) brightness(0.96);
   }
 
   /* Pill CTA — used on Nav CTA, Hero primary CTA, etc. */
