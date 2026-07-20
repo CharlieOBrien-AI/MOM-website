@@ -456,19 +456,18 @@
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    /* On-brand dark glass — subtle plum tint. Lighter than the deep panel
-       so surfaces feel translucent, not opaque. Keeps a light rim highlight
-       for depth. No bright white overlay. */
-    background:
-      linear-gradient(135deg, rgba(28, 20, 52, 0.42) 0%, rgba(18, 14, 36, 0.32) 45%, rgba(20, 14, 40, 0.28) 62%, rgba(30, 20, 56, 0.38) 100%),
-      linear-gradient(180deg, rgba(16, 12, 30, 0.28), rgba(10, 8, 22, 0.36));
-    -webkit-backdrop-filter: blur(20px) saturate(170%) brightness(0.98);
-    backdrop-filter: blur(20px) saturate(170%) brightness(0.98);
+    /* Pure transparent glass — no colored tint, just the blurred backdrop
+       behind it. Structure comes from the thin border, top rim highlight,
+       and drop shadow. This lets whatever the page background is (owl scene,
+       night sky, etc.) read cleanly through the button. */
+    background: transparent;
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
     border: 1px solid rgba(255, 255, 255, 0.09);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
       inset 0 -1px 0 rgba(0, 0, 0, 0.35),
-      0 20px 60px -22px rgba(0, 0, 0, 0.65),
+      0 20px 60px -22px rgba(0, 0, 0, 0.6),
       0 0 0 1px rgba(255, 255, 255, 0.02);
     /* Keeps text crisp against whatever glows through the glass. */
     text-shadow: 0 1px 2px rgba(6, 6, 10, 0.35);
@@ -570,15 +569,12 @@
 
   /* Optional variants ---------------------------------------------------- */
 
-  /* Slightly denser panel — for bigger surfaces like the Contact card and
-     the Approach video island. Deeper on-brand plum tint, still translucent.
-     Blur capped at 24px for Windows perf. */
+  /* Denser panel variant — still tint-free, just a stronger blur and
+     slightly heavier rim for larger surfaces like Contact / Approach. */
   .mo-glass-strong {
-    background:
-      linear-gradient(135deg, rgba(30, 22, 56, 0.5) 0%, rgba(18, 14, 36, 0.4) 45%, rgba(20, 14, 40, 0.36) 65%, rgba(34, 22, 62, 0.46) 100%),
-      linear-gradient(180deg, rgba(16, 12, 30, 0.4), rgba(10, 8, 22, 0.46));
-    -webkit-backdrop-filter: blur(24px) saturate(175%) brightness(0.96);
-    backdrop-filter: blur(24px) saturate(175%) brightness(0.96);
+    background: transparent;
+    -webkit-backdrop-filter: blur(24px) saturate(170%);
+    backdrop-filter: blur(24px) saturate(170%);
   }
 
   /* Pill CTA — used on Nav CTA, Hero primary CTA, etc. */
