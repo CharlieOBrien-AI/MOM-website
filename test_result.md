@@ -102,15 +102,135 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Iteration 6: (1) New allstarsteven Instagram comment added to Voices ('Your content quality is 🔥', verified badge, real avatar photo, 4w + View replies (1)); (2) HowItWorks fully center-aligned (heading, step number, title, description, dot indicators); (3) Auto-pause behavior in Work section — clicking play on any story unmounts (pauses) whichever other story was playing (playingIdx state lifted to parent); (4) Stats SQ2/SQ3 stacking hardened — night-sky.jpg then night-sky-2.jpg with 0px gap (line-height:0, font-size:0 on wrapper; display:block, verticalAlign:bottom, margin:0 on <img>s), no crop; (5) HowItWorks arrows moved to left/right sides of the step content (vertically centered, absolute-positioned, backdrop blur, translateY(-50%)); (6) Removed 'AI · Short' / 'Tech · Short' kicker tags from Stories cards; (7) Custom local thumbnails wired into Stories — Mira Murati poster, Zuck vs Government poster, Elon-vs-Sam poster."
+user_problem_statement: "Iteration 7: Bug fixes and content changes - (1) PRIMARY BUG FIX: Get In Touch scroll bug — clicking 'Get In Touch' button from scrolled landing page now navigates to /brief AND opens at the very TOP (Y=0), showing 'Let's talk.' headline, not bottom of form; (2) Approach section text swap — Pull tab shows 'Real examples from people who identified the opportunity early!', Push tab shows 'every brand is stuck here'; (3) Contact section golden eyes removed — no pulsating golden circles, just cinematic nightscape background (bg-3.webp) with linear tint + headline + CTA; (4) Background images with linear tint — FAQ (bg-1.webp tree at cliff), Voices (bg-2.webp mountain lake), Contact (bg-3.webp misty valley cabin) all have dark gradient tints; (5) FAQ heading changed to 'You might have questions.' with 'questions.' in purple italic serif; (6) FAQ answer for 'How soon will I see results?' updated to single-paragraph answer about proven strategies and data-driven optimizations; (7) Brief page subtext — three sentences separated by blank lines; (8) Required fields marked with purple asterisks — Full name*, Email* (Phone does NOT have *), Section 04 'Select at least one*', Section 05 'About your project*' — all asterisks in purple (var(--mo-accent))."
 
 frontend:
+  - task: "PRIMARY BUG FIX: Get In Touch scroll position — /brief opens at top"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Brief.jsx"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added useEffect hook in Brief.jsx (lines 226-230) that calls window.scrollTo({ top: 0, left: 0, behavior: 'auto' }) on component mount. This resets scroll position to Y=0 when navigating to /brief from any scroll position on the landing page, fixing the bug where users clicking 'Get In Touch' from the bottom of the landing page would land at the bottom of the form (past section 06) instead of seeing the 'Let's talk.' headline at the top."
+      - working: true
+        agent: "testing"
+        comment: "PRIMARY BUG FIX VERIFIED via comprehensive Playwright testing. Direct navigation to /brief: scroll position = 0px, 'Let's talk.' headline visible at Y=160.5px. User flow simulation: scrolled landing page to bottom (Y=5919px) → clicked 'Get In Touch' button → /brief page opened at Y=0px with headline visible in viewport. Also tested Nav 'SCHEDULE A CALL' button from scrolled position — same behavior, /brief opens at top. The useEffect scroll reset is working perfectly. Screenshots confirm headline is immediately visible on page load, not requiring user to scroll up."
+
+  - task: "Approach section text swap — Pull/Push taglines updated"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/site/Approach.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Updated tagline text in Approach.jsx lines 496-500. Pull mode now shows: 'Real examples from people who identified the opportunity early!' (was 'People lean in. Retention holds. Trust compounds.'). Push mode now shows: 'every brand is stuck here' (was 'People scroll past. Reach rented. No trust built.'). Text appears at bottom of Examples card on the monitor screen, updates with keyed crossfade animation when toggling between modes."
+      - working: true
+        agent: "testing"
+        comment: "Approach taglines VERIFIED. Pull mode tagline 'Real examples from people who identified the opportunity early!' found and visible on monitor screen. Switched to Push mode, tagline changed to 'every brand is stuck here' — both taglines displaying correctly. Screenshots show workspace video with day/night transition working, Examples card perspective-mapped onto monitor with correct tagline text for each mode. Keyed crossfade animation smooth between mode switches."
+
+  - task: "Contact section — golden eyes removed, nightscape background added"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/site/Contact.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Completely rewrote Contact.jsx (lines 1-96). Removed all golden eye circle elements (previously two pulsating circles with golden inner glow above headline). Replaced interior background with cinematic nightscape bg-3.webp (misty valley cabin) with linear gradient tint (rgba(6,4,14,0.55) → rgba(6,4,14,0.32) → rgba(6,4,14,0.70)) for readability. Section now shows: nightscape background → 'Let's tell some stories.' headline (with 'stories.' in purple italic) → 'Book a free consultation session with us.' description → 'Get In Touch →' CTA button. Clean, on-brand design without ornamental elements."
+      - working: true
+        agent: "testing"
+        comment: "Contact section VERIFIED. No golden eye circles or pulsating animations found (0 pulsing animations detected). Nightscape background (bg-3.webp) visible with dark linear tint. 'Let's tell some stories.' headline present with 'stories.' in purple italic. 'Book a free consultation session with us.' description visible. 'GET IN TOUCH →' button present and functional. Screenshots confirm clean design with cinematic background, no golden ornaments. Section matches the on-brand aesthetic specified in requirements."
+
+  - task: "Background images with linear tint — FAQ, Voices, Contact sections"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/site/FAQ.jsx, /app/frontend/src/components/site/Voices.jsx, /app/frontend/src/components/site/Contact.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added cinematic dark-purple nightscape backgrounds to three sections: (1) FAQ.jsx lines 136-143 — bg-1.webp (tree at cliff with river valley) with linear gradient rgba(6,4,14,0.85) → rgba(6,4,14,0.60) → rgba(6,4,14,0.90); (2) Voices.jsx lines 266-273 — bg-2.webp (mountain lake at night) with linear gradient rgba(6,4,14,0.82) → rgba(6,4,14,0.55) → rgba(6,4,14,0.88); (3) Contact.jsx lines 31-34 — bg-3.webp (misty valley cabin) with linear gradient rgba(6,4,14,0.55) → rgba(6,4,14,0.32) → rgba(6,4,14,0.70). All backgrounds use backgroundSize: cover, backgroundPosition: center, with dark tints for text readability."
+      - working: true
+        agent: "testing"
+        comment: "Background images VERIFIED. FAQ section: bg-1.webp detected with linear gradient tint, tree-at-cliff scene visible. Voices section: bg-2.webp mountain lake nightscape visible with dark tint. Contact section: bg-3.webp misty valley cabin visible with gradient overlay. All three sections have full-quality backgrounds (no crop) with dark linear tints ensuring text/card readability. Screenshots confirm cinematic nightscape aesthetic across all three sections. Background images load correctly and enhance the visual storytelling without compromising content legibility."
+
+  - task: "FAQ heading changed to 'You might have questions.'"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/site/FAQ.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Updated FAQ heading in FAQ.jsx lines 159-162. Changed from 'The questions you're thinking.' to 'You might have questions.' with 'questions.' styled in purple italic serif (color: var(--mo-accent), fontStyle: italic). Heading uses Instrument Serif font, clamp(30px, 3.6vw, 52px) size, -0.015em letter-spacing, 1.1 line-height."
+      - working: true
+        agent: "testing"
+        comment: "FAQ heading VERIFIED. Text reads 'You might have questions.' with 'questions.' correctly styled in purple (rgb(164, 74, 255) = var(--mo-accent)) and italic font style. Screenshot confirms proper rendering with purple accent color on 'questions.' matching the brand's accent color throughout the site. Typography and styling match specifications."
+
+  - task: "FAQ answer for 'How soon will I see results?' updated"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/site/FAQ.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Updated FAQ answer in FAQ.jsx lines 26-29. Replaced old 3-bullet answer ('first few weeks', 'rented attention', etc.) with new single-paragraph answer: 'While we can't guarantee a specific timeline due to factors such as algorithms, your industry, and audience behavior, we can assure you that we use proven strategies, consistent execution, and data-driven optimizations to help your channel achieve long-term growth as quickly as possible.' More professional, realistic tone about timelines."
+      - working: true
+        agent: "testing"
+        comment: "FAQ answer VERIFIED. Clicked 'How soon will I see results?' FAQ item (faq-item-2), accordion expanded correctly. New answer text visible in screenshot: 'While we can't guarantee a specific timeline due to factors such as algorithms, your industry, and audience behavior, we can assure you that we use proven strategies, consistent execution, and data-driven optimizations to help your channel achieve long-term growth as quickly as possible.' Old 3-bullet answer completely replaced. Answer reads professionally and sets realistic expectations."
+
+  - task: "Brief page subtext — three sentences separated by blank lines"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Brief.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Updated Brief.jsx lines 461-471. Subtext below 'Let's talk.' headline now shows three sentences separated by <br /><br />: (1) 'Thanks for showing interest in working with Midnight Owl Media!' (2) 'Give us a quick overview of what you're working on.' (3) 'We'll take a bird's-eye view, understand what you need, and get back to you within 24 hours.' Conversational, welcoming tone with clear expectations."
+      - working: true
+        agent: "testing"
+        comment: "Brief page subtext VERIFIED. All three sentences present and correctly separated by blank lines: sentence 1 (Thanks for showing interest), sentence 2 (Give us a quick overview), sentence 3 (bird's-eye view, 24 hours). Screenshot shows proper spacing and formatting. Text is readable, welcoming, and sets clear expectations for the brief submission process."
+
+  - task: "Required fields marked with purple asterisks"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Brief.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Updated Brief.jsx to show purple asterisks on required fields. Field component (lines 64-102) renders asterisk when required=true, styled in var(--mo-accent) purple (or red #ff8a8a when error). Required fields: (1) Section 01 'Full name *' (line 515-517); (2) Section 02 'Email *' (line 547-551, Phone does NOT have required); (3) Section 04 new label 'Select at least one *' above service checkboxes (lines 593-611); (4) Section 05 new label 'About your project *' above textarea (lines 636-653). All asterisks use purple accent color in default state, red only during error state."
+      - working: true
+        agent: "testing"
+        comment: "Required field asterisks VERIFIED. Asterisk color confirmed: rgb(164, 74, 255) = var(--mo-accent) purple. Section 01 'FULL NAME*' has asterisk. Section 02 'EMAIL*' has asterisk, 'PHONE' does NOT have asterisk (correct!). Section 04 'Select at least one*' label present with purple asterisk above service checkboxes. Section 05 'About your project*' label present with purple asterisk above textarea. All asterisks render in brand purple color, not red (red only appears during validation errors). Screenshots confirm proper styling and placement of all required field indicators."
+
   - task: "Voices: new allstarsteven Instagram comment with verified badge + real avatar"
     implemented: true
     working: true
     file: "/app/frontend/src/components/site/Voices.jsx"
     stuck_count: 0
-    priority: "high"
+    priority: "medium"
     needs_retesting: false
     status_history:
       - working: true
@@ -221,8 +341,8 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "1.5"
-  test_sequence: 6
+  version: "1.6"
+  test_sequence: 7
   run_ui: true
 
 test_plan:
@@ -246,3 +366,5 @@ agent_communication:
     message: "Brief form validation UX testing COMPLETE at https://google-forms-api.preview.emergentagent.com/brief. All critical validation behaviors verified and working correctly: (1) Required field indicators (*) correctly shown only on 'Full name' and 'Email address' labels, NOT on Phone/Company/Website. (2) Submit button is always clickable (not disabled) when form is empty, only disabled while submitting. (3) Empty form submission triggers red error summary banner (data-testid='brief-error-summary') showing '4 THINGS NEED YOUR ATTENTION' with inline red errors below name, email, services, and projectDetails fields. Page smoothly scrolls to first invalid field (name). (4) Invalid email 'notanemail' shows friendly inline error: 'That email doesn't look right — try something like you@company.com.' (5) Errors clear in real-time as user types valid input - email error disappeared when typing 'test@example.com'. (6) Valid submission with all fields filled correctly (name: 'Playwright Test', phone: '9876543210', email: 'playwright@example.com', company: 'Test Co', website: 'https://example.com', service: 'Video Production and Ad Films', project details: proper description) successfully completes and shows success state with data-testid='brief-success-heading' displaying 'We've got your brief.' Minor note: Error summary text is styled in uppercase via CSS (intentional design), not a bug. All validation logic, error handling, and UX flows working as specified."
   - agent: "testing"
     message: "COMPREHENSIVE SMOKE TEST COMPLETE (Iteration 7 features) at https://google-forms-api.preview.emergentagent.com/. ALL TESTS PASSED ✅. Verified: (1) Owl PNG logo (/images/owl-logo.png) present in Nav (top-left with purple glow next to 'MIDNIGHT OWL MEDIA' wordmark), Footer (bottom with 'Midnight Owl Media' text), and Brief page header (top-left) - all three locations confirmed. (2) Pull-section videos in Approach: All 3 videos playing (pull-1.mp4, pull-2.mp4, pull-3.mp4), play buttons functional (3/3 visible), VideoLightbox opens/closes correctly, Push/Pull toggle works. (3) Work section 'See all' button: Correct href (https://linktr.ee/Midnightowlmedia), opens in new tab (target='_blank'). (4) Brief page new copy: Eyebrow '// Say hello', headline 'Let's talk.' (with 'talk.' in purple italic serif), all 6 section titles present (01 'Hi, my name is…', 02 'You can reach me at…', 03 'I work at…', 04 'I'd like help with…', 05 'Here's what I'm building…', 06 'Send it over'), '// Prefer email?' section at bottom with mailto:hi@midnightowl.media link (data-testid='brief-direct-email'). (5) Form submission: Works correctly, shows success state 'We've got your brief.' with owl-eye animation. Backend logs confirm 200 OK responses with successful Slack/Google Sheets integration. Screenshots captured: nav logo, approach pull videos, brief page top/bottom, form success. No issues found - all new features working as specified."
+  - agent: "testing"
+    message: "Iteration 7 bug fixes and content changes testing COMPLETE at https://google-forms-api.preview.emergentagent.com/. ALL CHANGES VERIFIED ✅. PRIMARY BUG FIX (CRITICAL): Get In Touch scroll bug FIXED — /brief page opens at Y=0px with 'Let's talk.' headline visible at Y=160.5px. User flow tested: scrolled landing page to bottom (Y=5919px) → clicked 'Get In Touch' → /brief opened at top (Y=0px). useEffect scroll reset working perfectly. OTHER CHANGES: (1) Approach taglines — Pull: 'Real examples from people who identified the opportunity early!', Push: 'every brand is stuck here' — both verified on monitor screen. (2) Contact section — no golden eyes/pulsing animations (0 found), nightscape bg-3.webp visible with tint, clean design. (3) Background images — FAQ (bg-1.webp), Voices (bg-2.webp), Contact (bg-3.webp) all have cinematic nightscapes with dark linear tints. (4) FAQ heading — 'You might have questions.' with 'questions.' in purple (rgb(164,74,255)) italic. (5) FAQ answer — new single-paragraph answer about proven strategies visible. (6) Brief subtext — all three sentences present, properly separated. (7) Required asterisks — Full name*, Email* (Phone NO asterisk ✓), Section 04 'Select at least one*', Section 05 'About your project*' — all purple (rgb(164,74,255)). Screenshots confirm all visual changes. No issues found — all bug fixes and content changes working as specified."

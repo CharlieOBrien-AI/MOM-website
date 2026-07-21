@@ -25,9 +25,7 @@ const faqs = [
   {
     q: "How soon will I see results?",
     a: [
-      "You will see things move in the first few weeks. The bigger payoff builds after that.",
-      "Rented attention like ads disappears the moment you stop paying.",
-      "What we build is yours, and people keep coming back even when we are not actively pushing that week.",
+      "While we can't guarantee a specific timeline due to factors such as algorithms, your industry, and audience behavior, we can assure you that we use proven strategies, consistent execution, and data-driven optimizations to help your channel achieve long-term growth as quickly as possible.",
     ],
   },
   {
@@ -128,8 +126,23 @@ export default function FAQSection() {
     <section
       id="faq"
       data-testid={FAQ.root}
-      className="mx-auto max-w-[880px] section-px py-[70px]"
+      className="relative overflow-hidden"
     >
+      {/* Cinematic nightscape background — full-quality, no crop. A dark
+          linear gradient tints it so all copy remains readable. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage: [
+            "linear-gradient(180deg, rgba(6,4,14,0.85) 0%, rgba(6,4,14,0.60) 40%, rgba(6,4,14,0.90) 100%)",
+            "url('/images/bg/bg-1.webp')",
+          ].join(", "),
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      />
+      <div className="relative mx-auto max-w-[880px] section-px py-[70px]">
       <Reveal>
       <div className="mono-eyebrow mb-4">
         <span style={{ color: "var(--mo-accent)" }}>//</span> FAQ
@@ -143,9 +156,9 @@ export default function FAQSection() {
           lineHeight: 1.1,
         }}
       >
-        {"The questions you're"}{" "}
+        {"You might have"}{" "}
         <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
-          thinking.
+          questions.
         </span>
       </h2>
       </Reveal>
@@ -161,6 +174,7 @@ export default function FAQSection() {
             />
           </Reveal>
         ))}
+      </div>
       </div>
     </section>
   );

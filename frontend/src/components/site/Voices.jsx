@@ -255,9 +255,24 @@ export default function Voices() {
   return (
     <section
       data-testid={VOICES.root}
-      style={{ background: "transparent", position: "relative" }}
+      className="relative overflow-hidden"
+      style={{ background: "transparent" }}
     >
-      <div className="mx-auto max-w-[1240px] section-px py-[70px] text-center">
+      {/* Cinematic mountain-lake backdrop — full quality, no crop. Darker
+          tint on top so testimonial cards + text remain readable. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage: [
+            "linear-gradient(180deg, rgba(6,4,14,0.82) 0%, rgba(6,4,14,0.55) 45%, rgba(6,4,14,0.88) 100%)",
+            "url('/images/bg/bg-2.webp')",
+          ].join(", "),
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      />
+      <div className="relative mx-auto max-w-[1240px] section-px py-[70px] text-center">
         <Reveal>
           <div className="mono-eyebrow mb-4">
             <span style={{ color: "var(--mo-accent)" }}>//</span> What people say

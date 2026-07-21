@@ -495,8 +495,8 @@ export default function Approach() {
         {/* Keyed crossfade for the tagline too — same mode swap moment. */}
         <span key={`caption-${mode}`} className="mo-key-fade inline-block">
           {mode === "pull"
-            ? "People lean in. Retention holds. Trust compounds."
-            : "People scroll past. Reach rented. No trust built."}
+            ? "Real examples from people who identified the opportunity early!"
+            : "every brand is stuck here"}
         </span>
       </div>
     </GlassSurface>

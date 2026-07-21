@@ -3,6 +3,15 @@ import { Link } from "react-router-dom";
 import Reveal from "./Reveal";
 import { CONTACT } from "@/constants/testIds";
 
+/**
+ * Contact — the closing "Let's tell some stories." moment.
+ *
+ * Previously carried a heavy golden inner-wash and two pulsing owl-eye
+ * circles above the heading; both felt off-brand and dated. This rewrite
+ * drops the ornament entirely and replaces the interior background with
+ * one of the cinematic dark-purple nightscapes the user shipped, tinted
+ * with a linear gradient to keep the type readable and the mood on-brand.
+ */
 export default function Contact() {
   return (
     <section
@@ -13,102 +22,73 @@ export default function Contact() {
     >
       <div className="mx-auto max-w-[1240px] section-px py-[70px]">
         <Reveal>
-        <GlassSurface
-          interactive={false}
-          className="mo-glass-strong relative overflow-hidden rounded-3xl text-center"
-          style={{
-            padding: "clamp(56px, 8vw, 120px) 40px",
-          }}
-        >
-          {/* warm inner wash keeps the owl-eye warmth from the original */}
           <div
-            aria-hidden="true"
-            className="absolute inset-0"
+            className="relative overflow-hidden rounded-3xl text-center"
             style={{
-              background:
-                "radial-gradient(120% 100% at 50% 0%, rgba(212,162,86,0.14), rgba(10,10,11,0) 60%)",
-              borderRadius: "inherit",
-              pointerEvents: "none",
-            }}
-          />
-          <div className="noise-overlay" aria-hidden="true" />
-
-          <div className="relative flex justify-center gap-6">
-            {[0, 1].map((i) => (
-              <div
-                key={i}
-                aria-hidden="true"
-                className="grid h-9 w-9 place-items-center rounded-full border"
-                style={{
-                  borderColor: "var(--mo-accent-warm)",
-                  animation: `mo-eyepulse 2.6s ease ${i * 0.3}s infinite`,
-                }}
-              >
-                <div
-                  className="h-3.5 w-3.5 rounded-full"
-                  style={{
-                    background: "var(--mo-accent-warm)",
-                    boxShadow: "0 0 20px var(--mo-accent-warm)",
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-
-          <style>{`
-            @keyframes mo-eyepulse {
-              0%, 100% { transform: scale(1); opacity: 1; }
-              50% { transform: scale(0.86); opacity: 0.55; }
-            }
-          `}</style>
-
-          <h2
-            className="relative mx-auto mt-8 max-w-[840px] text-white"
-            style={{
-              fontFamily: "Instrument Serif, serif",
-              fontSize: "clamp(44px, 6vw, 92px)",
-              lineHeight: 1,
-              letterSpacing: "-0.02em",
+              padding: "clamp(64px, 9vw, 140px) 40px",
+              // Nightscape backdrop + linear dark tint so text stays legible
+              // without hiding the artwork underneath.
+              backgroundImage: [
+                "linear-gradient(180deg, rgba(6,4,14,0.55) 0%, rgba(6,4,14,0.32) 45%, rgba(6,4,14,0.70) 100%)",
+                "url('/images/bg/bg-3.webp')",
+              ].join(", "),
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              // Thin border matches other framed surfaces on the site.
+              border: "1px solid rgba(255,255,255,0.08)",
+              boxShadow:
+                "inset 0 1px 0 rgba(255,255,255,0.06), 0 30px 80px -30px rgba(0,0,0,0.75)",
             }}
           >
-            {"Let's tell some"}{" "}
-            <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
-              stories.
-            </span>
-          </h2>
+            <div className="noise-overlay" aria-hidden="true" />
 
-          <p
-            className="relative mx-auto mt-8 max-w-[520px] text-[14.5px] leading-[1.7]"
-            style={{
-              color: "var(--mo-fg-dim)",
-              fontFamily: "JetBrains Mono, monospace",
-            }}
-          >
-            Book a free consultation session with us.
-          </p>
-
-          <div className="relative mt-10 inline-flex">
-            <GlassSurface
-              as={Link}
-              to="/brief"
-              data-testid={CONTACT.cta}
-              className="mo-glass-pill mo-glass-lit mo-press group inline-flex items-center gap-2 px-8 py-4 text-[12px] font-medium tracking-[0.18em] uppercase"
-              tilt={2.5}
+            <h2
+              className="relative mx-auto max-w-[840px] text-white"
               style={{
-                fontFamily: "JetBrains Mono, monospace",
-                color: "var(--mo-fg)",
+                fontFamily: "Instrument Serif, serif",
+                fontSize: "clamp(44px, 6vw, 92px)",
+                lineHeight: 1,
+                letterSpacing: "-0.02em",
               }}
             >
-              Get In Touch
-              <span
-                aria-hidden="true"
-                className="transition-transform duration-200 ease-out group-hover:translate-x-1"
-              >
-                →
+              {"Let's tell some"}{" "}
+              <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
+                stories.
               </span>
-            </GlassSurface>
+            </h2>
+
+            <p
+              className="relative mx-auto mt-8 max-w-[520px] text-[14.5px] leading-[1.7]"
+              style={{
+                color: "var(--mo-fg-dim)",
+                fontFamily: "JetBrains Mono, monospace",
+              }}
+            >
+              Book a free consultation session with us.
+            </p>
+
+            <div className="relative mt-10 inline-flex">
+              <GlassSurface
+                as={Link}
+                to="/brief"
+                data-testid={CONTACT.cta}
+                className="mo-glass-pill mo-glass-lit mo-press group inline-flex items-center gap-2 px-8 py-4 text-[12px] font-medium tracking-[0.18em] uppercase"
+                tilt={2.5}
+                style={{
+                  fontFamily: "JetBrains Mono, monospace",
+                  color: "var(--mo-fg)",
+                }}
+              >
+                Get In Touch
+                <span
+                  aria-hidden="true"
+                  className="transition-transform duration-200 ease-out group-hover:translate-x-1"
+                >
+                  →
+                </span>
+              </GlassSurface>
+            </div>
           </div>
-        </GlassSurface>
         </Reveal>
       </div>
     </section>

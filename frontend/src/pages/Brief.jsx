@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import GlassSurface from "@/components/glass/GlassSurface";
 import GlassBackground from "@/components/glass/GlassBackground";
@@ -216,6 +216,19 @@ function ServiceCheck({ label, checked, onToggle }) {
 }
 
 export default function Brief() {
+  // Ensure the /brief route always opens at the very top. React Router
+  // preserves scroll position across route changes by default, so when
+  // users click a "Get In Touch" CTA from the bottom of the landing page,
+  // the browser was carrying that scroll offset into /brief — landing
+  // them at the bottom of the form (past section 06). This effect resets
+  // scroll on mount so every arrival at /brief begins at the "Let's talk."
+  // headline.
+  useEffect(() => {
+    // Use "auto" (not smooth) — smooth on a fresh route change reads as
+    // a glitchy animated skip rather than a clean page load.
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, []);
+
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -443,11 +456,18 @@ export default function Brief() {
                     </span>
                   </h1>
                   <p
-                    className="mt-8 max-w-[560px] text-[15px] leading-[1.7]"
+                    className="mt-8 max-w-[640px] text-[15px] leading-[1.75]"
                     style={{ ...monoStyle, color: "var(--mo-fg-dim)" }}
                   >
-                    Tell us a little about you and what you're building.
-                    We read every brief — a real human will reply within a day.
+                    Thanks for showing interest in working with Midnight Owl
+                    Media!
+                    <br />
+                    <br />
+                    Give us a quick overview of what you're working on.
+                    <br />
+                    <br />
+                    We'll take a bird's-eye view, understand what you need,
+                    and get back to you within 24 hours.
                   </p>
                 </div>
               </Reveal>
@@ -571,6 +591,24 @@ export default function Brief() {
 
                 <Section number="04" title="I'd like help with…">
                   <div ref={fieldRefs.services}>
+                    <div
+                      className="mb-4 text-[11px] tracking-[0.22em] uppercase"
+                      style={{
+                        ...monoStyle,
+                        color: errors.services ? "#ff8a8a" : "var(--mo-fg-dim)",
+                      }}
+                    >
+                      Select at least one
+                      <span
+                        aria-hidden="true"
+                        className="ml-1"
+                        style={{
+                          color: errors.services ? "#ff8a8a" : "var(--mo-accent)",
+                        }}
+                      >
+                        *
+                      </span>
+                    </div>
                     <div className="grid gap-3 sm:grid-cols-2">
                       {SERVICES.map((s) => (
                         <ServiceCheck
@@ -595,6 +633,24 @@ export default function Brief() {
 
                 <Section number="05" title="Here's what I'm building…">
                   <div ref={fieldRefs.projectDetails}>
+                    <div
+                      className="mb-2 text-[11px] tracking-[0.22em] uppercase"
+                      style={{
+                        ...monoStyle,
+                        color: errors.projectDetails ? "#ff8a8a" : "var(--mo-fg-dim)",
+                      }}
+                    >
+                      About your project
+                      <span
+                        aria-hidden="true"
+                        className="ml-1"
+                        style={{
+                          color: errors.projectDetails ? "#ff8a8a" : "var(--mo-accent)",
+                        }}
+                      >
+                        *
+                      </span>
+                    </div>
                     <TextArea
                       value={form.projectDetails}
                       onChange={update("projectDetails")}
