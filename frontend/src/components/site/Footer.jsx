@@ -16,13 +16,13 @@ export default function Footer() {
     >
       <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-6 section-px py-14">
         <div className="flex items-center gap-2.5">
-          <span
+          <img
+            src="/images/owl-logo.png"
+            alt=""
             aria-hidden="true"
-            className="grid h-7 w-7 place-items-center rounded-full border"
+            className="h-8 w-8 object-contain"
             style={{
-              borderColor: "var(--mo-line-strong)",
-              background:
-                "radial-gradient(circle at 50% 45%, var(--mo-accent) 0%, var(--mo-accent) 22%, transparent 24%), radial-gradient(circle at 50% 45%, rgba(212,162,86,0.2) 40%, transparent 60%)",
+              filter: "drop-shadow(0 0 6px rgba(164,74,255,0.35))",
             }}
           />
           <span
@@ -78,7 +78,7 @@ export default function Footer() {
           letterSpacing: "0.08em",
         }}
       >
-        <span>hello@midnightowl.media · © 2026 Midnight Owl Media</span>
+        <span>hi@midnightowl.media · © 2026 Midnight Owl Media</span>
         <span>Made in the small hours.</span>
       </div>
     </footer>

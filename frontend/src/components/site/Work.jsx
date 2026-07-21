@@ -186,7 +186,7 @@ export default function Work() {
             </span>
           </h2>
           <a
-            href="https://www.youtube.com/@CharlieOBrienAI/shorts"
+            href="https://linktr.ee/Midnightowlmedia"
             target="_blank"
             rel="noreferrer"
             className="mo-press text-[11px] tracking-[0.18em] uppercase transition-colors duration-200 hover:text-[var(--mo-fg)]"

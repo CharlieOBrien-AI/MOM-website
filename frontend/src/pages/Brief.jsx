@@ -385,13 +385,13 @@ export default function Brief() {
             className="mo-press flex items-center gap-2.5"
             aria-label="Midnight Owl Media — home"
           >
-            <span
+            <img
+              src="/images/owl-logo.png"
+              alt=""
               aria-hidden="true"
-              className="grid h-7 w-7 place-items-center rounded-full border"
+              className="h-8 w-8 object-contain"
               style={{
-                borderColor: "var(--mo-line-strong)",
-                background:
-                  "radial-gradient(circle at 50% 45%, var(--mo-accent) 0%, var(--mo-accent) 22%, transparent 24%), radial-gradient(circle at 50% 45%, rgba(212,162,86,0.2) 40%, transparent 60%)",
+                filter: "drop-shadow(0 0 6px rgba(164,74,255,0.35))",
               }}
             />
             <span
@@ -418,29 +418,37 @@ export default function Brief() {
             <SuccessState />
           ) : (
             <>
-              {/* Intro — headline only, no paragraph subtext. */}
+              {/* Intro — conversational headline, inspired by classic
+                  "Let's talk" forms. Personal, warm, and to-the-point. */}
               <Reveal>
                 <div className="mb-14">
                   <div
                     className="mono-eyebrow mb-6"
                     style={{ color: "var(--mo-accent)" }}
                   >
-                    // Project brief
+                    // Say hello
                   </div>
                   <h1
                     className="text-white"
                     style={{
                       ...serifStyle,
-                      fontSize: "clamp(40px, 6vw, 82px)",
-                      lineHeight: 1.02,
-                      letterSpacing: "-0.02em",
+                      fontSize: "clamp(48px, 8vw, 120px)",
+                      lineHeight: 0.95,
+                      letterSpacing: "-0.03em",
                     }}
                   >
-                    Tell us about your{" "}
+                    Let's{" "}
                     <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
-                      project.
+                      talk.
                     </span>
                   </h1>
+                  <p
+                    className="mt-8 max-w-[560px] text-[15px] leading-[1.7]"
+                    style={{ ...monoStyle, color: "var(--mo-fg-dim)" }}
+                  >
+                    Tell us a little about you and what you're building.
+                    We read every brief — a real human will reply within a day.
+                  </p>
                 </div>
               </Reveal>
 
@@ -482,7 +490,7 @@ export default function Brief() {
                   </Reveal>
                 ) : null}
 
-                <Section number="01" title="Your name" first>
+                <Section number="01" title="Hi, my name is…" first>
                   <Field
                     label="Full name"
                     required
@@ -492,7 +500,7 @@ export default function Brief() {
                     <Input
                       value={form.name}
                       onChange={update("name")}
-                      placeholder="Full name"
+                      placeholder="Your full name"
                       required
                       error={errors.name}
                       data-testid="brief-input-name"
@@ -500,7 +508,7 @@ export default function Brief() {
                   </Field>
                 </Section>
 
-                <Section number="02" title="Contact">
+                <Section number="02" title="You can reach me at…">
                   <div className="grid gap-5 sm:grid-cols-2">
                     <Field
                       label="Phone"
@@ -511,7 +519,7 @@ export default function Brief() {
                         type="tel"
                         value={form.phone}
                         onChange={update("phone")}
-                        placeholder="Phone"
+                        placeholder="Call me at…"
                         error={errors.phone}
                         data-testid="brief-input-phone"
                       />
@@ -526,7 +534,7 @@ export default function Brief() {
                         type="email"
                         value={form.email}
                         onChange={update("email")}
-                        placeholder="you@company.com"
+                        placeholder="Or email me at…"
                         required
                         error={errors.email}
                         data-testid="brief-input-email"
@@ -535,13 +543,13 @@ export default function Brief() {
                   </div>
                 </Section>
 
-                <Section number="03" title="Brand">
+                <Section number="03" title="I work at…">
                   <div className="grid gap-5 sm:grid-cols-2">
                     <Field label="Company">
                       <Input
                         value={form.company}
                         onChange={update("company")}
-                        placeholder="Company"
+                        placeholder="Company name"
                         data-testid="brief-input-company"
                       />
                     </Field>
@@ -553,7 +561,7 @@ export default function Brief() {
                       <Input
                         value={form.website}
                         onChange={update("website")}
-                        placeholder="Paste link"
+                        placeholder="Paste your link"
                         error={errors.website}
                         data-testid="brief-input-website"
                       />
@@ -561,7 +569,7 @@ export default function Brief() {
                   </div>
                 </Section>
 
-                <Section number="04" title="Services">
+                <Section number="04" title="I'd like help with…">
                   <div ref={fieldRefs.services}>
                     <div className="grid gap-3 sm:grid-cols-2">
                       {SERVICES.map((s) => (
@@ -585,12 +593,12 @@ export default function Brief() {
                   </div>
                 </Section>
 
-                <Section number="05" title="Project">
+                <Section number="05" title="Here's what I'm building…">
                   <div ref={fieldRefs.projectDetails}>
                     <TextArea
                       value={form.projectDetails}
                       onChange={update("projectDetails")}
-                      placeholder="Goals, ideas, timeline, budget…"
+                      placeholder="Goals, ideas, timeline, budget — whatever helps."
                       error={errors.projectDetails}
                     />
                     {errors.projectDetails ? (
@@ -605,7 +613,7 @@ export default function Brief() {
                   </div>
                 </Section>
 
-                <Section number="06" title="Send">
+                <Section number="06" title="Send it over">
                   <div className="flex flex-col items-start gap-4">
                     <GlassSurface
                       as="button"
@@ -642,6 +650,51 @@ export default function Brief() {
                   </div>
                 </Section>
               </form>
+
+              {/* Direct-mail fallback — for people who want to email us
+                  outright rather than fill the form. Sits below the last
+                  section as a quiet, human line. */}
+              <Reveal>
+                <div
+                  className="mt-20 pt-12 border-t"
+                  style={{ borderTopColor: "rgba(255,255,255,0.08)" }}
+                >
+                  <p
+                    className="text-[11px] tracking-[0.22em] uppercase mb-4"
+                    style={{ ...monoStyle, color: "var(--mo-fg-dim)" }}
+                  >
+                    // Prefer email?
+                  </p>
+                  <p
+                    className="text-white"
+                    style={{
+                      ...serifStyle,
+                      fontSize: "clamp(24px, 3vw, 34px)",
+                      lineHeight: 1.25,
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
+                    Write to us directly at{" "}
+                    <a
+                      href="mailto:hi@midnightowl.media"
+                      className="mo-underline"
+                      style={{
+                        color: "var(--mo-accent)",
+                        fontStyle: "italic",
+                      }}
+                      data-testid="brief-direct-email"
+                    >
+                      hi@midnightowl.media
+                    </a>
+                  </p>
+                  <p
+                    className="mt-4 text-[13.5px] leading-[1.7] max-w-[520px]"
+                    style={{ ...monoStyle, color: "var(--mo-fg-dim)" }}
+                  >
+                    We'll reply from a real human within one working day.
+                  </p>
+                </div>
+              </Reveal>
             </>
           )}
         </main>

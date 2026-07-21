@@ -48,13 +48,15 @@ export default function Nav() {
           className="flex items-center gap-2.5"
           aria-label="Midnight Owl Media — home"
         >
-          <span
+          <img
+            src="/images/owl-logo.png"
+            alt=""
             aria-hidden="true"
-            className="grid h-7 w-7 place-items-center rounded-full border"
+            className="h-8 w-8 object-contain"
             style={{
-              borderColor: "var(--mo-line-strong)",
-              background:
-                "radial-gradient(circle at 50% 45%, var(--mo-accent) 0%, var(--mo-accent) 22%, transparent 24%), radial-gradient(circle at 50% 45%, rgba(212,162,86,0.2) 40%, transparent 60%)",
+              /* Give the pure-white PNG a faint accent glow so it feels
+                 lit inside the dark nav — matches the site's brand accent. */
+              filter: "drop-shadow(0 0 6px rgba(164,74,255,0.35))",
             }}
           />
           <span

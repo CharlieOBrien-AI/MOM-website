@@ -102,6 +102,23 @@ const PUSH_VIDEOS = [
   },
 ];
 
+// Pull-mode example reels — narrative/story-led work. Same interaction
+// contract as PUSH_VIDEOS so the tile grid uses one shared VideoTile.
+const PULL_VIDEOS = [
+  {
+    preview: "/videos/examples/pull-1.mp4",
+    full: "/videos/examples/pull-1-hd.mp4",
+  },
+  {
+    preview: "/videos/examples/pull-2.mp4",
+    full: "/videos/examples/pull-2-hd.mp4",
+  },
+  {
+    preview: "/videos/examples/pull-3.mp4",
+    full: "/videos/examples/pull-3-hd.mp4",
+  },
+];
+
 /**
  * Approach — Push / Pull section.
  */
@@ -454,13 +471,12 @@ export default function Approach() {
                 />
               </div>
             ))
-          : active.examples.map((ex, i) => (
-              <div key={`${mode}-${i}`} style={{ "--i": i }}>
-                <ReelPreview
-                  mode={mode}
-                  kicker={ex.kicker}
-                  title={ex.title}
-                  compact={onMonitor}
+          : PULL_VIDEOS.map((v, i) => (
+              <div key={v.preview} style={{ "--i": i }}>
+                <VideoTile
+                  src={v.preview}
+                  index={i}
+                  onPlay={() => setLightbox(v.full)}
                 />
               </div>
             ))}
