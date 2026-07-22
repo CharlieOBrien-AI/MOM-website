@@ -9,8 +9,9 @@ import { APPROACH } from "@/constants/testIds";
 // Midnight Owl workspace video.
 // Frame 0  = NIGHT (moon, awake owl, dark room)
 // Last frame = DAY (sunshine, sleeping owl, bright room)
-// Video is 2560 × 1430 (≈1.79:1), all-intra H.264 for smooth bidirectional
-// scrubbing on every platform. Duration ≈ 5s @ 24fps.
+// Video is 1920 × 1080 (16:9), all-intra H.264 (CRF 15) encoded from the
+// original 121-frame WebP sequence for smooth bidirectional scrubbing.
+// Duration ≈ 5s @ 24fps.
 //
 // Slow-connection strategy: until the video is FULLY buffered, the Push/Pull
 // transition is a smooth crossfade between two stills (night/day keyframes).
@@ -23,18 +24,18 @@ const WORKSPACE_DAY_URL = "/images/owl-workspace-day.jpg";
 
 // Natural aspect of the workspace video — the wrapper matches it exactly
 // so percentage-anchored overlays map 1:1 onto video pixels (zero crop).
-const VIDEO_ASPECT = "2560 / 1430";
+const VIDEO_ASPECT = "1920 / 1080";
 
 // The monitor in the frame is slightly tilted (perspective), so the screen
 // is a QUAD, not an axis-aligned rectangle. Corners measured from the video
-// frame (as % of frame width/height), inset ~0.15% so the card never touches
-// the bezel anti-aliasing. The Examples card is perspective-mapped onto this
+// frame (as % of frame width/height), inset so the card sits just inside
+// the LG monitor bezel. The Examples card is perspective-mapped onto this
 // quad with a computed CSS matrix3d — a true "projected on the screen" fit.
 const SCREEN_QUAD = {
-  tl: [47.22, 27.9],
-  tr: [79.68, 29.38],
-  br: [79.94, 67.62],
-  bl: [47.27, 68.55],
+  tl: [48.0, 29.9],
+  tr: [79.4, 30.7],
+  br: [79.4, 66.9],
+  bl: [48.0, 66.0],
 };
 // Pre-transform card rectangle (% of wrapper) — proportions close to the
 // quad's natural size so content isn't visibly distorted by the mapping.
