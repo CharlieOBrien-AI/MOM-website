@@ -1,17 +1,25 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { HERO } from "@/constants/testIds";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import FrameSequenceCanvas from "./FrameSequenceCanvas";
 
-// Two-tier quality: the page starts directly on a GOOD 1080p encode
-// (streams fast, scrub-interactive within seconds), then the BEST 1080p
-// file is force-downloaded in the background via fetch() (Chrome suspends
-// <video> preloading, so fetch->blob guarantees the full file arrives)
-// and swapped in frame-synced once complete.
-const BASE_MP4 = "/videos/owl-hero-base.mp4"; // 1920×1080 all-intra CRF22
-const BASE_WEBM = "/videos/owl-hero-mid.webm"; // 720p VP9 fallback for no-H.264 browsers
-const FULL_SRC = "/videos/owl-hero.mp4"; // 1920×1080 all-intra CRF15 (near-lossless)
-const MOBILE_SRC = "/videos/owl-hero-mobile.mp4";
+// ---------------------------------------------------------------------------
+// Hero owl — mouse-scrubbed head turn.
+//
+// DESKTOP: pure image-sequence rendered to a <canvas>. We preload 167
+// high-quality WebP stills (1920×1080, q=85, ≈12 MB total) and blit the
+// active frame every animation tick. There is NO video element in the
+// desktop path → no video decoder, no seek latency, no codec fallbacks:
+// scrubbing is perfectly smooth on every device and every pixel is the
+// source WebP quality.
+//
+// MOBILE (viewport ≤ 1023 px): unchanged. Plays the existing
+// autoplay-loop `owl-hero-mobile.mp4/.webm` — small file, no scrubbing.
+// ---------------------------------------------------------------------------
+const HERO_FRAMES_BASE = "/hero-frames/frame_";
+const HERO_FRAME_COUNT = 167;
 const POSTER_SRC = "/images/owl-hero-poster.jpg";
+const MOBILE_SRC = "/videos/owl-hero-mobile.mp4";
 
 function useIsCompact() {
   const [compact, setCompact] = useState(
@@ -28,14 +36,13 @@ function useIsCompact() {
 
 /**
  * HeroScrubVideo
- * Desktop (lg+): muted, non-autoplaying video whose currentTime is driven by
- * horizontal cursor position with eased interpolation (Apple-style scrubbing).
+ * Desktop (lg+): canvas-driven image sequence, currentFrame follows the
+ * horizontal cursor position with eased interpolation (Apple-style).
  * Mobile/tablet: plain autoplaying looped video — no scrubbing.
- * No CSS filters or overlay washes — the video renders as-is.
  */
 export default function HeroScrubVideo() {
   const compact = useIsCompact();
-  return compact ? <MobileHeroVideo /> : <DesktopScrubVideo />;
+  return compact ? <MobileHeroVideo /> : <DesktopScrubHero />;
 }
 
 function MobileHeroVideo() {
@@ -68,230 +75,54 @@ function MobileHeroVideo() {
   );
 }
 
-function DesktopScrubVideo() {
-  const baseRef = useRef(null);
-  const hdRef = useRef(null);
-  const activeRef = useRef(null); // the <video> the RAF loop drives
-  const durationRef = useRef(0);
-  const targetTimeRef = useRef(0);
-  const smoothedTimeRef = useRef(0);
+function DesktopScrubHero() {
+  // Fractional frame index the canvas reads on every rAF tick. We ease
+  // `smoothedRef` toward `targetRef` (driven by cursor X) with a fixed
+  // easing factor — feels like Apple's scroll-scrub UX.
+  const targetRef = useRef(0);
+  const smoothedRef = useRef(0);
+  const idxRef = useRef(0);
   const rafRef = useRef(null);
-  const seekingRef = useRef(false);
-  const lastSeekRef = useRef(0);
-  const blobUrlRef = useRef(null);
-  const [ready, setReady] = useState(false);
-  const [hd, setHd] = useState(false);
   const reduced = usePrefersReducedMotion();
 
-  const isFullyBuffered = useCallback((v) => {
-    if (!v) return false;
-    const d = v.duration;
-    if (!Number.isFinite(d) || d <= 0) return false;
-    const b = v.buffered;
-    return b.length > 0 && b.end(b.length - 1) >= d - 0.5;
-  }, []);
-
-  // Base tier setup: interactive as soon as the first frames can render.
   useEffect(() => {
-    const v = baseRef.current;
-    if (!v) return;
-
-    activeRef.current = v;
-    v.muted = true;
-    v.pause();
-
-    const handleMeta = () => {
-      if (activeRef.current === v) durationRef.current = v.duration || 0;
-      try {
-        v.currentTime = 0;
-      } catch (e) {
-        /* ignore initial seek errors */
-      }
-    };
-    const handleLoaded = () => setReady(true);
-
-    v.addEventListener("loadedmetadata", handleMeta);
-    v.addEventListener("loadeddata", handleLoaded);
-    v.addEventListener("canplay", handleLoaded);
-
-    return () => {
-      v.removeEventListener("loadedmetadata", handleMeta);
-      v.removeEventListener("loadeddata", handleLoaded);
-      v.removeEventListener("canplay", handleLoaded);
-    };
-  }, []);
-
-  // Clear the seek gate whenever either tier finishes a seek.
-  useEffect(() => {
-    const els = [baseRef.current, hdRef.current].filter(Boolean);
-    const onSeeked = () => {
-      seekingRef.current = false;
-    };
-    els.forEach((v) => v.addEventListener("seeked", onSeeked));
-    return () => els.forEach((v) => v.removeEventListener("seeked", onSeeked));
-  }, []);
-
-  // Best-quality upgrade: once the base tier is fully buffered (or after a
-  // grace period), force-download the 1080p file with fetch() — immune to
-  // the browser suspending <video> preloads — then swap it in frame-synced.
-  useEffect(() => {
-    const base = baseRef.current;
-    const hdVid = hdRef.current;
-    if (!base || !hdVid) return;
-    // No H.264 support (rare) → stay on the base tier's WebM.
-    if (hdVid.canPlayType('video/mp4; codecs="avc1.640028"') === "") return;
-
-    let cancelled = false;
-    let started = false;
-    let timer = null;
-    let interval = null;
-
-    const startFetch = () => {
-      if (started || cancelled) return;
-      started = true;
-      if (interval) clearInterval(interval);
-      if (timer) clearTimeout(timer);
-
-      fetch(FULL_SRC)
-        .then((r) => (r.ok ? r.blob() : Promise.reject(new Error("bad status"))))
-        .then((blob) => {
-          if (cancelled) return;
-          const url = URL.createObjectURL(blob);
-          blobUrlRef.current = url;
-
-          const onReady = () => {
-            if (cancelled) return;
-            const swap = () => {
-              if (cancelled) return;
-              activeRef.current = hdVid;
-              durationRef.current = hdVid.duration || durationRef.current;
-              setHd(true);
-            };
-            const cur = baseRef.current?.currentTime || 0;
-            const target = Math.max(
-              0,
-              Math.min(cur, (hdVid.duration || cur) - 0.033)
-            );
-            if (Math.abs(hdVid.currentTime - target) < 0.01) {
-              swap();
-              return;
-            }
-            hdVid.addEventListener("seeked", swap, { once: true });
-            try {
-              hdVid.currentTime = target;
-            } catch (e) {
-              hdVid.removeEventListener("seeked", swap);
-              swap();
-            }
-          };
-
-          hdVid.addEventListener("loadeddata", onReady, { once: true });
-          hdVid.src = url;
-          try {
-            hdVid.load();
-          } catch (e) {}
-        })
-        .catch(() => {
-          /* keep base tier */
-        });
-    };
-
-    const check = () => {
-      if (isFullyBuffered(base)) startFetch();
-    };
-    base.addEventListener("progress", check);
-    base.addEventListener("canplaythrough", check);
-    interval = setInterval(check, 800);
-    timer = setTimeout(startFetch, 15000); // don't wait forever if the base stalls
-    check();
-
-    return () => {
-      cancelled = true;
-      base.removeEventListener("progress", check);
-      base.removeEventListener("canplaythrough", check);
-      if (interval) clearInterval(interval);
-      if (timer) clearTimeout(timer);
-      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
-    };
-  }, [isFullyBuffered]);
-
-  // Interaction + RAF loop — drives whichever tier is active.
-  useEffect(() => {
-    if (reduced) return; // no scrubbing under reduced motion
+    if (reduced) {
+      idxRef.current = 0;
+      return;
+    }
 
     const updateTarget = (clientX) => {
       const w = window.innerWidth || 1;
       // Inverted mapping: t=0 owl looks RIGHT, t=end owl looks LEFT —
-      // so cursor on the right maps to t=0 and the head follows the cursor.
+      // cursor on the right maps to t=0 and the head follows the cursor.
       const p = 1 - Math.max(0, Math.min(1, clientX / w));
-      targetTimeRef.current = p * (durationRef.current || 0);
+      targetRef.current = p * (HERO_FRAME_COUNT - 1);
     };
 
     const onMouse = (e) => updateTarget(e.clientX);
+    const onTouch = (e) => {
+      if (e.touches && e.touches[0]) updateTarget(e.touches[0].clientX);
+    };
 
     window.addEventListener("mousemove", onMouse, { passive: true });
+    window.addEventListener("touchmove", onTouch, { passive: true });
 
     const EASE = 0.14; // 0..1 — lower = smoother/slower, higher = snappier
-    const DEADBAND = 0.02; // ~half a frame at 30fps; only seek if beyond this
-    const SEEK_INTERVAL = 32; // ms — cap seek frequency to ~30 hz
 
-    const loop = (t) => {
-      const v = activeRef.current;
-      const d = durationRef.current;
-
-      if (v && d > 0) {
-        // ease smoothedTime toward targetTime
-        const diff = targetTimeRef.current - smoothedTimeRef.current;
-        smoothedTimeRef.current += diff * EASE;
-
-        const cur = v.currentTime;
-
-        if (
-          !seekingRef.current &&
-          Math.abs(smoothedTimeRef.current - cur) > DEADBAND &&
-          t - lastSeekRef.current > SEEK_INTERVAL
-        ) {
-          const next = Math.max(0, Math.min(d - 0.033, smoothedTimeRef.current));
-          // Seek only inside buffered ranges; if the target is past the
-          // download head, ride the buffer edge instead — this keeps the owl
-          // tracking AND nudges the browser to keep fetching.
-          let seekTo = null;
-          if (isFullyBuffered(v)) {
-            seekTo = next;
-          } else {
-            const b = v.buffered;
-            for (let i = 0; i < b.length; i++) {
-              if (next >= b.start(i) && next <= b.end(i) - 0.1) {
-                seekTo = next;
-                break;
-              }
-            }
-            if (seekTo === null && b.length > 0 && next > b.end(b.length - 1) - 0.1) {
-              seekTo = Math.max(0, b.end(b.length - 1) - 0.15);
-            }
-          }
-          if (seekTo !== null && Math.abs(seekTo - cur) > DEADBAND) {
-            seekingRef.current = true;
-            lastSeekRef.current = t;
-            try {
-              // All-intra keyframes make precise currentTime seeks cheap.
-              v.currentTime = seekTo;
-            } catch (e) {
-              seekingRef.current = false;
-            }
-          }
-        }
-      }
-
+    const loop = () => {
+      const diff = targetRef.current - smoothedRef.current;
+      smoothedRef.current += diff * EASE;
+      idxRef.current = smoothedRef.current;
       rafRef.current = requestAnimationFrame(loop);
     };
     rafRef.current = requestAnimationFrame(loop);
 
     return () => {
       window.removeEventListener("mousemove", onMouse);
+      window.removeEventListener("touchmove", onTouch);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [reduced, isFullyBuffered]);
+  }, [reduced]);
 
   return (
     <div
@@ -308,50 +139,15 @@ function DesktopScrubVideo() {
           "linear-gradient(180deg, black 0%, black 72%, rgba(0,0,0,0.85) 84%, rgba(0,0,0,0.5) 92%, rgba(0,0,0,0) 100%)",
       }}
     >
-      {/* Instant poster layer — the first video frame as a plain JPG so the
-          hero never renders black while the video is still buffering. */}
-      <img
-        src={POSTER_SRC}
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      {/* Base tier — good quality, streams immediately. */}
-      <video
-        ref={baseRef}
-        data-testid={HERO.scrubVideo}
-        muted
-        playsInline
-        preload="auto"
-        poster={POSTER_SRC}
-        disablePictureInPicture
-        aria-hidden="true"
-        tabIndex={-1}
-        className="absolute inset-0 h-full w-full object-cover will-change-[opacity]"
-        style={{
-          opacity: ready && !hd ? 1 : 0,
-          transition: "opacity 900ms cubic-bezier(0.22, 1, 0.36, 1)",
-        }}
-      >
-        <source src={BASE_MP4} type="video/mp4" />
-        <source src={BASE_WEBM} type="video/webm" />
-      </video>
-      {/* Best tier — 1080p, blob-loaded in the background, fades in on an
-          identical frame once fully downloaded. */}
-      <video
-        ref={hdRef}
-        data-testid="hero-scrub-video-hd"
-        muted
-        playsInline
-        preload="auto"
-        disablePictureInPicture
-        aria-hidden="true"
-        tabIndex={-1}
-        className="absolute inset-0 h-full w-full object-cover will-change-[opacity]"
-        style={{
-          opacity: hd ? 1 : 0,
-          transition: "opacity 900ms cubic-bezier(0.22, 1, 0.36, 1)",
-        }}
+      <FrameSequenceCanvas
+        frameCount={HERO_FRAME_COUNT}
+        framesBase={HERO_FRAMES_BASE}
+        posterSrc={POSTER_SRC}
+        idxRef={idxRef}
+        priorityCount={16}
+        className="absolute inset-0 h-full w-full"
+        style={{ objectFit: "cover" }}
+        testId={HERO.scrubVideo}
       />
     </div>
   );

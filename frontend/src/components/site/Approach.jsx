@@ -1,28 +1,28 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import GlassSurface from "@/components/glass/GlassSurface";
 import PremiumToggle from "./PremiumToggle";
 import Reveal from "./Reveal";
+import FrameSequenceCanvas from "./FrameSequenceCanvas";
 import { APPROACH } from "@/constants/testIds";
 
 // ---------------------------------------------------------------------------
-// Midnight Owl workspace video.
-// Frame 0  = NIGHT (moon, awake owl, dark room)
-// Last frame = DAY (sunshine, sleeping owl, bright room)
-// Video is 1920 × 1080 (16:9), all-intra H.264 (CRF 15) encoded from the
-// original 121-frame WebP sequence for smooth bidirectional scrubbing.
-// Duration ≈ 5s @ 24fps.
+// Midnight Owl workspace scene — Push / Pull animation.
+// Frame 0    = NIGHT (moon, awake owl, dark room)
+// Last frame = DAY   (sunshine, sleeping owl, bright room)
 //
-// Slow-connection strategy: until the video is FULLY buffered, the Push/Pull
-// transition is a smooth crossfade between two stills (night/day keyframes).
-// Once the whole file is buffered, the real video scrub takes over — so the
-// animation is never janky mid-download.
+// Rendered as a true image sequence on a <canvas>: 121 high-quality WebP
+// stills (1920×1080, q=85) are preloaded then blitted at the target index
+// on every animation frame. There is NO video element and NO video decoder
+// in the loop — that eliminates codec seek latency, guarantees perfectly
+// smooth bidirectional scrubbing on every device, and preserves every last
+// bit of image detail (WebP q=85 is visually indistinguishable from source).
 // ---------------------------------------------------------------------------
-const WORKSPACE_VIDEO_URL = "/videos/owl-workspace.mp4";
+const WORKSPACE_FRAMES_BASE = "/approach-frames/frame_";
+const WORKSPACE_FRAME_COUNT = 121;
 const WORKSPACE_POSTER_URL = "/images/owl-workspace-night.jpg";
-const WORKSPACE_DAY_URL = "/images/owl-workspace-day.jpg";
 
-// Natural aspect of the workspace video — the wrapper matches it exactly
+// Natural aspect of the workspace frames — the wrapper matches it exactly
 // so percentage-anchored overlays map 1:1 onto video pixels (zero crop).
 const VIDEO_ASPECT = "1920 / 1080";
 
@@ -173,191 +173,44 @@ export default function Approach() {
   const active = copy[mode];
 
   // -------------------------------------------------------------------------
-  // Video scrub controller — manual rAF-driven currentTime in both directions.
+  // Frame-sequence scrub controller — pure image blit, no video decoder.
+  // Every tick we ease `idxRef.current` toward the target index (0 for pull,
+  // last frame for push). FrameSequenceCanvas reads that ref and draws the
+  // corresponding preloaded WebP to a <canvas>. Guaranteed smooth on every
+  // device because there is no video seek in the loop.
   // -------------------------------------------------------------------------
-  const videoRef = useRef(null);
-  const rafRef = useRef(null);
+  const idxRef = useRef(0); // fractional frame index the canvas reads
+  const scrubRafRef = useRef(null);
   const modeRef = useRef(mode);
-  const seekReadyRef = useRef(true);
 
-  // videoLive = the file is fully buffered AND parked on the right frame;
-  // until then the still-image crossfade handles Push/Pull transitions.
-  const [videoLive, setVideoLive] = useState(false);
-  const videoLiveRef = useRef(false);
-
-  const scrubTo = useCallback((targetTime, durationMs = TRANSITION_MS) => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    const video = videoRef.current;
-    if (!video) return;
-    const total = video.duration;
-    if (!Number.isFinite(total) || total <= 0) return;
-
-    try {
-      video.pause();
-    } catch (_) {}
-
-    const clamped = Math.max(0, Math.min(total, targetTime));
-    const startCT = video.currentTime;
-    const delta = clamped - startCT;
-
-    if (Math.abs(delta) < 0.005) {
-      try {
-        video.currentTime = clamped;
-      } catch (_) {}
-      return;
-    }
-
-    const startPerf = performance.now();
-    const step = (now) => {
-      const t = Math.min((now - startPerf) / durationMs, 1);
-      // ease-in-out cubic
-      const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      // Only issue a new seek once the previous one has completed — flooding
-      // currentTime every frame overwhelms the decoder and causes the lag
-      // seen on Windows. Frames are skipped as needed; wall-clock easing
-      // keeps the perceived motion smooth.
-      if (seekReadyRef.current || t >= 1) {
-        seekReadyRef.current = false;
-        try {
-          video.currentTime = startCT + delta * e;
-        } catch (_) {}
-      }
-      if (t < 1) {
-        rafRef.current = requestAnimationFrame(step);
-      }
-    };
-    rafRef.current = requestAnimationFrame(step);
-  }, []);
-
-  // Keep a ref of the current mode so lazy event handlers can read it.
   useEffect(() => {
     modeRef.current = mode;
   }, [mode]);
+
   useEffect(() => {
-    videoLiveRef.current = videoLive;
-  }, [videoLive]);
-
-  // On mount: defer the network fetch until the section is near the
-  // viewport (saves ~19MB on initial page load), then park at frame 0.
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const init = () => {
-      try {
-        video.pause();
-        video.currentTime = 0;
-      } catch (_) {}
-    };
-    const onSeeked = () => {
-      seekReadyRef.current = true;
-    };
-    video.addEventListener("seeked", onSeeked);
-
-    // Safety net — if `seeked` never fires (frame not buffered, decoder
-    // hiccup, HD-source blob still loading), unblock the seek gate after
-    // 220 ms so subsequent `currentTime` writes can still be attempted.
-    // Without this the animation can appear "stuck" mid-scrub on slower
-    // networks / production CDN latency.
-    const seekTimeoutTick = () => {
-      if (!seekReadyRef.current) seekReadyRef.current = true;
-    };
-    const seekTimeoutId = setInterval(seekTimeoutTick, 220);
-
-    video.addEventListener("loadedmetadata", init, { once: true });
-
-    let started = false;
-    const startLoad = () => {
-      if (started) return;
-      started = true;
-      try {
-        video.preload = "auto";
-        video.load();
-      } catch (_) {}
-    };
-    let io = null;
-    if ("IntersectionObserver" in window) {
-      io = new IntersectionObserver(
-        (entries) => {
-          if (entries.some((e) => e.isIntersecting)) {
-            startLoad();
-            if (io) io.disconnect();
-          }
-        },
-        { rootMargin: "150% 0px 150% 0px" }
-      );
-      io.observe(video);
-    } else {
-      startLoad();
+    if (scrubRafRef.current) cancelAnimationFrame(scrubRafRef.current);
+    const target = mode === "push" ? WORKSPACE_FRAME_COUNT - 1 : 0;
+    const startVal = idxRef.current;
+    const delta = target - startVal;
+    if (Math.abs(delta) < 0.001) {
+      idxRef.current = target;
+      return;
     }
-
-    if (video.readyState >= 1) init();
-
-    return () => {
-      video.removeEventListener("loadedmetadata", init);
-      video.removeEventListener("seeked", onSeeked);
-      if (seekTimeoutId) clearInterval(seekTimeoutId);
-      if (io) io.disconnect();
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
-
-  // Watch buffering: once the file is FULLY buffered, park the video on the
-  // frame matching the current mode, then hand the transition over to the
-  // real video scrub (stills fade away).
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    let interval = null;
-    let cancelled = false;
-
-    const check = () => {
-      if (cancelled || videoLiveRef.current) return;
-      const d = video.duration;
-      if (!Number.isFinite(d) || d <= 0) return;
-      const b = video.buffered;
-      if (!(b.length > 0 && b.end(b.length - 1) >= d - 0.3)) return;
-
-      cancelled = true;
-      if (interval) clearInterval(interval);
-
-      const target = modeRef.current === "push" ? Math.max(0, d - 0.05) : 0;
-      const goLive = () => setVideoLive(true);
-      if (Math.abs(video.currentTime - target) < 0.02) {
-        goLive();
-        return;
-      }
-      video.addEventListener("seeked", goLive, { once: true });
-      try {
-        video.currentTime = target;
-      } catch (_) {
-        video.removeEventListener("seeked", goLive);
-        goLive();
+    const startPerf = performance.now();
+    const step = (now) => {
+      const t = Math.min((now - startPerf) / TRANSITION_MS, 1);
+      // ease-in-out cubic — matches the previous transition feel.
+      const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      idxRef.current = startVal + delta * e;
+      if (t < 1) {
+        scrubRafRef.current = requestAnimationFrame(step);
       }
     };
-
-    video.addEventListener("progress", check);
-    video.addEventListener("canplaythrough", check);
-    interval = setInterval(check, 700);
-    check();
-
+    scrubRafRef.current = requestAnimationFrame(step);
     return () => {
-      cancelled = true;
-      video.removeEventListener("progress", check);
-      video.removeEventListener("canplaythrough", check);
-      if (interval) clearInterval(interval);
+      if (scrubRafRef.current) cancelAnimationFrame(scrubRafRef.current);
     };
-  }, []);
-
-  // Whenever the mode changes AND the video is live, scrub toward the end.
-  // (Before that, the still-image crossfade below handles the transition.)
-  useEffect(() => {
-    if (!videoLive) return;
-    const video = videoRef.current;
-    if (!video) return;
-    scrubTo(mode === "push" ? video.duration : 0);
-  }, [mode, videoLive, scrubTo]);
+  }, [mode]);
 
   // -------------------------------------------------------------------------
   // Reusable content blocks are hoisted OUT of this component (see the
@@ -386,53 +239,25 @@ export default function Approach() {
         className="relative mx-auto w-full overflow-hidden rounded-[28px] mo-glass-strong"
         style={{ maxWidth: "1720px" }}
       >
-        {/* Aspect-locked wrapper matches the video's natural aspect exactly. */}
+        {/* Aspect-locked wrapper matches the frames' natural aspect exactly. */}
         <div
           ref={wrapRef}
           className="relative w-full"
           style={{ aspectRatio: VIDEO_ASPECT }}
         >
-          {/* Video backdrop — natural aspect, no zoom, no crop. */}
-          <video
-            ref={videoRef}
-            className="absolute inset-0 h-full w-full select-none"
+          {/* Frame-sequence backdrop — a <canvas> driven by a preloaded
+              WebP image sequence. Zero video decoder in the loop → perfectly
+              smooth push/pull scrubbing on every device, and every pixel
+              is the original 1080p WebP quality (no video re-compression). */}
+          <FrameSequenceCanvas
+            frameCount={WORKSPACE_FRAME_COUNT}
+            framesBase={WORKSPACE_FRAMES_BASE}
+            posterSrc={WORKSPACE_POSTER_URL}
+            idxRef={idxRef}
+            priorityCount={9}
+            className="pointer-events-none absolute inset-0 h-full w-full"
             style={{ objectFit: "cover" }}
-            poster={WORKSPACE_POSTER_URL}
-            muted
-            playsInline
-            preload="none"
-            aria-hidden="true"
-            tabIndex={-1}
-          >
-            <source src={WORKSPACE_VIDEO_URL} type="video/mp4" />
-            <source src="/videos/owl-workspace.webm" type="video/webm" />
-          </video>
-
-          {/* Still-image crossfade layers — the smooth fallback transition
-              while the video is still streaming in. Night sits above the
-              video; day fades in over it in Push mode. Both disappear once
-              the fully-buffered video takes over. */}
-          <img
-            src={WORKSPACE_POSTER_URL}
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 h-full w-full"
-            style={{
-              objectFit: "cover",
-              opacity: videoLive ? 0 : 1,
-              transition: "opacity 700ms ease",
-            }}
-          />
-          <img
-            src={WORKSPACE_DAY_URL}
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 h-full w-full"
-            style={{
-              objectFit: "cover",
-              opacity: !videoLive && mode === "push" ? 1 : 0,
-              transition: `opacity ${TRANSITION_MS * 0.7}ms cubic-bezier(0.45, 0, 0.25, 1)`,
-            }}
+            testId="approach-frame-canvas"
           />
 
           {/* Left-heavy readability wash (neutral dark, NO purple). */}
