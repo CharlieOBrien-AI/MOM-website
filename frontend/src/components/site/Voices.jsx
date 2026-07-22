@@ -99,6 +99,26 @@ const comments = [
   },
 ];
 
+// -----------------------------------------------------------------------------
+// Mobile slide groupings. We split the 8 comments into exactly THREE slides,
+// hand-curated so each one visually fills the viewport (no more lonely
+// "chills bruh" short comment on a sea of empty space):
+//
+//   • Slide 1 — the short "chills bruh" comment paired with the long
+//     ShooterMacgavin comment; the tall paragraph fills the room the
+//     tiny quip leaves behind.
+//   • Slide 2 — three medium YouTube quotes stacked so the slide is
+//     comfortably full.
+//   • Slide 3 — the four Instagram voices grouped as one social wall.
+//
+// Indices refer to positions in the `comments` array above.
+// -----------------------------------------------------------------------------
+const MOBILE_SLIDE_GROUPS = [
+  [0, 1],           // GangisDankus (short) + ShooterMacgavin (long)
+  [2, 3],           // JayJames + shantanu_shanbhag
+  [4, 5, 6, 7],     // allstarsteven + samuelbryan + angelin + vinaydembla
+];
+
 const ytFont = "Roboto, 'Helvetica Neue', Arial, sans-serif";
 
 function CreatorHeart() {
@@ -284,10 +304,10 @@ export default function Voices() {
           </h2>
         </Reveal>
 
-        {/* Mobile: horizontal snap-carousel (comments scroll sideways
-            instead of stacking one below the other). Desktop keeps the
-            masonry column layout unchanged. items-start prevents flex
-            from stretching cards to the tallest sibling's height. */}
+        {/* Mobile: horizontal snap-carousel. Exactly THREE hand-curated
+            slides now (see MOBILE_SLIDE_GROUPS above), so every slide
+            visually fills the viewport instead of showing one short
+            quote floating on empty space. */}
         <div
           className="mt-10 -mx-4 flex snap-x snap-mandatory items-start gap-4 overflow-x-auto px-4 pb-4 md:hidden"
           style={{
@@ -295,27 +315,36 @@ export default function Voices() {
             WebkitOverflowScrolling: "touch",
           }}
         >
-          {comments.map((c, i) => (
+          {MOBILE_SLIDE_GROUPS.map((idxList, slideIdx) => (
             <div
-              key={`m-${c.user}`}
+              key={`m-slide-${slideIdx}`}
               className="snap-start shrink-0"
               style={{ width: "82vw", maxWidth: 380 }}
             >
-              <GlassSurface
-                data-testid={`voice-comment-m-${i}`}
-                className="rounded-2xl p-5"
-                tilt={0}
-                style={{ background: "rgba(15,15,15,0.62)" }}
-              >
-                {c.platform === "youtube" ? (
-                  <YouTubeComment c={c} />
-                ) : (
-                  <InstagramComment c={c} />
-                )}
-              </GlassSurface>
+              {/* Vertical stack of comment cards within a single slide. */}
+              <div className="flex flex-col gap-3">
+                {idxList.map((commentIdx) => {
+                  const c = comments[commentIdx];
+                  return (
+                    <GlassSurface
+                      key={`m-${slideIdx}-${c.user}`}
+                      data-testid={`voice-comment-m-${slideIdx}-${commentIdx}`}
+                      className="rounded-2xl p-5"
+                      tilt={0}
+                      style={{ background: "rgba(15,15,15,0.62)" }}
+                    >
+                      {c.platform === "youtube" ? (
+                        <YouTubeComment c={c} />
+                      ) : (
+                        <InstagramComment c={c} />
+                      )}
+                    </GlassSurface>
+                  );
+                })}
+              </div>
             </div>
           ))}
-          {/* Trailing spacer so the last card can snap fully into view */}
+          {/* Trailing spacer so the last slide can snap fully into view */}
           <div className="shrink-0" style={{ width: "1px" }} aria-hidden="true" />
         </div>
 

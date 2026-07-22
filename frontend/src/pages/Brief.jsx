@@ -465,9 +465,9 @@ export default function Brief() {
                 <div className="mb-14">
                   <div
                     className="mono-eyebrow mb-6"
-                    style={{ color: "var(--mo-accent)" }}
+                    style={{ color: "var(--mo-fg)" }}
                   >
-                    // Say hello
+                    <span style={{ color: "var(--mo-accent)" }}>//</span> Say hello
                   </div>
                   <h1
                     className="text-white"
@@ -745,9 +745,9 @@ export default function Brief() {
                 >
                   <p
                     className="text-[11px] tracking-[0.22em] uppercase mb-4"
-                    style={{ ...monoStyle, color: "var(--mo-fg-dim)" }}
+                    style={{ ...monoStyle, color: "var(--mo-fg)" }}
                   >
-                    // Prefer email?
+                    <span style={{ color: "var(--mo-accent)" }}>//</span> Prefer email?
                   </p>
                   <p
                     className="text-white"

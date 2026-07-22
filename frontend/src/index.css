@@ -223,40 +223,6 @@
     to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
   }
 
-  /* -------------------------------------------------------------------
-     Sky Ambience — very slow horizontal cloud drift over the nightscape.
-     Two strata drift in opposite directions on ~120s and ~180s loops so
-     the sky feels alive even when the visitor is idle. Uses only
-     transform (compositor-only) so it costs almost nothing per frame.
-     Auto-suspends under prefers-reduced-motion.
-  ------------------------------------------------------------------- */
-  .mo-cloud-drift {
-    will-change: transform;
-    transform: translate3d(0, 0, 0);
-  }
-  .mo-cloud-drift--upper {
-    animation: mo-cloud-drift-right 140s linear infinite;
-  }
-  .mo-cloud-drift--lower {
-    animation: mo-cloud-drift-left 220s linear infinite;
-  }
-  @keyframes mo-cloud-drift-right {
-    /* travel one full "third" of the 300%-wide layer, then wrap. Because
-       the pattern is designed to look uniform across all three thirds,
-       the loop point is imperceptible. */
-    from { transform: translate3d(0, 0, 0); }
-    to   { transform: translate3d(33.3333%, 0, 0); }
-  }
-  @keyframes mo-cloud-drift-left {
-    from { transform: translate3d(33.3333%, 0, 0); }
-    to   { transform: translate3d(0, 0, 0); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .mo-cloud-drift {
-      animation: none !important;
-    }
-  }
-
 
 
   /* Underline draw — used on nav links. Scales from the left, gated behind

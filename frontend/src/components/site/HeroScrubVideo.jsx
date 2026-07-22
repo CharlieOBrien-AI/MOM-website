@@ -219,27 +219,12 @@ function DesktopScrubVideo() {
   useEffect(() => {
     if (reduced) return; // no scrubbing under reduced motion
 
-    // Idle-tracking state: the moment the visitor last moved the cursor,
-    // and the "anchor" (last user-driven scrub position) around which the
-    // Owl-Wake-Up idle oscillation is centered. When the cursor is idle
-    // for > IDLE_MS, we start gently modulating targetTime around that
-    // anchor so the owl performs a subtle head-tilt / breathing motion
-    // instead of freezing on a single frame.
-    let lastMoveT = performance.now();
-    // Initialised to null; we resolve it lazily to duration/2 the first
-    // time the RAF loop sees a valid duration, so pre-interaction idle
-    // sway is centered on the middle of the video (a natural resting
-    // pose) rather than the leftmost frame.
-    let idleAnchor = null;
-
     const updateTarget = (clientX) => {
       const w = window.innerWidth || 1;
       // Inverted mapping: t=0 owl looks RIGHT, t=end owl looks LEFT —
       // so cursor on the right maps to t=0 and the head follows the cursor.
       const p = 1 - Math.max(0, Math.min(1, clientX / w));
       targetTimeRef.current = p * (durationRef.current || 0);
-      idleAnchor = targetTimeRef.current;
-      lastMoveT = performance.now();
     };
 
     const onMouse = (e) => updateTarget(e.clientX);
@@ -250,42 +235,11 @@ function DesktopScrubVideo() {
     const DEADBAND = 0.02; // ~half a frame at 30fps; only seek if beyond this
     const SEEK_INTERVAL = 32; // ms — cap seek frequency to ~30 hz
 
-    // Owl Wake-Up parameters — kept intentionally small so the animation
-    // reads as "alive" rather than "distracting".
-    const IDLE_MS = 1800;          // engage after ~1.8s of no cursor motion
-    const IDLE_RAMP_MS = 900;      // fade the oscillation in over ~0.9s
-    const IDLE_AMPLITUDE_FRAC = 0.045; // ~4.5% of the video duration per side
-    const IDLE_FREQ_HZ = 0.32;     // one full sway every ~3.1s
-    const IDLE_TILT_FREQ_HZ = 0.09; // super-slow envelope so no two sways feel identical
-
     const loop = (t) => {
       const v = activeRef.current;
       const d = durationRef.current;
 
       if (v && d > 0) {
-        // -------- Owl Wake-Up: idle oscillation ------------------------
-        // Once the cursor has been still long enough, gently modulate
-        // targetTime around the last user-driven anchor. Two sinusoids
-        // (fast sway + slow envelope) combine into a natural,
-        // non-repetitive head motion. The oscillation ramps in smoothly
-        // over IDLE_RAMP_MS so engagement is imperceptible.
-        if (idleAnchor === null) idleAnchor = d / 2;
-        const idleFor = t - lastMoveT;
-        if (idleFor > IDLE_MS) {
-          const ramp = Math.min(1, (idleFor - IDLE_MS) / IDLE_RAMP_MS);
-          const eased = ramp * ramp * (3 - 2 * ramp); // smoothstep 0→1
-          const secs = t / 1000;
-          const sway = Math.sin(secs * IDLE_FREQ_HZ * 2 * Math.PI);
-          const env  = 0.7 + 0.3 * Math.sin(secs * IDLE_TILT_FREQ_HZ * 2 * Math.PI);
-          const amp  = d * IDLE_AMPLITUDE_FRAC * eased * env;
-          const oscillated = idleAnchor + sway * amp;
-          // Keep well inside the timeline — never clip to the ends.
-          targetTimeRef.current = Math.max(
-            d * IDLE_AMPLITUDE_FRAC,
-            Math.min(d - d * IDLE_AMPLITUDE_FRAC, oscillated)
-          );
-        }
-
         // ease smoothedTime toward targetTime
         const diff = targetTimeRef.current - smoothedTimeRef.current;
         smoothedTimeRef.current += diff * EASE;

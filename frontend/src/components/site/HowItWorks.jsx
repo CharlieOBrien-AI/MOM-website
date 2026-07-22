@@ -313,11 +313,13 @@ export default function HowItWorks() {
               <ChevronRight size={20} strokeWidth={1.6} />
             </button>
 
-            {/* Carousel content, padded so arrows never overlap text */}
+            {/* Carousel content, padded so arrows never overlap text.
+                No top border here — the divider used to feel like a hard
+                cut between the section heading and the step body; without
+                it the step content flows naturally under the heading. */}
             <div
               ref={trackRef}
-              className="overflow-hidden border-t px-14 sm:px-16 md:px-20"
-              style={{ borderColor: "var(--mo-line)" }}
+              className="overflow-hidden px-14 sm:px-16 md:px-20"
               onTouchStart={onTouchStart}
               onTouchEnd={onTouchEnd}
             >

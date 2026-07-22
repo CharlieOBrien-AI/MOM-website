@@ -21,16 +21,44 @@ export default function Hero() {
       data-testid={HERO.root}
       className="relative flex h-full min-h-screen flex-col overflow-hidden pt-[68px] lg:justify-center lg:pt-0"
     >
-      {/* Video layer — fills the entire hero (100 % of the sticky
-          CinematicIntro container). On mobile the video occupies the full
-          hero height; on desktop it always spans the full frame edge-to-edge
-          so scrubbing maps 1:1 with cursor X. */}
-      <div className="absolute inset-0">
+      {/* Desktop-only full-bleed video layer — spans the entire hero so the
+          cursor-driven scrub maps 1:1 with pointer X. Hidden on mobile
+          because the owl scene reads awkwardly when squeezed into a
+          portrait viewport; mobile gets a contained box above the copy
+          instead (see below). */}
+      <div className="absolute inset-0 hidden lg:block">
         <HeroScrubVideo />
       </div>
 
       {/* Content — explicit z-index keeps the copy above the video layers */}
-      <div className="relative z-10 mx-auto w-full max-w-[1240px] section-px py-12 lg:py-0 lg:pt-24">
+      <div className="relative z-10 mx-auto w-full max-w-[1240px] section-px py-10 lg:py-0 lg:pt-24">
+        {/* MOBILE: owl in a contained rounded box above the text. Mirrors
+            the "media panel + copy stacked" pattern the Approach section
+            uses on small screens, so the whole page reads with a
+            consistent rhythm. Auto-hidden on lg+ where the full-bleed
+            video takes over. */}
+        <div
+          className="lg:hidden mb-8 mx-auto"
+          data-testid="hero-mobile-media"
+          style={{ maxWidth: "480px" }}
+        >
+          <div
+            className="relative w-full overflow-hidden rounded-2xl border"
+            style={{
+              aspectRatio: "5 / 4",
+              borderColor: "var(--mo-line)",
+              background: "var(--mo-bg-elev)",
+            }}
+          >
+            {/* HeroScrubVideo positions itself with `absolute inset-0`
+                inside its parent, so wrapping it here scales the video
+                to fill the contained box neatly. On mobile the component
+                renders <MobileHeroVideo /> which autoplays looped —
+                perfect for a decorative panel. */}
+            <HeroScrubVideo />
+          </div>
+        </div>
+
         <div className="max-w-[880px] stagger">
           <div className="mono-eyebrow" data-testid="hero-eyebrow">
             <span style={{ color: "var(--mo-accent)" }}>//</span> Storytelling-first content studio

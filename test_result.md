@@ -511,11 +511,17 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "2.0"
-  test_sequence: 11
+  test_sequence: 12
   run_ui: true
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Idle owl sway is removed (no auto head motion when cursor is stationary)"
+    - "Cloud drift overlay is removed from SiteBackground"
+    - "Horizontal divider line above step icon in HowItWorks is removed"
+    - "Brief.jsx eyebrows — '//' in purple, remaining text (Say hello / Prefer email?) in white"
+    - "Mobile hero — owl scene sits inside a contained rounded box ABOVE the text (not full-bleed background)"
+    - "Voices mobile carousel — exactly 3 slides, first slide combines short 'chills bruh' comment with the tall ShooterMacgavin paragraph"
   stuck_tasks: []
   test_all: false
   test_priority: "stuck_first"
