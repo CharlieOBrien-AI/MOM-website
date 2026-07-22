@@ -1,69 +1,76 @@
 import "@/App.css";
 import "lenis/dist/lenis.css";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ReactLenis } from "lenis/react";
 import Home from "@/pages/Home";
 import Brief from "@/pages/Brief";
 import SiteBackground from "@/components/site/SiteBackground";
 
-// Global Lenis config — production-tuned for both desktop and mobile.
-// Base options come from the user-provided snippet; everything below adds
-// the "best-for-web + apply to mobile" behavior on top:
-//   - Desktop: buttery wheel smoothing with an expo-out easing.
-//   - Mobile:  syncTouch:true routes native touch drag through Lenis so
-//              touch/momentum scroll matches the desktop feel (Lenis does
-//              NOT do this by default). syncTouchLerp + touchInertiaMultiplier
-//              are the darkroom-recommended defaults from Lenis docs.
-//   - autoToggle:true auto-disables Lenis under prefers-reduced-motion.
-//   - anchors:true makes in-page href="#..." links smooth-scroll.
-//   - allowNestedScroll:true keeps inner scrollers (Voices comment stack,
-//              embla carousels, etc.) working normally.
+// Global Lenis config — DESKTOP ONLY. Lenis is a great wheel-smoother on
+// desktop but on touch devices (`syncTouch: true`) it proxies every touch
+// event through a JS rAF loop, which is dramatically slower than the
+// native compositor-thread scroll on modern iPhones and 120 Hz Androids.
+// The result: sluggish, "not-quite-60fps" feel on phones. So we:
+//   • Enable Lenis only on pointer:fine + hover:hover viewports (desktop
+//     mice / trackpads) — where it genuinely improves the feel.
+//   • Leave native scroll on touch devices — Android/iPhone Safari's
+//     compositor scroll is already 120 Hz-capable and buttery.
 const LENIS_OPTIONS = {
-  // Time-based easing feels more predictable than pure lerp on long pages.
   duration: 1.2,
   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // ease-out-expo
-  // Desktop wheel
   smoothWheel: true,
   wheelMultiplier: 1,
-  // Mobile / trackpad touch — the important part of "apply to mobile"
-  syncTouch: true,
-  syncTouchLerp: 0.075,
-  touchInertiaMultiplier: 35,
-  touchMultiplier: 1.2,
-  // Original options requested by user
+  // Explicitly disable the JS touch-scroll proxy. This is what caused the
+  // laggy feel on Android — even 120 Hz Androids can't beat native scroll
+  // once every finger movement has to round-trip through a rAF callback.
+  syncTouch: false,
   autoRaf: true,
   autoToggle: true,
   anchors: true,
   allowNestedScroll: true,
   naiveDimensions: true,
   stopInertiaOnNavigate: true,
-  // Standard verticals
   orientation: "vertical",
   gestureOrientation: "vertical",
 };
 
 /**
- * AppShell — the routed content. Wraps its children in <ReactLenis> for
- * routes that benefit from the buttery smooth scrolling (the marketing
- * landing page), and DELIBERATELY skips Lenis on the /brief form route.
- *
- * Why skip on /brief?
- *   Lenis with `syncTouch: true` proxies touch scroll through its own JS
- *   loop. On Android that fights with the native virtual-keyboard behavior:
- *   after focusing a field, typing, and dismissing the keyboard, subsequent
- *   scroll gestures would either be dropped or snap the visitor back
- *   toward the top of the page. Native touch scrolling handles the
- *   keyboard resize event correctly — so the fix is simply to NOT hand
- *   scrolling over to Lenis while the user is filling out a form.
- *
- *   NB: This also unmounts ReactLenis when the visitor navigates into
- *   /brief, and remounts it when they navigate back to /. That's cheap
- *   (Lenis is a tiny library) and keeps the two behaviors cleanly
- *   isolated with no runtime toggling of internal Lenis state.
+ * useIsPointerFine — true when the primary input device is a mouse or
+ * trackpad (i.e. desktop). On touch phones/tablets returns false, so
+ * the AppShell below skips the Lenis wrapper entirely and native scroll
+ * takes over. Live-updates when the user plugs in / removes an
+ * external mouse (rare, but respected).
  */
+function useIsPointerFine() {
+  const [isFine, setIsFine] = useState(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return true;
+    return window.matchMedia("(pointer: fine) and (hover: hover)").matches;
+  });
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+    const mq = window.matchMedia("(pointer: fine) and (hover: hover)");
+    const onChange = (e) => setIsFine(e.matches);
+    if (mq.addEventListener) mq.addEventListener("change", onChange);
+    else mq.addListener(onChange);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", onChange);
+      else mq.removeListener(onChange);
+    };
+  }, []);
+  return isFine;
+}
+
+/**
+ * AppShell — the routed content. Wraps children in <ReactLenis> ONLY on
+ * desktop (mouse / trackpad) AND for the marketing route. Everywhere
+ * else — mobile, /brief form — we keep native browser scrolling so the
+ * 120 Hz compositor path stays hot and the URL bar / keyboard behave
+ * correctly. */
 function AppShell() {
   const location = useLocation();
-  const useSmoothScroll = location.pathname !== "/brief";
+  const isDesktop = useIsPointerFine();
+  const useSmoothScroll = isDesktop && location.pathname !== "/brief";
 
   // The routed content. Same tree either way; only the outer wrapper
   // differs so hot-reload / DOM diffing stays predictable.

@@ -282,7 +282,7 @@ export default function Voices() {
       {/* Background is provided by the site-wide <SiteBackground /> parallax
           layer mounted on Home.jsx — this section is fully transparent so it
           floats over that single continuous nightscape. */}
-      <div className="relative mx-auto max-w-[1240px] section-px py-[70px] text-center">
+      <div className="relative mx-auto max-w-[1240px] section-px py-[70px] lg:pb-[24px] text-center">
         <Reveal>
           <div className="mono-eyebrow mb-4">
             <span style={{ color: "var(--mo-accent)" }}>//</span> What people say

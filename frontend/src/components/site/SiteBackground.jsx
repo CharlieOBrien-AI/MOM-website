@@ -8,92 +8,102 @@ import { useEffect, useRef, useState } from "react";
  *
  * How it works
  * ------------
- * We have a single tall image on disk: /images/bg/site-bg.webp. It's built
- * by vertically stacking the tree-branch purple-sky (attachment #3) on
- * top of the misty-valley cabin (bg-3.webp) with no gap between them —
- * one continuous cinematic image.
+ * The backdrop is a sequence of FOUR full-viewport nightscape scenes
+ * (bg-1 → bg-2 → bg-3 → bg-4). Each scene lives in its own
+ * `position: fixed; inset: 0; background-size: cover` layer stacked
+ * behind the site UI. As the visitor scrolls the page from top to
+ * bottom, we crossfade between the layers so the site journeys through
+ * all four scenes end-to-end.
  *
- * This component renders that image once, pinned to the viewport, and
- * shifts it upward *slowly* as the user scrolls the page. The math is
- * calibrated so that:
+ * Why this beats a single stacked composite image:
+ *   • Every layer is `background-size: cover` at exactly 100vw × 100vh —
+ *     so on mobile / tablet / desktop, every scene fills the viewport
+ *     with no letterboxing and no clipping to a tiny slice.
+ *   • On mobile, the earlier "one tall composite, translate up" approach
+ *     could only surface ~1–2 scenes because the composite's rendered
+ *     height at mobile widths barely exceeded a single viewport.
+ *     Fixed-per-layer covers all viewports equally.
+ *   • Each scene gets its own soft Ken-Burns-style Y drift for that
+ *     cinematic-parallax feel, without doing crops or math that only
+ *     work on desktop widths.
  *
- *   • at scrollY = 0                        →  translateY = 0
- *     the viewport is looking at the TOP of the image (tree-branch sky)
- *
- *   • at scrollY = full document scrollable →  translateY = -(imgH - vpH)
- *     the viewport is looking at the BOTTOM of the image (misty valley)
- *
- * Because the translation range EXACTLY equals `imageHeight − viewportHeight`,
- * we never expose an edge and we never crop content off the top or bottom.
- * The image simply "reveals" from top to bottom as the visitor journeys
- * through the page — a real parallax effect, not a 1:1 scroll.
- *
- * The image is sized with `background-size: 100% auto` so it always fills
- * the full viewport width at natural aspect ratio (no distortion, no
- * horizontal cropping). Vertical range then falls out of the width scale.
- *
- * On top of the sky sits a soft linear-gradient tint (`.mo-bg-orbs`-style)
- * so text on any transparent section stays readable no matter which part
- * of the sky is behind it.
+ * Crossfade math
+ * --------------
+ * Scroll progress `t` is 0 at page top → 1 at bottom.
+ * Scene N (0..N_LAYERS-1) has peak visibility at t = N / (N_LAYERS-1),
+ * with a triangle-shaped opacity ramp of half-width 1/(N_LAYERS-1).
+ * That guarantees adjacent scenes crossfade smoothly with no dark gaps.
  *
  * Reduced motion
  * --------------
- * If the user has `prefers-reduced-motion: reduce`, we skip the scroll
- * hook and center the image statically — no drift at all.
+ * Under `prefers-reduced-motion: reduce` we skip the scroll hook and
+ * show only the first layer statically — the visitor still sees the
+ * mood, minus every drifting animation.
  */
+const DEFAULT_SCENES = [
+  "/images/bg/bg-1.webp",
+  "/images/bg/bg-2.webp",
+  "/images/bg/bg-3.webp",
+  "/images/bg/bg-4.webp",
+];
+
 export default function SiteBackground({
-  src = "/images/bg/site-bg.webp",
-  /** Portion of the visible parallax range that a full document scroll
-   *  should traverse. 1.0 = the whole image reveals across the page.
-   *  Below 1.0 = slower drift (image doesn't fully reveal). */
-  revealFraction = 1.0,
-  /** Dark tint gradient painted on top of the sky. Keep it moderate so the
-   *  nightscape reads while text remains legible on transparent sections. */
+  scenes = DEFAULT_SCENES,
+  /** Dark tint gradient painted on top of the sky. Keep it moderate so
+   *  the nightscape reads while text remains legible on transparent
+   *  sections. */
   tint = "linear-gradient(180deg, rgba(6,4,14,0.42) 0%, rgba(6,4,14,0.30) 45%, rgba(6,4,14,0.55) 100%)",
 }) {
-  const layerRef = useRef(null);
-  const [imgAspect, setImgAspect] = useState(null);
-
-  // Preload the image so we can read its natural aspect ratio.
-  useEffect(() => {
-    let cancelled = false;
-    const img = new Image();
-    img.onload = () => {
-      if (cancelled) return;
-      setImgAspect(img.naturalHeight / img.naturalWidth);
-    };
-    img.src = src;
-    return () => {
-      cancelled = true;
-    };
-  }, [src]);
+  const layerRefs = useRef([]);
+  const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
-    if (!imgAspect) return undefined;
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mq.matches) return undefined;
+    const apply = () => setReduced(mq.matches);
+    apply();
+    if (mq.addEventListener) mq.addEventListener("change", apply);
+    else mq.addListener(apply);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", apply);
+      else mq.removeListener(apply);
+    };
+  }, []);
 
-    const el = layerRef.current;
-    if (!el) return undefined;
+  useEffect(() => {
+    if (reduced) return undefined;
+    const layers = layerRefs.current;
+    if (!layers.length) return undefined;
 
+    const N = scenes.length;
+    const halfW = 1 / Math.max(1, N - 1); // triangle half-width in scroll units
     let raf = 0;
 
     const update = () => {
       raf = 0;
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      // Image is sized `100% auto` — its rendered height is vw * aspect.
-      const imgH = vw * imgAspect;
-      // How far the image can shift up before its bottom leaves the viewport.
-      const maxTranslate = Math.max(0, imgH - vh);
       const doc = document.documentElement;
+      const vh = window.innerHeight;
       const maxScroll = Math.max(
         1,
         (doc.scrollHeight || document.body.scrollHeight) - vh,
       );
       const t = Math.min(1, Math.max(0, window.scrollY / maxScroll));
-      const translate = -t * maxTranslate * revealFraction;
-      el.style.transform = `translate3d(0, ${translate.toFixed(1)}px, 0)`;
+
+      for (let i = 0; i < N; i++) {
+        const peak = i / Math.max(1, N - 1); // 0, 1/3, 2/3, 1
+        const dist = Math.abs(t - peak);
+        // Triangle opacity — 1 at the peak, linear to 0 at ±halfW.
+        const opacity = Math.max(0, 1 - dist / halfW);
+        // Soft cubic ease so crossfades don't feel linear-flat.
+        const eased = opacity * opacity * (3 - 2 * opacity);
+        // Subtle Y drift per layer for the parallax feel — max ±3vh so
+        // it doesn't fight the scene composition.
+        const drift = (t - peak) * vh * 0.06;
+        const el = layers[i];
+        if (!el) continue;
+        el.style.opacity = eased.toFixed(3);
+        el.style.transform = `translate3d(0, ${drift.toFixed(1)}px, 0) scale(1.02)`;
+      }
     };
 
     const onScroll = () => {
@@ -109,7 +119,7 @@ export default function SiteBackground({
       window.removeEventListener("resize", onScroll);
       if (raf) window.cancelAnimationFrame(raf);
     };
-  }, [imgAspect, revealFraction]);
+  }, [reduced, scenes]);
 
   return (
     <div
@@ -120,31 +130,32 @@ export default function SiteBackground({
         inset: 0,
         zIndex: 0,
         overflow: "hidden",
-        // Pure-black safety-net colour while the image downloads.
         backgroundColor: "#000",
       }}
     >
-      {/* Layer 1: the sky itself, translated as user scrolls. */}
-      <div
-        ref={layerRef}
-        className="will-change-transform"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          // Give the layer enough room to hold the image at 100% width
-          // (image is `100% auto`, so ends up vw × aspect tall). 300vh is
-          // a generous ceiling; the transform above pins the visible slice.
-          height: "300vh",
-          backgroundImage: `url('${src}')`,
-          backgroundSize: "100% auto",
-          backgroundPosition: "top center",
-          backgroundRepeat: "no-repeat",
-        }}
-      />
-      {/* Layer 2: fixed-to-viewport soft tint so text stays readable no
-          matter which portion of the sky is currently in frame. */}
+      {scenes.map((src, i) => (
+        <div
+          key={src}
+          ref={(el) => (layerRefs.current[i] = el)}
+          className="will-change-transform"
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `url('${src}')`,
+            backgroundSize: "cover",
+            backgroundPosition: "center center",
+            backgroundRepeat: "no-repeat",
+            // Peak of scene 0 is at scroll t=0; give it full opacity as a
+            // safe initial state until the scroll hook overrides.
+            opacity: i === 0 ? 1 : 0,
+            transform: "translate3d(0, 0, 0) scale(1.02)",
+            transition:
+              "opacity 260ms linear, transform 260ms linear",
+          }}
+        />
+      ))}
+      {/* Fixed-to-viewport soft tint so text stays readable no matter
+          which scene is currently in frame. */}
       <div
         style={{
           position: "absolute",

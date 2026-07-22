@@ -94,7 +94,12 @@ export default function CinematicIntro() {
     <div
       ref={wrapRef}
       className="relative"
-      style={{ height: "100vh", overflow: "hidden" }}
+      // `100svh` on mobile matches the visible viewport WITH the URL bar
+      // showing, so there is zero empty band between the hero CTAs and
+      // the next section (Stats) — the old `100vh` was overshoot by the
+      // URL-bar height on Android/iOS and caused a visible dead zone
+      // after the CTAs before the next section slid into view.
+      style={{ height: "100svh", overflow: "hidden" }}
       data-testid="cinematic-intro-wrap"
     >
       {/* Hero layer — drifts upward and fades to opacity 0 as user scrolls.

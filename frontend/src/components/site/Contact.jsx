@@ -20,7 +20,7 @@ export default function Contact() {
       className="relative overflow-hidden"
       style={{ background: "transparent" }}
     >
-      <div className="mx-auto max-w-[1240px] section-px py-[70px]">
+      <div className="mx-auto max-w-[1240px] section-px py-[70px] lg:pt-[24px]">
         <Reveal>
           {/* Liquid-glass container — the "Let's tell some stories." moment
               sits INSIDE a transparent glass box now (per user request) so
@@ -45,7 +45,7 @@ export default function Contact() {
                 letterSpacing: "-0.02em",
               }}
             >
-              {"Let's tell some"}{" "}
+              {"Let's tell your"}{" "}
               <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
                 stories.
               </span>

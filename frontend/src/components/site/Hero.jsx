@@ -128,7 +128,7 @@ export default function Hero() {
 
           <p
             data-testid={HERO.copy}
-            className="mt-4 sm:mt-8 max-w-[560px] text-[14.5px] leading-[1.7]"
+            className="mt-3 sm:mt-8 max-w-[560px] text-[13px] sm:text-[14.5px] leading-[1.6] sm:leading-[1.7]"
             style={{
               color: "var(--mo-fg-dim)",
               fontFamily: "JetBrains Mono, monospace",
@@ -138,13 +138,13 @@ export default function Hero() {
             <span style={{ color: "var(--mo-accent)" }}>care</span>.
           </p>
 
-          <div className="mt-5 sm:mt-10 flex flex-wrap items-center gap-2.5 sm:gap-3">
+          <div className="mt-4 sm:mt-10 flex flex-wrap items-center gap-2 sm:gap-3">
             <GlassSurface
               as={Link}
               to="/brief"
               data-testid={HERO.ctaPrimary}
               tilt={3}
-              className="mo-glass-pill mo-glass-lit mo-press group inline-flex items-center gap-2 px-5 py-3 sm:px-6 sm:py-3.5 text-[12px] font-medium tracking-[0.16em] uppercase"
+              className="mo-glass-pill mo-glass-lit mo-press group inline-flex items-center gap-2 px-3.5 py-2 sm:px-6 sm:py-3.5 text-[10.5px] sm:text-[12px] font-medium tracking-[0.14em] sm:tracking-[0.16em] uppercase"
               style={{
                 fontFamily: "JetBrains Mono, monospace",
                 color: "var(--mo-fg)",
@@ -164,7 +164,7 @@ export default function Hero() {
               href="#work"
               data-testid={HERO.ctaSecondary}
               tilt={3}
-              className="mo-glass-pill mo-press group inline-flex items-center gap-2 px-5 py-3 sm:px-6 sm:py-3.5 text-[12px] font-medium tracking-[0.16em] uppercase"
+              className="mo-glass-pill mo-press group inline-flex items-center gap-2 px-3.5 py-2 sm:px-6 sm:py-3.5 text-[10.5px] sm:text-[12px] font-medium tracking-[0.14em] sm:tracking-[0.16em] uppercase"
               style={{
                 fontFamily: "JetBrains Mono, monospace",
                 color: "var(--mo-fg)",

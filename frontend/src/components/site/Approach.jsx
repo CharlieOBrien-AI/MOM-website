@@ -186,7 +186,8 @@ export default function Approach() {
 
   const copy = {
     pull: {
-      metaphor: "Like a crowd gathering around a great performer.",
+      metaphor:
+        "Pull marketing is: Telling stories people care about, then showing how you can help.",
       examples: [
         { kicker: "01 · Story", title: "The $40k hiring mistake" },
         { kicker: "02 · Behind", title: "Why we killed our best feature" },
@@ -194,7 +195,8 @@ export default function Approach() {
       ],
     },
     push: {
-      metaphor: "Like handing flyers to strangers.",
+      metaphor:
+        "Push marketing is: Talking about yourself and hoping people care.",
       examples: [],
     },
   };
@@ -267,6 +269,16 @@ export default function Approach() {
         className="relative mx-auto w-full overflow-hidden rounded-[28px] mo-glass-strong"
         style={{ maxWidth: "1720px" }}
       >
+        {/* MOBILE HEADING (above the workspace scene) — headline + toggle
+            only. The metaphor + video grid come BELOW the scene so the
+            user can see the owl scrubber changing as they hit the toggle. */}
+        <div
+          className="lg:hidden px-6 pt-6 pb-4"
+          style={{ background: "transparent" }}
+        >
+          <HeadingBlock showMetaphor={false} {...headingProps} />
+        </div>
+
         {/* Aspect-locked wrapper matches the frames' natural aspect exactly. */}
         <div
           ref={wrapRef}
@@ -288,9 +300,11 @@ export default function Approach() {
             testId="approach-frame-canvas"
           />
 
-          {/* Left-heavy readability wash (neutral dark, NO purple). */}
+          {/* Left-heavy readability wash — desktop only. On mobile the
+              heading is stacked ABOVE the scene (not overlaid), so the
+              wash isn't needed and only made the scene look muddy. */}
           <div
-            className="pointer-events-none absolute inset-0"
+            className="pointer-events-none absolute inset-0 hidden lg:block"
             style={{
               background:
                 "linear-gradient(90deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.60) 22%, rgba(0,0,0,0.28) 40%, rgba(0,0,0,0.08) 55%, transparent 68%)",
@@ -340,16 +354,16 @@ export default function Approach() {
           </div>
         </div>
 
-        {/* MOBILE STACKED CONTENT — below the video-aspect wrapper.
-            Transparent background so the site-wide nightscape shows
-            through, matching the glass-UI feel of the Push/Pull toggle
-            and card. Previously this used a solid `--mo-bg-elev` slab
-            that broke the atmospheric continuity on mobile. */}
+        {/* MOBILE STACKED CONTENT — below the workspace scene. Ordered so
+            visitors see: heading + toggle (above) → owl scrubber scene →
+            small metaphor caption → the three-video grid. No overlaid
+            desktop-style overlay here; those live inside the scene wrapper
+            above via `hidden lg:block` / `hidden lg:flex`. */}
         <div
-          className="relative flex flex-col gap-8 p-6 pb-8 lg:hidden"
+          className="relative flex flex-col gap-5 p-6 pt-5 pb-8 lg:hidden"
           style={{ background: "transparent" }}
         >
-          <HeadingBlock {...headingProps} />
+          <MetaphorCaption {...headingProps} />
           <div data-testid={APPROACH.captionCard} className="w-full">
             <ExamplesCardBlock {...examplesProps} />
           </div>
@@ -371,7 +385,7 @@ export default function Approach() {
 // across renders — this is what allows the metaphor's dual-mounted
 // crossfade below to actually animate instead of remounting.
 // ---------------------------------------------------------------------------
-function HeadingBlock({ compact = false, mode, setMode, copy }) {
+function HeadingBlock({ compact = false, mode, setMode, copy, showMetaphor = true }) {
   return (
     <>
       <div className="mono-eyebrow">
@@ -405,9 +419,10 @@ function HeadingBlock({ compact = false, mode, setMode, copy }) {
         <PremiumToggle value={mode} onChange={setMode} />
       </div>
 
+      {showMetaphor ? (
       <GlassSurface
         interactive={false}
-        className="mt-8 rounded-xl px-8 py-9 relative"
+        className="mt-6 rounded-xl px-5 py-4 relative"
       >
         <div
           aria-live="polite"
@@ -415,12 +430,12 @@ function HeadingBlock({ compact = false, mode, setMode, copy }) {
           style={{
             fontFamily: "Instrument Serif, serif",
             fontSize: compact
-              ? "clamp(18px, 1.7vw, 24px)"
-              : "clamp(22px, 2.4vw, 32px)",
+              ? "clamp(14px, 1.15vw, 17px)"
+              : "clamp(15px, 1.35vw, 19px)",
             fontStyle: "italic",
-            lineHeight: 1.3,
-            letterSpacing: "-0.01em",
-            minHeight: "1.3em",
+            lineHeight: 1.35,
+            letterSpacing: "-0.005em",
+            minHeight: "2.7em",
           }}
         >
           {/* Dual-mounted crossfade — both metaphors always render on top
@@ -460,7 +475,70 @@ function HeadingBlock({ compact = false, mode, setMode, copy }) {
           </span>
         </div>
       </GlassSurface>
+      ) : null}
     </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// MetaphorCaption — the small italic caption that says "Pull marketing is:
+// …" / "Push marketing is: …" with a smooth crossfade on mode swap. Used
+// both inside the desktop HeadingBlock overlay and on its own in the
+// mobile stack (between the workspace scene and the video grid).
+// ---------------------------------------------------------------------------
+function MetaphorCaption({ mode, copy, compact = false }) {
+  return (
+    <GlassSurface
+      interactive={false}
+      className="rounded-xl px-5 py-4 relative"
+    >
+      <div
+        aria-live="polite"
+        className="text-white relative"
+        style={{
+          fontFamily: "Instrument Serif, serif",
+          fontSize: compact
+            ? "clamp(14px, 1.15vw, 17px)"
+            : "clamp(15px, 1.35vw, 19px)",
+          fontStyle: "italic",
+          lineHeight: 1.35,
+          letterSpacing: "-0.005em",
+          minHeight: "2.7em",
+        }}
+      >
+        <span
+          aria-hidden={mode !== "pull"}
+          style={{
+            position: "absolute",
+            inset: 0,
+            opacity: mode === "pull" ? 1 : 0,
+            transform: mode === "pull" ? "translateY(0)" : "translateY(-6px)",
+            transition:
+              "opacity 620ms var(--ease-out-strong), transform 620ms var(--ease-out-strong)",
+          }}
+        >
+          {copy.pull.metaphor}
+        </span>
+        <span
+          aria-hidden={mode !== "push"}
+          style={{
+            position: "absolute",
+            inset: 0,
+            opacity: mode === "push" ? 1 : 0,
+            transform: mode === "push" ? "translateY(0)" : "translateY(6px)",
+            transition:
+              "opacity 620ms var(--ease-out-strong), transform 620ms var(--ease-out-strong)",
+          }}
+        >
+          {copy.push.metaphor}
+        </span>
+        <span style={{ visibility: "hidden" }}>
+          {copy.pull.metaphor.length >= copy.push.metaphor.length
+            ? copy.pull.metaphor
+            : copy.push.metaphor}
+        </span>
+      </div>
+    </GlassSurface>
   );
 }
 
