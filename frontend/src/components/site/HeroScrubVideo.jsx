@@ -7,9 +7,9 @@ import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 // file is force-downloaded in the background via fetch() (Chrome suspends
 // <video> preloading, so fetch->blob guarantees the full file arrives)
 // and swapped in frame-synced once complete.
-const BASE_MP4 = "/videos/owl-hero-base.mp4"; // 1920×1080 all-intra CRF26
-const BASE_WEBM = "/videos/owl-hero-mid.webm"; // fallback for no-H.264 browsers
-const FULL_SRC = "/videos/owl-hero.mp4"; // 1920×1080 all-intra QP21 (best)
+const BASE_MP4 = "/videos/owl-hero-base.mp4"; // 1920×1080 all-intra CRF22
+const BASE_WEBM = "/videos/owl-hero-mid.webm"; // 720p VP9 fallback for no-H.264 browsers
+const FULL_SRC = "/videos/owl-hero.mp4"; // 1920×1080 all-intra CRF15 (near-lossless)
 const MOBILE_SRC = "/videos/owl-hero-mobile.mp4";
 const POSTER_SRC = "/images/owl-hero-poster.jpg";
 
