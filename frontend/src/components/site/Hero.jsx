@@ -19,29 +19,14 @@ export default function Hero() {
     <section
       id="top"
       data-testid={HERO.root}
-      className="relative flex flex-col overflow-hidden pt-[68px] lg:aspect-video lg:justify-center lg:pt-0"
+      className="relative flex h-full min-h-screen flex-col overflow-hidden pt-[68px] lg:justify-center lg:pt-0"
     >
-      {/* Video layer — mobile/tablet: in-flow 16:9 block (full frame, no crop);
-          desktop: fills the aspect-locked section so the frame maps 1:1. */}
-      <div className="relative isolate aspect-video w-full lg:absolute lg:inset-0 lg:aspect-auto">
+      {/* Video layer — fills the entire hero (100 % of the sticky
+          CinematicIntro container). On mobile the video occupies the full
+          hero height; on desktop it always spans the full frame edge-to-edge
+          so scrubbing maps 1:1 with cursor X. */}
+      <div className="absolute inset-0">
         <HeroScrubVideo />
-        {/* Grounding shadow — a soft dark vignette at the bottom edge of the
-            hero that eases the eye from the owl scene into the site-wide
-            nightscape below. Sits on top of the video (which is already
-            mask-faded to transparent in its lowest 28 %) so it darkens both
-            the fading hero pixels AND the site background peeking through,
-            making the whole boundary feel like ONE atmospheric horizon
-            rather than a Hero rectangle stacked on top of a separate sky. */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0"
-          style={{
-            height: "48%",
-            background:
-              "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.7) 78%, rgba(0,0,0,0.92) 100%)",
-            zIndex: 5,
-          }}
-        />
       </div>
 
       {/* Content — explicit z-index keeps the copy above the video layers */}

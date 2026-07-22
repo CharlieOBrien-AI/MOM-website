@@ -1,5 +1,5 @@
 import Nav from "@/components/site/Nav";
-import Hero from "@/components/site/Hero";
+import CinematicIntro from "@/components/site/CinematicIntro";
 import Stats from "@/components/site/Stats";
 import Approach from "@/components/site/Approach";
 import Work from "@/components/site/Work";
@@ -23,7 +23,12 @@ export default function Home() {
       <div className="relative" style={{ zIndex: 1 }}>
         <Nav />
         <main>
-          <Hero />
+          {/* Scroll-driven transition: the Hero video is pinned to the
+              viewport for ~80vh of extra scroll while a black overlay
+              fades in — as the fade completes, the Stats section slides
+              up into view underneath, so the whole intro reads as ONE
+              fluid movement rather than a Hero cut into Stats. */}
+          <CinematicIntro />
           <Stats />
           <Approach />
           <HowItWorks />

@@ -40,18 +40,7 @@ export default function HeroScrubVideo() {
 
 function MobileHeroVideo() {
   return (
-    <div
-      className="absolute inset-0 overflow-hidden"
-      style={{
-        // Same "dissolve into the site backdrop" mask as the desktop tier —
-        // the hero video melts into <SiteBackground /> instead of hard-cutting
-        // to the section below.
-        WebkitMaskImage:
-          "linear-gradient(180deg, black 0%, black 72%, rgba(0,0,0,0.85) 84%, rgba(0,0,0,0.5) 92%, rgba(0,0,0,0) 100%)",
-        maskImage:
-          "linear-gradient(180deg, black 0%, black 72%, rgba(0,0,0,0.85) 84%, rgba(0,0,0,0.5) 92%, rgba(0,0,0,0) 100%)",
-      }}
-    >
+    <div className="absolute inset-0 overflow-hidden">
       {/* Instant poster layer — first frame JPG behind the video */}
       <img
         src={POSTER_SRC}
