@@ -7,53 +7,40 @@ import Hero from "./Hero";
  *
  * Layout
  * ------
- * The component renders a tall wrapper (180vh) with a sticky child that
- * fills the viewport (100vh) and holds the Hero. As the visitor scrolls
- * *through* the wrapper, three things happen in sync:
+ * The component renders a single 100vh container that holds the Hero. As
+ * the visitor scrolls, two things happen in sync while the container
+ * itself scrolls up out of view (dragging the Stats section up into
+ * view immediately behind it — no wasted scroll, no empty band):
  *
- *   1. The Hero content (video + copy) is pushed upward by ~40vh of
- *      translation — it drifts up as if the camera is tilting.
- *   2. The Hero layer's opacity fades from 1 → 0 across the transition
- *      zone. Instead of overlaying solid black (which was creating a
- *      hard black band that read as disconnected from the purple
- *      nightscape below), we simply dissolve the video + copy away and
- *      let the site-wide <SiteBackground /> (position: fixed, z-index 0)
- *      show through. Because Stats and every section below also floats
- *      on that same SiteBackground, the transition reads as one
- *      continuous atmosphere.
- *   3. A whisper-soft violet-black gradient at the bottom edge sweetens
- *      the seam where the sticky wrapper hands off to the next section
- *      — pure tint, no hard black, purely additive to the nightscape
- *      already behind.
+ *   1. The Hero content (video + copy) drifts upward slightly (a subtle
+ *      parallax tilt, capped at ~12vh so it never separates from the
+ *      background rhythm).
+ *   2. The Hero's opacity fades to 0 across the first ~55% of a viewport
+ *      of scroll. Because the site-wide <SiteBackground /> (position:
+ *      fixed, z-index 0) sits behind everything, the fade dissolves the
+ *      hero into that same continuous nightscape — and Stats, floating
+ *      on the exact same fixed background just below, joins it
+ *      seamlessly.
  *
- * The wrapper height is 180vh, so:
- *   - scrollY ∈ [0, 100vh]     → Hero fully visible, no fade
- *   - scrollY ∈ [100vh, 180vh] → transition zone (fade + drift)
- *   - scrollY ≥ 180vh          → wrapper exits, Stats is in view
- *
- * The math is expressed in vh not px so it works on any device height,
- * and the update runs from a single passive scroll listener throttled by
- * requestAnimationFrame.
+ * There is no sticky wrapper anymore. The old 180vh sticky pattern was
+ * creating a 100vh "empty sky" band where the hero had already faded but
+ * Stats hadn't scrolled up yet. Now Hero and Stats share the exact same
+ * scroll distance: as one fades away, the other rides up. Zero gap.
  *
  * Reduced motion
  * --------------
  * If the visitor has `prefers-reduced-motion: reduce`, the JS hook is
- * skipped — the sticky container still holds the Hero at the top of the
- * viewport for the wrapper's height, but the hero opacity stays at 1
- * and the drift transform stays at 0. The visual falls back to a plain
- * hero followed by a spacer.
+ * skipped — the hero stays at opacity 1 with no drift and simply scrolls
+ * off naturally. Stats follows below.
  */
 export default function CinematicIntro() {
   const wrapRef = useRef(null);
-  const stickyRef = useRef(null);
   const heroLayerRef = useRef(null);
-  const fadeRef = useRef(null);
 
   useEffect(() => {
     const wrap = wrapRef.current;
     const heroLayer = heroLayerRef.current;
-    const fade = fadeRef.current;
-    if (!wrap || !heroLayer || !fade) return undefined;
+    if (!wrap || !heroLayer) return undefined;
 
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (mq.matches) return undefined;
@@ -64,36 +51,27 @@ export default function CinematicIntro() {
       raf = 0;
       const rect = wrap.getBoundingClientRect();
       const winH = window.innerHeight;
-      const wrapH = wrap.offsetHeight;
 
       // How many pixels have we scrolled past the top of the wrapper?
       const scrolled = Math.max(0, -rect.top);
 
-      // The sticky child pins for (wrapH - winH) of scroll — that's the
-      // transition window. We fade + drift across that window only.
-      const transitionLen = Math.max(1, wrapH - winH);
+      // Fade over the first 55% of a viewport of scroll. By the time the
+      // hero is a bit more than halfway off screen, it's fully dissolved
+      // into the site background — and Stats (100vh below hero in doc
+      // flow) is already sliding into the bottom half of the viewport.
+      const transitionLen = Math.max(1, winH * 0.55);
       const t = Math.min(1, Math.max(0, scrolled / transitionLen));
 
-      // Ease the progress with a soft cubic so the fade starts subtly and
-      // then commits toward the end.
+      // Soft cubic ease — starts gentle, commits toward the end.
       const eased = t < 0.5
         ? 4 * t * t * t
         : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-      // Hero drifts upward as we scroll through the transition — max 40vh.
-      const driftPx = -eased * (winH * 0.4);
-      // Fade the hero layer itself to 0 so the site-wide nightscape
-      // (fixed behind everything at z-index 0) blooms through naturally.
-      // Because Stats below also floats on the same background, there
-      // is no perceptible seam where the sticky wrapper ends.
+      // Modest parallax drift (max 12vh) so the copy feels camera-tilted
+      // without visibly separating from the page rhythm.
+      const driftPx = -eased * (winH * 0.12);
       heroLayer.style.transform = `translate3d(0, ${driftPx.toFixed(1)}px, 0)`;
       heroLayer.style.opacity = (1 - eased).toFixed(3);
-
-      // Sweetener tint — a very light violet-black wash that grows in
-      // during the second half of the transition to add depth without
-      // ever becoming a solid black slab.
-      const tintT = Math.max(0, Math.min(1, (eased - 0.35) / 0.65));
-      fade.style.opacity = (tintT * 0.55).toFixed(3);
     };
 
     const onScroll = () => {
@@ -115,53 +93,23 @@ export default function CinematicIntro() {
     <div
       ref={wrapRef}
       className="relative"
-      style={{ height: "180vh" }}
+      style={{ height: "100vh", overflow: "hidden" }}
       data-testid="cinematic-intro-wrap"
     >
-      {/* Sticky viewport — the Hero (video + copy) is pinned here while the
-          visitor scrolls through the wrapper's 80vh transition zone. */}
+      {/* Hero layer — drifts upward and fades to opacity 0 as user scrolls.
+          `will-change` keeps the transform+opacity on their own compositor
+          layer so scroll stays butter-smooth on mid-range hardware. */}
       <div
-        ref={stickyRef}
-        className="sticky top-0"
-        style={{ height: "100vh", overflow: "hidden" }}
-        data-testid="cinematic-intro-sticky"
+        ref={heroLayerRef}
+        className="will-change-transform"
+        style={{
+          position: "absolute",
+          inset: 0,
+          willChange: "transform, opacity",
+        }}
+        data-testid="cinematic-intro-hero-layer"
       >
-        {/* Layer that drifts upward AND fades to opacity 0 as the visitor
-            scrolls. `will-change` keeps the transform+opacity on their
-            own compositor layer so scroll stays butter-smooth on
-            mid-range hardware. */}
-        <div
-          ref={heroLayerRef}
-          className="will-change-transform"
-          style={{
-            position: "absolute",
-            inset: 0,
-            willChange: "transform, opacity",
-          }}
-          data-testid="cinematic-intro-hero-layer"
-        >
-          <Hero />
-        </div>
-
-        {/* Soft sweetener tint — a violet-tinted vertical gradient that is
-            fully transparent at the top and settles into the SiteBackground
-            palette toward the bottom. It rises from opacity 0 → ~0.55 in
-            the back half of the transition to deepen the atmosphere WITHOUT
-            ever painting a hard black band. Because the SiteBackground is
-            fixed behind this layer, the eye reads one continuous nightscape
-            from Hero through Stats. */}
-        <div
-          ref={fadeRef}
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(6,4,14,0) 0%, rgba(10,6,22,0.35) 55%, rgba(14,8,28,0.55) 100%)",
-            opacity: 0,
-            zIndex: 30,
-          }}
-          data-testid="cinematic-intro-fade"
-        />
+        <Hero />
       </div>
     </div>
   );
