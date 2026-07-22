@@ -1,7 +1,6 @@
 import { useState } from "react";
 import GlassSurface from "@/components/glass/GlassSurface";
 import Reveal from "./Reveal";
-import ParallaxBackground from "./ParallaxBackground";
 import { FAQ } from "@/constants/testIds";
 
 const faqs = [
@@ -129,13 +128,9 @@ export default function FAQSection() {
       data-testid={FAQ.root}
       className="relative overflow-hidden"
     >
-      {/* Cinematic nightscape background — full-quality, no crop. Slow
-          parallax so the image drifts as the user scrolls the FAQ. */}
-      <ParallaxBackground
-        src="/images/bg/bg-1.webp"
-        speed={0.18}
-        tint="linear-gradient(180deg, rgba(6,4,14,0.82) 0%, rgba(6,4,14,0.55) 45%, rgba(6,4,14,0.88) 100%)"
-      />
+      {/* Background is provided by the site-wide <SiteBackground /> parallax
+          layer mounted on Home.jsx — this section is fully transparent so it
+          floats over that single continuous nightscape. */}
       <div className="relative mx-auto max-w-[880px] section-px py-[70px]">
       <Reveal>
       <div className="mono-eyebrow mb-4">

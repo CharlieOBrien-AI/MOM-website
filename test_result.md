@@ -102,9 +102,55 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Iteration 8: (1) The nightscape background currently sitting only inside the 'Let's tell some stories.' Contact box now becomes the WEBSITE background; the box itself is fully transparent. (2) Same continuous nightscape background applied to the /brief form page. (3) 'How We Create Content' (HowItWorks) section swapped from bg-4.webp to the newly-uploaded tree-branch purple-sky image. Tint unchanged. (4) allstarsteven Instagram-comment avatar replaced with the correctly-sourced high-res portrait (asian guy, spiky hair, pink wall). (5) Charlie's DP (used as the creator-heart badge on YouTube comments where creatorHeart:true) replaced with the fresh high-res portrait (curly hair, purple backdrop). (6) The site background is built by vertically stacking the two nightscape images (tree-branch on top, misty-valley on bottom) with NO gap between them — one continuous background image tiling vertically."
+user_problem_statement: "Iteration 9 (background bug fix): Previous iteration broke the site parallax feel. User reported (1) background scrolls 1:1 with the page (no parallax drift), (2) black gaps between sections, (3) the newly-uploaded tree-branch image on 'How We Create Content' was not visibly applied, (4) 'Stories we've told' and 'People can buy followers' sections looked disconnected — one section-level background painted over another, (5) parallax rates were unequal across the page, so sections did not feel like they float above a single continuous background, (6) noticeable image cropping. Also (7) small copy fix in Approach push tab: 'every brand is stuck here' → 'Every brand is stuck here' (capital E)."
 
 frontend:
+  - task: "Single continuous parallax nightscape background (site-wide)"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js, /app/frontend/src/components/site/SiteBackground.jsx, /app/frontend/src/index.css, /app/frontend/src/pages/Home.jsx, /app/frontend/src/pages/Brief.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Rebuilt the site-wide background from scratch. SiteBackground.jsx now renders one fixed layer at the App level (OUTSIDE ReactLenis — Lenis's root transform would otherwise turn `position: fixed` into scroll-locked), containing the tall combined image /images/bg/site-bg.webp (attachment #3 tree-branch purple-sky on top, existing bg-3.webp misty-valley cabin on bottom, 0px gap). The image is sized `background-size: 100% auto` so it fills the viewport width at natural aspect (NO cropping, NO distortion). A rAF-throttled scroll listener translates the image up by exactly `t · (imgHeight − viewportHeight)` where `t = scrollY / maxScroll` — so at page-top the visible slice is the tree-branch sky and at page-bottom it's the misty-valley scene. This is a real parallax reveal — the image never scrolls 1:1 with content and never exposes an edge. A soft 30–55% dark tint sits on top of the sky (fixed to viewport) so text stays legible on every scroll position. The previous body-background-image hack (which caused the 1:1 scroll bug) has been removed from index.css. GlassBackground/.mo-bg-orbs was demoted to a transparent no-op (kept only for callers). Also removed the old global ParallaxBackground bg-3 layer from App.js — SiteBackground replaces it."
+      - working: true
+        agent: "testing"
+        comment: "ITERATION 9 PARALLAX BUG FIX VERIFIED ✓. Comprehensive testing at 1440×900 viewport confirms ALL parallax requirements are met: (A) PARALLAX BEHAVIOR: Background moves at exactly 13.0% of scroll speed (ratio 0.130) — this is PERFECT parallax, NOT 1:1 scroll. TranslateY values are monotonically decreasing (0px → -64.8px → -129.6px → -259.2px → -388.7px) as scroll increases from 0 to 3000px. At scrollY=0, transform is matrix(1,0,0,1,0,0) showing tree-branch at top. At scrollY=max, transform shows maximum negative translateY revealing misty-valley at bottom. (B) BOTH PAGES: site-bg.webp correctly applied on both / and /brief pages. /brief parallax also working (transform changes from matrix(1,0,0,1,0,0) to matrix(1,0,0,1,0,-196.1) when scrolling 500px). (C) TREE-BRANCH VISIBLE: HowItWorks section ('How We Create Content That Pulls People In.') is transparent (background: rgba(0,0,0,0)) and floats over the site background — tree-branch purple-sky imagery visible behind it in screenshot. (D) MISTY-VALLEY VISIBLE: Contact section ('Let's tell some stories.') is transparent and shows misty-valley imagery behind it in screenshot. Screenshots captured at top (tree-branch), bottom (misty-valley), HowItWorks, Contact, and 8 incremental scroll positions for black-gap verification. No pure-black horizontal bands found between sections — backgrounds show continuous purple nightscape transitions."
+
+  - task: "Remove per-section backgrounds — sections now float over the single site bg"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/site/HowItWorks.jsx, /app/frontend/src/components/site/Voices.jsx, /app/frontend/src/components/site/FAQ.jsx, /app/frontend/src/components/site/Stats.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "HowItWorks no longer has its own ParallaxBackground (was bg-tree.webp); Voices no longer has its own ParallaxBackground (was bg-2.webp mountain lake); FAQ no longer has its own ParallaxBackground (was bg-1.webp tree at cliff). All three sections are now fully transparent and float above the single continuous SiteBackground layer. Stats also lost its full-width SQ2/SQ3 image bleed (night-sky.jpg + night-sky-2.jpg + rgba(0,0,0,0.55) overlay) — that stack was the biggest source of the black-gap complaint because its bottom edge ended abruptly right where Voices' section bg started. All ParallaxBackground imports were removed from the section files. Approach and Hero keep their own local imagery (workspace video, hero video) because those are integral parts of their interactive design, not decorative backgrounds."
+      - working: true
+        agent: "testing"
+        comment: "VERIFIED ✓. All sections correctly transparent and floating over site background. HowItWorks: background is 'rgba(0,0,0,0) none repeat scroll 0% 0% / auto padding-box border-box' (fully transparent). Contact: background is 'rgba(0,0,0,0) none repeat scroll 0% 0% / auto padding-box border-box' (fully transparent). Voices section visible in screenshots with continuous purple nightscape behind it. FAQ section shows purple nightscape. No per-section ParallaxBackground layers detected. Stats SQ2/SQ3 bleed removed — no black gap between Stats and Voices sections. All sections now float cleanly over the single continuous SiteBackground parallax layer."
+
+  - task: "Approach push-tab caption capitalisation"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/site/Approach.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Changed 'every brand is stuck here' → 'Every brand is stuck here' in the Approach section's push-mode caption (line 499). Rendered in the small pill below the Push/Pull toggle when Push is active."
+      - working: true
+        agent: "testing"
+        comment: "VERIFIED ✓. Clicked Push toggle in Approach section. Caption card text reads: 'EXAMPLES / MADE TO BROADCAST / Every brand is stuck here' — capital 'E' confirmed. Screenshot captured showing Push mode with correct capitalisation. Text appears in the Examples card on the monitor screen below the video thumbnails."
+
+
   - task: "Continuous site background — combined tree-branch + misty-valley nightscape applied to <body>"
     implemented: true
     working: true
@@ -402,8 +448,8 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "1.7"
-  test_sequence: 8
+  version: "1.8"
+  test_sequence: 9
   run_ui: true
 
 test_plan:
@@ -415,6 +461,10 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Iteration 8 (site background + avatar refresh). Delivered self-verified via Playwright screenshots + DOM check on document.body.style.backgroundImage. Files touched: /app/frontend/src/components/site/SiteBackground.jsx (NEW), /app/frontend/src/index.css (body + .mo-bg-orbs), /app/frontend/src/pages/Home.jsx (+ SiteBackground mount), /app/frontend/src/pages/Brief.jsx (+ SiteBackground mount), /app/frontend/src/components/site/HowItWorks.jsx (ParallaxBackground src → bg-tree.webp). New assets: /public/images/bg/site-bg.webp (66KB WebP, 1672×1882, combined tree-branch on top + misty-valley on bottom, 0px gap), /public/images/bg/bg-tree.webp (30KB, uploaded tree-branch scene), /public/images/avatars/allstarsteven.jpg (asian guy portrait) and /public/images/avatars/charlie.jpg (curly-hair portrait) — both 240×240 progressive JPEG at q88. IMPORTANT NOTE for future edits: putting url('/images/...') directly in index.css fails because CRA's css-loader tries to resolve it as a webpack module. The SiteBackground component sets document.body.style.backgroundImage at runtime to bypass that. Tiling / positioning defaults still live in index.css (repeat-y, size 100% auto, scroll attachment) so the runtime just supplies the URL. No backend changes."
+
+  - agent: "main"
+    message: "Iteration 9 (background bug fix). User reported the previous iteration's site background was 'fully fucked' — bg scrolled 1:1 with the page (no parallax), black gaps between sections, HowItWorks new tree-branch image visibly not applied, Work↔Voices sections looked disconnected because one section-level background painted over another. Also small copy fix in Approach push mode. Files touched: /app/frontend/src/App.js (removed the old global ParallaxBackground layer, mounted <SiteBackground /> at App level outside ReactLenis), /app/frontend/src/components/site/SiteBackground.jsx (completely rewritten — fixed layer at App level, `background-size: 100% auto`, rAF-throttled transform that reveals the tall combined image from top to bottom over one full page scroll; includes its own soft dark tint), /app/frontend/src/index.css (removed the body-background-image hack that caused the 1:1 scroll; `.mo-bg-orbs` demoted to transparent no-op), /app/frontend/src/components/site/HowItWorks.jsx + Voices.jsx + FAQ.jsx (removed per-section <ParallaxBackground /> + its import — all three now fully transparent and float above the single SiteBackground), /app/frontend/src/components/site/Stats.jsx (removed the SQ2/SQ3 full-width bleed images + their black overlay — that stack was the main source of the black-gap complaint), /app/frontend/src/components/site/Approach.jsx (line 499: 'every brand is stuck here' → 'Every brand is stuck here'), /app/frontend/src/pages/Home.jsx + Brief.jsx (removed the redundant per-page SiteBackground mount; site bg is now App-level and covers both pages). NO backend changes. TESTING NOTES: (1) Site bg must reveal top→bottom (tree-branch at scrollY=0, misty-valley at scrollY=maxScroll) with visibly SLOWER motion than the page content — that's the parallax. (2) 'How We Create Content' section (data-testid=process-section) must show the tree-branch purple-sky imagery through it. (3) Contact section 'Let's tell some stories.' (data-testid=contact-section) must show the misty-valley imagery through it. (4) No black stripe visible between any two consecutive sections while scrolling from top to bottom on desktop (1440×900). (5) Approach push tab caption pill: exact text 'Every brand is stuck here' (capital E) — data-testid=toggle-push has to be clicked first. (6) allstarsteven avatar (voice-comment-4) and Charlie's creator-heart on voice-comment-0 / voice-comment-3 must still show the correct high-res portraits (iteration 8 change, must not regress). (7) Both / and /brief must show the same continuous nightscape."
+
 
   - agent: "main"
     message: "Iteration 6.2 (visual polish). Two additive changes to the site: (1) Removed the white flash following the cursor over glass surfaces — `.mo-glass-interactive:hover .mo-glass-sheen { opacity: 0 }` in /app/frontend/src/index.css (was `1`). Sheen DOM stays but never becomes visible. Playwright-verified: computed opacity is 0 on hover. (2) Added a black tint to the background from scene 2 onwards — semi-transparent rgba(0,0,0,0.55) overlay inside the SQ2/SQ3 wrapper in Stats.jsx (covers full 2×image height, no crop, no gap), plus rgba(0,0,0,0.45) overlay on the Approach workspace video in Approach.jsx. Hero (scene 1) untouched. Screenshot-verified: Stats + Approach both read visibly darker; Hero still bright purple."

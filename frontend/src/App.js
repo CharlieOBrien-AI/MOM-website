@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ReactLenis } from "lenis/react";
 import Home from "@/pages/Home";
 import Brief from "@/pages/Brief";
-import ParallaxBackground from "@/components/site/ParallaxBackground";
+import SiteBackground from "@/components/site/SiteBackground";
 
 // Global Lenis config — production-tuned for both desktop and mobile.
 // Base options come from the user-provided snippet; everything below adds
@@ -45,17 +45,17 @@ const LENIS_OPTIONS = {
 function App() {
   return (
     <>
-      {/* Global cinematic wallpaper — MUST live outside the ReactLenis
+      {/* Global cinematic parallax wallpaper — MUST live outside the ReactLenis
           wrapper because Lenis applies a CSS transform to its root, which
           would silently break `position: fixed` on descendants (transformed
           ancestors become the containing block, so the "fixed" layer would
-          scroll with the page instead of staying pinned to the viewport). */}
-      <ParallaxBackground
-        mode="fixed"
-        src="/images/bg/bg-3.webp"
-        speed={0.12}
-        tint="linear-gradient(180deg, rgba(6,4,14,0.30) 0%, rgba(6,4,14,0.55) 55%, rgba(6,4,14,0.80) 100%)"
-      />
+          scroll with the page instead of staying pinned to the viewport).
+
+          SiteBackground renders the ONE continuous nightscape image
+          (attachment #3 tree-branch purple sky vertically stacked on top of
+          bg-3 misty-valley cabin, no gap) and slowly reveals it top-to-bottom
+          as the visitor scrolls the page. See SiteBackground.jsx for details. */}
+      <SiteBackground />
       <ReactLenis root options={LENIS_OPTIONS}>
         <div className="App">
           <div style={{ position: "relative", zIndex: 1 }}>

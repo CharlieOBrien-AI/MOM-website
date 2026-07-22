@@ -72,39 +72,11 @@ export default function Stats() {
       data-testid={STATS.root}
       style={{ position: "relative", background: "transparent" }}
     >
-      {/* Night-sky artwork stack — SQ2 then SQ3 directly below it, both
-          full-width at natural aspect (no crop, no filter), bleeding into
-          the following sections. A black tint sits on top so scenes 2+
-          read darker than the hero. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-0 w-full select-none"
-        style={{ zIndex: 0, lineHeight: 0, fontSize: 0 }}
-      >
-        <img
-          src="/images/night-sky.jpg"
-          alt=""
-          draggable={false}
-          className="h-auto w-full"
-          style={{ display: "block", margin: 0, padding: 0, border: 0, verticalAlign: "bottom" }}
-        />
-        <img
-          src="/images/night-sky-2.jpg"
-          alt=""
-          draggable={false}
-          className="h-auto w-full"
-          style={{ display: "block", margin: 0, padding: 0, border: 0, verticalAlign: "bottom" }}
-        />
-        {/* Black tint overlay — darkens the bright purple sky from scene 2
-            onwards so the site reads darker after the hero. Same size as
-            the stacked images, sits above them but still behind section
-            content (which has its own zIndex:2). */}
-        <div
-          className="absolute inset-0"
-          aria-hidden="true"
-          style={{ background: "rgba(0, 0, 0, 0.55)" }}
-        />
-      </div>
+      {/* Background is provided by the site-wide <SiteBackground /> parallax
+          layer mounted on Home.jsx — this section is fully transparent so it
+          floats over that single continuous nightscape. The SQ2/SQ3 bleed
+          imagery that used to sit here has been removed on purpose so it
+          doesn't compete with the new global background. */}
       <div className="mx-auto max-w-[1240px] section-px py-[70px]" style={{ position: "relative", zIndex: 2 }}>
         <Reveal>
           <div className="mono-eyebrow mb-10">

@@ -1,7 +1,6 @@
 import { ThumbsUp, ThumbsDown, Heart, MoreVertical, ChevronDown, BadgeCheck } from "lucide-react";
 import GlassSurface from "@/components/glass/GlassSurface";
 import Reveal from "./Reveal";
-import ParallaxBackground from "./ParallaxBackground";
 import { VOICES } from "@/constants/testIds";
 
 // Real comments, replicated faithfully (usernames, likes, hearts, replies).
@@ -259,13 +258,9 @@ export default function Voices() {
       className="relative overflow-hidden"
       style={{ background: "transparent" }}
     >
-      {/* Cinematic mountain-lake backdrop — full quality, no crop, with a
-          slow parallax to give the section its own gentle motion. */}
-      <ParallaxBackground
-        src="/images/bg/bg-2.webp"
-        speed={0.16}
-        tint="linear-gradient(180deg, rgba(6,4,14,0.82) 0%, rgba(6,4,14,0.55) 45%, rgba(6,4,14,0.88) 100%)"
-      />
+      {/* Background is provided by the site-wide <SiteBackground /> parallax
+          layer mounted on Home.jsx — this section is fully transparent so it
+          floats over that single continuous nightscape. */}
       <div className="relative mx-auto max-w-[1240px] section-px py-[70px] text-center">
         <Reveal>
           <div className="mono-eyebrow mb-4">

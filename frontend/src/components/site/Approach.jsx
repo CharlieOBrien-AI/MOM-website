@@ -496,7 +496,7 @@ export default function Approach() {
         <span key={`caption-${mode}`} className="mo-key-fade inline-block">
           {mode === "pull"
             ? "Real examples from people who identified the opportunity early!"
-            : "every brand is stuck here"}
+            : "Every brand is stuck here"}
         </span>
       </div>
     </GlassSurface>

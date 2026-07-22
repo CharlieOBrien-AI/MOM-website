@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useLenis } from "lenis/react";
 import GlassSurface from "@/components/glass/GlassSurface";
 import GlassBackground from "@/components/glass/GlassBackground";
-import SiteBackground from "@/components/site/SiteBackground";
 import Reveal from "@/components/site/Reveal";
 
 const SERVICES = [
@@ -401,7 +400,6 @@ export default function Brief() {
 
   return (
     <>
-      <SiteBackground />
       <GlassBackground />
       <div className="relative" style={{ zIndex: 1 }}>
         {/* Minimal header — logo left, back link right. No full Nav so the

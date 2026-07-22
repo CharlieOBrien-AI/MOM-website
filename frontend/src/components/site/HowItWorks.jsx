@@ -10,7 +10,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Reveal from "./Reveal";
-import ParallaxBackground from "./ParallaxBackground";
 import { PROCESS } from "@/constants/testIds";
 
 const steps = [
@@ -228,14 +227,9 @@ export default function HowItWorks() {
       className="relative overflow-hidden"
       style={{ background: "transparent" }}
     >
-      {/* Section-level nightscape (tree-branch purple sky, uploaded by the
-          user) with slow parallax + linear tint, matching the treatment on
-          FAQ and Voices. */}
-      <ParallaxBackground
-        src="/images/bg/bg-tree.webp"
-        speed={0.14}
-        tint="linear-gradient(180deg, rgba(6,4,14,0.82) 0%, rgba(6,4,14,0.55) 45%, rgba(6,4,14,0.88) 100%)"
-      />
+      {/* Background is provided by the site-wide <SiteBackground /> parallax
+          layer mounted on Home.jsx — this section is fully transparent so it
+          floats over that single continuous nightscape. */}
       <div className="relative mx-auto max-w-[1240px] section-px py-[70px] text-center">
         <Reveal>
           <div className="mono-eyebrow mb-4">
