@@ -27,23 +27,25 @@ const WORKSPACE_POSTER_URL = "/images/owl-workspace-night.jpg";
 const VIDEO_ASPECT = "1920 / 1080";
 
 // The monitor in the frame is slightly tilted (perspective), so the screen
-// is a QUAD, not an axis-aligned rectangle. Corners are measured against
-// the actual bezel INNER edge (the physical boundary of the visible LCD
-// area) in each frame — so the Examples card, once perspective-mapped onto
-// this quad via matrix3d, sits EDGE-TO-EDGE with the monitor screen with
-// no visible black gap between the card and the bezel on any side.
+// is a QUAD, not an axis-aligned rectangle. Corners are pixel-measured
+// against the actual bezel INNER edge (where the LG monitor's plastic
+// frame ends and the black LCD panel begins) in the 1920×1080 source
+// frame — so the Examples card, once perspective-mapped onto this quad,
+// sits FLUSH with the monitor screen with no visible bezel overlap and
+// no black gap on any side.
 const SCREEN_QUAD = {
-  tl: [47.5, 28.9],
-  tr: [79.9, 29.7],
-  br: [79.9, 67.5],
-  bl: [47.5, 66.9],
+  tl: [47.7, 29.4],
+  tr: [79.4, 30.2],
+  br: [79.4, 66.5],
+  bl: [47.7, 66.0],
 };
-// Pre-transform card rectangle (% of wrapper). Matched to the SCREEN_QUAD's
+// Pre-transform card rectangle (% of wrapper). Matched to SCREEN_QUAD's
 // average width/height so (a) the axis-aligned fallback still sits INSIDE
-// the monitor if the homography hasn't computed yet, and (b) content inside
-// isn't visibly distorted after the perspective mapping.
-const CARD_W = 32.4; // %  = SCREEN_QUAD width  (79.9 − 47.5)
-const CARD_H = 37.9; // %  = avg SCREEN_QUAD height ((67.5−28.9 + 66.9−29.7)/2)
+// the monitor screen if the homography hasn't computed yet, and (b) the
+// pre-transform aspect closely matches the post-transform quad so tiles
+// inside aren't visibly stretched by the mapping.
+const CARD_W = 31.7; // %  = SCREEN_QUAD width  (79.4 − 47.7)
+const CARD_H = 36.4; // %  = avg SCREEN_QUAD height ((66.5−30.2 + 66.0−29.4)/2)
 
 // Solves the 8-DOF homography that maps rect corners -> quad corners and
 // returns it as a CSS matrix3d() string (transform-origin must be 0 0).
