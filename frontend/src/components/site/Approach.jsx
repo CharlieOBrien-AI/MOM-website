@@ -27,20 +27,22 @@ const WORKSPACE_POSTER_URL = "/images/owl-workspace-night.jpg";
 const VIDEO_ASPECT = "1920 / 1080";
 
 // The monitor in the frame is slightly tilted (perspective), so the screen
-// is a QUAD, not an axis-aligned rectangle. Corners measured from the video
-// frame (as % of frame width/height), inset so the card sits just inside
+// is a QUAD, not an axis-aligned rectangle. Corners measured from the frame
+// (as % of wrapper width/height), inset a hair so the card never touches
 // the LG monitor bezel. The Examples card is perspective-mapped onto this
 // quad with a computed CSS matrix3d — a true "projected on the screen" fit.
 const SCREEN_QUAD = {
-  tl: [48.0, 29.9],
-  tr: [79.4, 30.7],
-  br: [79.4, 66.9],
-  bl: [48.0, 66.0],
+  tl: [48.4, 30.4],
+  tr: [79.0, 31.1],
+  br: [79.0, 66.5],
+  bl: [48.4, 65.6],
 };
-// Pre-transform card rectangle (% of wrapper) — proportions close to the
-// quad's natural size so content isn't visibly distorted by the mapping.
-const CARD_W = 32.6; // %
-const CARD_H = 39.5; // %
+// Pre-transform card rectangle (% of wrapper). Matched to the SCREEN_QUAD's
+// average width/height so (a) the axis-aligned fallback still sits INSIDE
+// the monitor if the homography hasn't computed yet, and (b) content inside
+// isn't visibly distorted after the perspective mapping.
+const CARD_W = 30.6; // %  ≈ avg SCREEN_QUAD width  (79.0 − 48.4)
+const CARD_H = 35.4; // %  ≈ avg SCREEN_QUAD height ((66.5−30.4 + 65.6−31.1)/2)
 
 // Solves the 8-DOF homography that maps rect corners -> quad corners and
 // returns it as a CSS matrix3d() string (transform-origin must be 0 0).
@@ -133,10 +135,15 @@ export default function Approach() {
   useLayoutEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
+    let disposed = false;
+    let rafId = null;
+    let tries = 0;
+
     const update = () => {
+      if (disposed) return false;
       const W = el.clientWidth;
       const H = el.clientHeight;
-      if (!W || !H) return;
+      if (!W || !H) return false;
       const w = (CARD_W / 100) * W;
       const h = (CARD_H / 100) * H;
       const src = [
@@ -148,12 +155,30 @@ export default function Approach() {
       const dst = [SCREEN_QUAD.tl, SCREEN_QUAD.tr, SCREEN_QUAD.br, SCREEN_QUAD.bl].map(
         ([px, py]) => [(px / 100) * W, (py / 100) * H]
       );
-      setCardXf(computeHomography(src, dst));
+      const m = computeHomography(src, dst);
+      if (m) setCardXf(m);
+      return true;
     };
-    update();
+
+    // Retry on rAF until the wrapper has non-zero dimensions (handles the
+    // edge case where the section is initially inside a display:none / not-
+    // yet-laid-out ancestor — otherwise cardXf stays null and the card falls
+    // back to an axis-aligned rectangle that overshoots the monitor bezel).
+    const attempt = () => {
+      if (disposed) return;
+      if (update() || tries > 30) return;
+      tries += 1;
+      rafId = requestAnimationFrame(attempt);
+    };
+    attempt();
+
     const ro = new ResizeObserver(update);
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      disposed = true;
+      if (rafId) cancelAnimationFrame(rafId);
+      ro.disconnect();
+    };
   }, []);
 
   const copy = {
