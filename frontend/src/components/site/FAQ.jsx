@@ -1,6 +1,7 @@
 import { useState } from "react";
 import GlassSurface from "@/components/glass/GlassSurface";
 import Reveal from "./Reveal";
+import ParallaxBackground from "./ParallaxBackground";
 import { FAQ } from "@/constants/testIds";
 
 const faqs = [
@@ -128,19 +129,12 @@ export default function FAQSection() {
       data-testid={FAQ.root}
       className="relative overflow-hidden"
     >
-      {/* Cinematic nightscape background — full-quality, no crop. A dark
-          linear gradient tints it so all copy remains readable. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage: [
-            "linear-gradient(180deg, rgba(6,4,14,0.85) 0%, rgba(6,4,14,0.60) 40%, rgba(6,4,14,0.90) 100%)",
-            "url('/images/bg/bg-1.webp')",
-          ].join(", "),
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+      {/* Cinematic nightscape background — full-quality, no crop. Slow
+          parallax so the image drifts as the user scrolls the FAQ. */}
+      <ParallaxBackground
+        src="/images/bg/bg-1.webp"
+        speed={0.18}
+        tint="linear-gradient(180deg, rgba(6,4,14,0.82) 0%, rgba(6,4,14,0.55) 45%, rgba(6,4,14,0.88) 100%)"
       />
       <div className="relative mx-auto max-w-[880px] section-px py-[70px]">
       <Reveal>

@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ReactLenis } from "lenis/react";
 import Home from "@/pages/Home";
 import Brief from "@/pages/Brief";
+import ParallaxBackground from "@/components/site/ParallaxBackground";
 
 // Global Lenis config — production-tuned for both desktop and mobile.
 // Base options come from the user-provided snippet; everything below adds
@@ -43,17 +44,32 @@ const LENIS_OPTIONS = {
 
 function App() {
   return (
-    <ReactLenis root options={LENIS_OPTIONS}>
-      <div className="App">
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/brief" element={<Brief />} />
-            <Route path="*" element={<Home />} />
-          </Routes>
-        </BrowserRouter>
-      </div>
-    </ReactLenis>
+    <>
+      {/* Global cinematic wallpaper — MUST live outside the ReactLenis
+          wrapper because Lenis applies a CSS transform to its root, which
+          would silently break `position: fixed` on descendants (transformed
+          ancestors become the containing block, so the "fixed" layer would
+          scroll with the page instead of staying pinned to the viewport). */}
+      <ParallaxBackground
+        mode="fixed"
+        src="/images/bg/bg-3.webp"
+        speed={0.12}
+        tint="linear-gradient(180deg, rgba(6,4,14,0.30) 0%, rgba(6,4,14,0.55) 55%, rgba(6,4,14,0.80) 100%)"
+      />
+      <ReactLenis root options={LENIS_OPTIONS}>
+        <div className="App">
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/brief" element={<Brief />} />
+                <Route path="*" element={<Home />} />
+              </Routes>
+            </BrowserRouter>
+          </div>
+        </div>
+      </ReactLenis>
+    </>
   );
 }
 

@@ -22,26 +22,15 @@ export default function Contact() {
     >
       <div className="mx-auto max-w-[1240px] section-px py-[70px]">
         <Reveal>
+          {/* Card intentionally transparent — sits directly on top of the
+              global nightscape wallpaper, no local background, no border,
+              no golden owl-eye ornament. Just the wallpaper + type. */}
           <div
-            className="relative overflow-hidden rounded-3xl text-center"
+            className="relative text-center"
             style={{
               padding: "clamp(64px, 9vw, 140px) 40px",
-              // Nightscape backdrop + linear dark tint so text stays legible
-              // without hiding the artwork underneath.
-              backgroundImage: [
-                "linear-gradient(180deg, rgba(6,4,14,0.55) 0%, rgba(6,4,14,0.32) 45%, rgba(6,4,14,0.70) 100%)",
-                "url('/images/bg/bg-3.webp')",
-              ].join(", "),
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              // Thin border matches other framed surfaces on the site.
-              border: "1px solid rgba(255,255,255,0.08)",
-              boxShadow:
-                "inset 0 1px 0 rgba(255,255,255,0.06), 0 30px 80px -30px rgba(0,0,0,0.75)",
             }}
           >
-            <div className="noise-overlay" aria-hidden="true" />
-
             <h2
               className="relative mx-auto max-w-[840px] text-white"
               style={{

@@ -10,6 +10,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Reveal from "./Reveal";
+import ParallaxBackground from "./ParallaxBackground";
 import { PROCESS } from "@/constants/testIds";
 
 const steps = [
@@ -224,9 +225,17 @@ export default function HowItWorks() {
   return (
     <section
       data-testid={PROCESS.root}
-      style={{ background: "transparent", position: "relative" }}
+      className="relative overflow-hidden"
+      style={{ background: "transparent" }}
     >
-      <div className="mx-auto max-w-[1240px] section-px py-[70px] text-center">
+      {/* Section-level nightscape (bg-4) with slow parallax + linear tint,
+          matching the treatment on FAQ and Voices. */}
+      <ParallaxBackground
+        src="/images/bg/bg-4.webp"
+        speed={0.14}
+        tint="linear-gradient(180deg, rgba(6,4,14,0.82) 0%, rgba(6,4,14,0.55) 45%, rgba(6,4,14,0.88) 100%)"
+      />
+      <div className="relative mx-auto max-w-[1240px] section-px py-[70px] text-center">
         <Reveal>
           <div className="mono-eyebrow mb-4">
             <span style={{ color: "var(--mo-accent)" }}>//</span> How it works

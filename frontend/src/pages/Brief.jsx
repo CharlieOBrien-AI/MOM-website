@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import { Link } from "react-router-dom";
+import { useLenis } from "lenis/react";
 import GlassSurface from "@/components/glass/GlassSurface";
 import GlassBackground from "@/components/glass/GlassBackground";
 import Reveal from "@/components/site/Reveal";
@@ -216,18 +217,29 @@ function ServiceCheck({ label, checked, onToggle }) {
 }
 
 export default function Brief() {
-  // Ensure the /brief route always opens at the very top. React Router
-  // preserves scroll position across route changes by default, so when
-  // users click a "Get In Touch" CTA from the bottom of the landing page,
-  // the browser was carrying that scroll offset into /brief — landing
-  // them at the bottom of the form (past section 06). This effect resets
-  // scroll on mount so every arrival at /brief begins at the "Let's talk."
-  // headline.
-  useEffect(() => {
-    // Use "auto" (not smooth) — smooth on a fresh route change reads as
-    // a glitchy animated skip rather than a clean page load.
+  // Grab the shared Lenis instance so we can bypass its smoothed scroll
+  // state on route change. Lenis owns the current scroll offset and
+  // window.scrollTo alone doesn't always sync it — calling lenis.scrollTo
+  // with immediate:true resets both browser scroll + Lenis' internal state
+  // in one call, so /brief always opens at "Let's talk."
+  const lenis = useLenis();
+
+  // useLayoutEffect (not useEffect) runs synchronously before paint, so the
+  // scroll reset happens before the user even sees the page — no visible
+  // "jump" from bottom to top on route change.
+  useLayoutEffect(() => {
+    // Try Lenis first (authoritative when it's active).
+    if (lenis && typeof lenis.scrollTo === "function") {
+      lenis.scrollTo(0, { immediate: true, force: true });
+    }
+    // Always fall back to native scroll for reduced-motion users and for
+    // any edge where Lenis is disabled (autoToggle can pause it).
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  }, []);
+    // Some browsers/mobile prefer setting on the scrolling element directly.
+    if (document.scrollingElement) {
+      document.scrollingElement.scrollTop = 0;
+    }
+  }, [lenis]);
 
   const [form, setForm] = useState({
     name: "",

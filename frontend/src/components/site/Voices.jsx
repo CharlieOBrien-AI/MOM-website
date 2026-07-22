@@ -1,6 +1,7 @@
 import { ThumbsUp, ThumbsDown, Heart, MoreVertical, ChevronDown, BadgeCheck } from "lucide-react";
 import GlassSurface from "@/components/glass/GlassSurface";
 import Reveal from "./Reveal";
+import ParallaxBackground from "./ParallaxBackground";
 import { VOICES } from "@/constants/testIds";
 
 // Real comments, replicated faithfully (usernames, likes, hearts, replies).
@@ -104,15 +105,15 @@ const ytFont = "Roboto, 'Helvetica Neue', Arial, sans-serif";
 function CreatorHeart() {
   return (
     <span className="relative inline-block h-[22px] w-[22px]" aria-label="Hearted by creator">
-      <span
-        className="absolute inset-0 grid place-items-center rounded-full text-[10px] font-medium text-white"
+      <img
+        src="/images/avatars/charlie.jpg"
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full rounded-full object-cover"
         style={{
           background: "linear-gradient(135deg, #6d3fb0, #2b1b4d)",
-          fontFamily: ytFont,
         }}
-      >
-        C
-      </span>
+      />
       <Heart
         size={11}
         className="absolute -bottom-[3px] -right-[3px]"
@@ -258,19 +259,12 @@ export default function Voices() {
       className="relative overflow-hidden"
       style={{ background: "transparent" }}
     >
-      {/* Cinematic mountain-lake backdrop — full quality, no crop. Darker
-          tint on top so testimonial cards + text remain readable. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage: [
-            "linear-gradient(180deg, rgba(6,4,14,0.82) 0%, rgba(6,4,14,0.55) 45%, rgba(6,4,14,0.88) 100%)",
-            "url('/images/bg/bg-2.webp')",
-          ].join(", "),
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+      {/* Cinematic mountain-lake backdrop — full quality, no crop, with a
+          slow parallax to give the section its own gentle motion. */}
+      <ParallaxBackground
+        src="/images/bg/bg-2.webp"
+        speed={0.16}
+        tint="linear-gradient(180deg, rgba(6,4,14,0.82) 0%, rgba(6,4,14,0.55) 45%, rgba(6,4,14,0.88) 100%)"
       />
       <div className="relative mx-auto max-w-[1240px] section-px py-[70px] text-center">
         <Reveal>
