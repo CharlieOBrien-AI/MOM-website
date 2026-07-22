@@ -22,13 +22,18 @@ export default function Contact() {
     >
       <div className="mx-auto max-w-[1240px] section-px py-[70px]">
         <Reveal>
-          {/* Card intentionally transparent — sits directly on top of the
-              global nightscape wallpaper, no local background, no border,
-              no golden owl-eye ornament. Just the wallpaper + type. */}
-          <div
-            className="relative text-center"
+          {/* Liquid-glass container — the "Let's tell some stories." moment
+              sits INSIDE a transparent glass box now (per user request) so
+              it reads as a distinct call-to-action floating above the site's
+              cinematic nightscape, instead of dissolving into the sky. The
+              glass adds a backdrop blur, a soft violet edge highlight and
+              a subtle hover tilt without overpowering the copy. */}
+          <GlassSurface
+            className="mo-glass relative mx-auto max-w-[1080px] overflow-hidden rounded-[28px] text-center"
+            tilt={1.5}
             style={{
               padding: "clamp(64px, 9vw, 140px) 40px",
+              background: "rgba(15, 12, 28, 0.28)",
             }}
           >
             <h2
@@ -77,7 +82,7 @@ export default function Contact() {
                 </span>
               </GlassSurface>
             </div>
-          </div>
+          </GlassSurface>
         </Reveal>
       </div>
     </section>

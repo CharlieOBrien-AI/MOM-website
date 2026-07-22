@@ -102,9 +102,34 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Iteration 10 (feedback follow-up): (1) Hero → Stats still felt disconnected because the combined site-bg.webp had a hard horizontal seam where attachment #3 (tree branch) met bg-3.webp (misty valley) — user wants a truly continuous background. (2) The Voices comments section stacks all comments in one vertical column on mobile, which the user finds broken — user wants a horizontal snap-scroll carousel on mobile (`apply the same scrolling logic here as well`) while keeping the 3-column masonry on desktop. (3) The Approach Push/Pull video and the Hero scrub video sometimes 'get stuck' — most visibly on the deployed production build, less so in preview. Root cause suspected: the animation's seek-ready gate can hang forever if the browser never fires the `seeked` event (frame past the buffered range, decoder hiccup, HD-blob still loading). (4) The Hero video wrapper needed to keep the seamless mask fade added in iteration 9 (must not regress). (5) The darker /brief tint from iteration 9 must not regress."
+user_problem_statement: "Iteration 11 (feedback): (1) The Hero still felt like it was sitting ON TOP of the site background rather than being part of the same atmosphere. User asked for 'some darkness effect around the bottom' — a grounding shadow that unifies the Hero and the site backdrop so the transition reads as one continuous night, not a Hero rectangle stacked on a separate sky. (2) The 'Let's tell some stories.' section (Contact) now has to be wrapped in a liquid-glass (transparent) box so the closing call-to-action reads as a distinct floating card above the nightscape."
 
 frontend:
+  - task: "Hero bottom grounding vignette — dark gradient dissolves Hero into the site backdrop"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/site/Hero.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added a fixed-inside-hero absolute-positioned overlay div covering the bottom 48% of the hero. Vertical gradient: rgba(0,0,0,0) 0% → 0.35 40% → 0.7 78% → 0.92 100%. Positioned at zIndex 5, above the video/poster layers (the hero video is already mask-faded to transparent in its last 28% via HeroScrubVideo.jsx from iteration 9). The vignette darkens BOTH the fading hero pixels AND the parallax nightscape peeking through — so the whole boundary reads as one atmospheric horizon instead of a Hero rectangle stacked on top of a separate sky. Content (headline, CTAs) sits at z-index 10, so the vignette does not obscure text. pointer-events: none — copy remains clickable. Verified via Playwright on both 1440×900 desktop and 390×844 mobile."
+
+  - task: "Contact — 'Let's tell some stories.' inside a liquid-glass container"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/site/Contact.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Wrapped the Contact section content in <GlassSurface> instead of a plain <div>. The card is now a rounded 28px liquid-glass panel (backdrop-filter blur, semi-transparent violet tint rgba(15,12,28,0.28), subtle edge highlight, gentle 1.5° hover tilt) sitting on the site's parallax nightscape. Padding preserved (clamp(64px, 9vw, 140px) 40px). Heading 'Let's tell some stories.', supporting copy 'Book a free consultation session with us.', and the CTA pill 'GET IN TOUCH →' (still data-testid contact-cta, routes to /brief) all render inside the glass box. max-w-[1080px] keeps it visually centered without spanning the whole grid. Verified via Playwright at both desktop 1440×900 and mobile 390×844."
+
+
   - task: "Site background — smooth blended seam between tree-branch and misty-valley"
     implemented: true
     working: "NA"
@@ -485,8 +510,8 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "1.9"
-  test_sequence: 10
+  version: "2.0"
+  test_sequence: 11
   run_ui: true
 
 test_plan:
