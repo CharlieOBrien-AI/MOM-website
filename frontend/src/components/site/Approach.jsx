@@ -27,22 +27,23 @@ const WORKSPACE_POSTER_URL = "/images/owl-workspace-night.jpg";
 const VIDEO_ASPECT = "1920 / 1080";
 
 // The monitor in the frame is slightly tilted (perspective), so the screen
-// is a QUAD, not an axis-aligned rectangle. Corners measured from the frame
-// (as % of wrapper width/height), inset a hair so the card never touches
-// the LG monitor bezel. The Examples card is perspective-mapped onto this
-// quad with a computed CSS matrix3d — a true "projected on the screen" fit.
+// is a QUAD, not an axis-aligned rectangle. Corners are measured against
+// the actual bezel INNER edge (the physical boundary of the visible LCD
+// area) in each frame — so the Examples card, once perspective-mapped onto
+// this quad via matrix3d, sits EDGE-TO-EDGE with the monitor screen with
+// no visible black gap between the card and the bezel on any side.
 const SCREEN_QUAD = {
-  tl: [48.4, 30.4],
-  tr: [79.0, 31.1],
-  br: [79.0, 66.5],
-  bl: [48.4, 65.6],
+  tl: [47.5, 28.9],
+  tr: [79.9, 29.7],
+  br: [79.9, 67.5],
+  bl: [47.5, 66.9],
 };
 // Pre-transform card rectangle (% of wrapper). Matched to the SCREEN_QUAD's
 // average width/height so (a) the axis-aligned fallback still sits INSIDE
 // the monitor if the homography hasn't computed yet, and (b) content inside
 // isn't visibly distorted after the perspective mapping.
-const CARD_W = 30.6; // %  ≈ avg SCREEN_QUAD width  (79.0 − 48.4)
-const CARD_H = 35.4; // %  ≈ avg SCREEN_QUAD height ((66.5−30.4 + 65.6−31.1)/2)
+const CARD_W = 32.4; // %  = SCREEN_QUAD width  (79.9 − 47.5)
+const CARD_H = 37.9; // %  = avg SCREEN_QUAD height ((67.5−28.9 + 66.9−29.7)/2)
 
 // Solves the 8-DOF homography that maps rect corners -> quad corners and
 // returns it as a CSS matrix3d() string (transform-origin must be 0 0).
@@ -474,7 +475,7 @@ function ExamplesCardBlock({ onMonitor = false, mode, setLightbox }) {
     <GlassSurface
       interactive={false}
       className={`mo-glass-strong ${
-        onMonitor ? "p-3 sm:p-3.5" : "rounded-2xl p-6 sm:p-7"
+        onMonitor ? "p-2 sm:p-2.5" : "rounded-2xl p-6 sm:p-7"
       }`}
       style={
         onMonitor
@@ -592,13 +593,13 @@ function ExamplesCardBlock({ onMonitor = false, mode, setLightbox }) {
 
       <div
         className={`${
-          onMonitor ? "mt-2.5 pt-2 text-[10px]" : "mt-6 pt-4 text-[11px]"
-        } border-t leading-[1.5] relative`}
+          onMonitor ? "mt-1.5 pt-1.5 text-[9px] leading-[1.3]" : "mt-6 pt-4 text-[11px] leading-[1.5]"
+        } border-t relative`}
         style={{
           borderColor: "var(--mo-line)",
           color: "var(--mo-fg-dim)",
           fontFamily: "JetBrains Mono, monospace",
-          minHeight: onMonitor ? "1.5em" : "1.7em",
+          minHeight: onMonitor ? "1.4em" : "1.7em",
         }}
       >
         {/* Same crossfade pattern for the caption — dual mounted, no remount. */}
@@ -612,7 +613,7 @@ function ExamplesCardBlock({ onMonitor = false, mode, setLightbox }) {
             position: "absolute",
             left: 0,
             right: 0,
-            top: onMonitor ? "0.5rem" : "1rem",
+            top: onMonitor ? "0.35rem" : "1rem",
           }}
         >
           Real examples from people who identified the opportunity early!
@@ -627,7 +628,7 @@ function ExamplesCardBlock({ onMonitor = false, mode, setLightbox }) {
             position: "absolute",
             left: 0,
             right: 0,
-            top: onMonitor ? "0.5rem" : "1rem",
+            top: onMonitor ? "0.35rem" : "1rem",
           }}
         >
           Every brand is stuck here
