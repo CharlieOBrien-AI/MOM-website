@@ -13,14 +13,18 @@ import Hero from "./Hero";
  *
  *   1. The Hero content (video + copy) is pushed upward by ~40vh of
  *      translation — it drifts up as if the camera is tilting.
- *   2. A pure-black overlay pinned to the sticky viewport gradually
- *      grows more opaque (opacity 0 → 1 over the transition zone),
- *      fading the entire hero into a solid dark backdrop.
- *   3. The next section on the page (Stats / parallax content) sits in
- *      normal document flow right after this wrapper — because of the
- *      sticky container the visitor is already scrolled well into the
- *      document when the black overlay finishes, so the next section
- *      appears to "slide up from the bottom" beneath the fading hero.
+ *   2. The Hero layer's opacity fades from 1 → 0 across the transition
+ *      zone. Instead of overlaying solid black (which was creating a
+ *      hard black band that read as disconnected from the purple
+ *      nightscape below), we simply dissolve the video + copy away and
+ *      let the site-wide <SiteBackground /> (position: fixed, z-index 0)
+ *      show through. Because Stats and every section below also floats
+ *      on that same SiteBackground, the transition reads as one
+ *      continuous atmosphere.
+ *   3. A whisper-soft violet-black gradient at the bottom edge sweetens
+ *      the seam where the sticky wrapper hands off to the next section
+ *      — pure tint, no hard black, purely additive to the nightscape
+ *      already behind.
  *
  * The wrapper height is 180vh, so:
  *   - scrollY ∈ [0, 100vh]     → Hero fully visible, no fade
@@ -35,7 +39,7 @@ import Hero from "./Hero";
  * --------------
  * If the visitor has `prefers-reduced-motion: reduce`, the JS hook is
  * skipped — the sticky container still holds the Hero at the top of the
- * viewport for the wrapper's height, but the overlay stays at opacity 0
+ * viewport for the wrapper's height, but the hero opacity stays at 1
  * and the drift transform stays at 0. The visual falls back to a plain
  * hero followed by a spacer.
  */
@@ -78,10 +82,18 @@ export default function CinematicIntro() {
 
       // Hero drifts upward as we scroll through the transition — max 40vh.
       const driftPx = -eased * (winH * 0.4);
+      // Fade the hero layer itself to 0 so the site-wide nightscape
+      // (fixed behind everything at z-index 0) blooms through naturally.
+      // Because Stats below also floats on the same background, there
+      // is no perceptible seam where the sticky wrapper ends.
       heroLayer.style.transform = `translate3d(0, ${driftPx.toFixed(1)}px, 0)`;
+      heroLayer.style.opacity = (1 - eased).toFixed(3);
 
-      // Overlay opacity — solid black by the end of the transition zone.
-      fade.style.opacity = eased.toFixed(3);
+      // Sweetener tint — a very light violet-black wash that grows in
+      // during the second half of the transition to add depth without
+      // ever becoming a solid black slab.
+      const tintT = Math.max(0, Math.min(1, (eased - 0.35) / 0.65));
+      fade.style.opacity = (tintT * 0.55).toFixed(3);
     };
 
     const onScroll = () => {
@@ -114,28 +126,37 @@ export default function CinematicIntro() {
         style={{ height: "100vh", overflow: "hidden" }}
         data-testid="cinematic-intro-sticky"
       >
-        {/* Layer that drifts upward as the fade opacity rises. `will-change`
-            keeps the transform on its own compositor layer so scroll stays
-            butter-smooth on mid-range hardware. */}
+        {/* Layer that drifts upward AND fades to opacity 0 as the visitor
+            scrolls. `will-change` keeps the transform+opacity on their
+            own compositor layer so scroll stays butter-smooth on
+            mid-range hardware. */}
         <div
           ref={heroLayerRef}
           className="will-change-transform"
-          style={{ position: "absolute", inset: 0 }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            willChange: "transform, opacity",
+          }}
           data-testid="cinematic-intro-hero-layer"
         >
           <Hero />
         </div>
 
-        {/* Fade-to-black overlay — grows from opacity 0 → 1 as the visitor
-            scrolls through the transition zone. When it hits 1 the hero is
-            entirely covered and the next section (already in normal flow
-            below the wrapper) reads as sliding up from the bottom. */}
+        {/* Soft sweetener tint — a violet-tinted vertical gradient that is
+            fully transparent at the top and settles into the SiteBackground
+            palette toward the bottom. It rises from opacity 0 → ~0.55 in
+            the back half of the transition to deepen the atmosphere WITHOUT
+            ever painting a hard black band. Because the SiteBackground is
+            fixed behind this layer, the eye reads one continuous nightscape
+            from Hero through Stats. */}
         <div
           ref={fadeRef}
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
           style={{
-            backgroundColor: "#000",
+            background:
+              "linear-gradient(180deg, rgba(6,4,14,0) 0%, rgba(10,6,22,0.35) 55%, rgba(14,8,28,0.55) 100%)",
             opacity: 0,
             zIndex: 30,
           }}
