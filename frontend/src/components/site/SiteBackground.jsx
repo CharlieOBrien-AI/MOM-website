@@ -143,6 +143,66 @@ export default function SiteBackground({
           backgroundRepeat: "no-repeat",
         }}
       />
+
+      {/* Layer 1b — Sky Ambience: two slow-drifting cloud strata that keep
+          the nightscape feeling alive even when the visitor stops scrolling.
+          Purely additive: soft radial-gradient blobs, blended with the sky
+          via mix-blend-mode: screen, at low opacity and drifting horizontally
+          on a very long CSS animation loop. Auto-suspends under
+          prefers-reduced-motion (via the .mo-cloud-drift utility class
+          defined in index.css). */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          // Screen blend lets the pale wisps lighten the sky without
+          // ever darkening it. mix-blend-mode is hardware-composited.
+          mixBlendMode: "screen",
+        }}
+      >
+        {/* Upper stratum — smaller, faster, slightly warmer. */}
+        <div
+          className="mo-cloud-drift mo-cloud-drift--upper"
+          style={{
+            position: "absolute",
+            top: "-4%",
+            left: "-100%",
+            width: "300%",
+            height: "70%",
+            // Layered radial gradients form soft, elongated blobs that
+            // read as high-altitude wisps. Each stop is intentionally
+            // low-alpha so nothing punches through the nightscape.
+            backgroundImage:
+              "radial-gradient(ellipse 620px 140px at 12% 32%, rgba(200,178,240,0.16), rgba(200,178,240,0) 70%),"
+              + "radial-gradient(ellipse 780px 160px at 34% 58%, rgba(190,168,232,0.12), rgba(190,168,232,0) 72%),"
+              + "radial-gradient(ellipse 560px 120px at 55% 22%, rgba(210,190,250,0.10), rgba(210,190,250,0) 70%),"
+              + "radial-gradient(ellipse 900px 180px at 78% 68%, rgba(180,158,222,0.14), rgba(180,158,222,0) 74%),"
+              + "radial-gradient(ellipse 500px 100px at 92% 40%, rgba(220,200,255,0.11), rgba(220,200,255,0) 70%)",
+            filter: "blur(4px)",
+            opacity: 0.85,
+          }}
+        />
+        {/* Lower stratum — larger, slower, cooler; drifts in the opposite
+            direction so the two layers gently pass one another. */}
+        <div
+          className="mo-cloud-drift mo-cloud-drift--lower"
+          style={{
+            position: "absolute",
+            bottom: "-6%",
+            left: "-100%",
+            width: "300%",
+            height: "62%",
+            backgroundImage:
+              "radial-gradient(ellipse 1100px 200px at 18% 50%, rgba(140,120,190,0.14), rgba(140,120,190,0) 72%),"
+              + "radial-gradient(ellipse 900px 170px at 42% 78%, rgba(120,102,180,0.11), rgba(120,102,180,0) 74%),"
+              + "radial-gradient(ellipse 1300px 220px at 66% 30%, rgba(150,130,200,0.12), rgba(150,130,200,0) 72%),"
+              + "radial-gradient(ellipse 800px 150px at 88% 60%, rgba(160,140,210,0.10), rgba(160,140,210,0) 70%)",
+            filter: "blur(6px)",
+            opacity: 0.7,
+          }}
+        />
+      </div>
+
       {/* Layer 2: fixed-to-viewport soft tint so text stays readable no
           matter which portion of the sky is currently in frame. */}
       <div
