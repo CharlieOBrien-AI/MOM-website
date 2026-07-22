@@ -55,11 +55,12 @@ export default function CinematicIntro() {
       // How many pixels have we scrolled past the top of the wrapper?
       const scrolled = Math.max(0, -rect.top);
 
-      // Fade over the first 55% of a viewport of scroll. By the time the
-      // hero is a bit more than halfway off screen, it's fully dissolved
-      // into the site background — and Stats (100vh below hero in doc
-      // flow) is already sliding into the bottom half of the viewport.
-      const transitionLen = Math.max(1, winH * 0.55);
+      // Fade over ~80% of the wrapper height (~70vh of scroll on a 88vh
+      // wrapper). Because the wrapper is a bit shorter than the viewport,
+      // Stats already peeks a few vh at the bottom of the initial view —
+      // by the time it fully rides up, the hero has finished dissolving.
+      const wrapH = wrap.offsetHeight || winH;
+      const transitionLen = Math.max(1, wrapH * 0.8);
       const t = Math.min(1, Math.max(0, scrolled / transitionLen));
 
       // Soft cubic ease — starts gentle, commits toward the end.
@@ -67,9 +68,9 @@ export default function CinematicIntro() {
         ? 4 * t * t * t
         : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-      // Modest parallax drift (max 12vh) so the copy feels camera-tilted
+      // Modest parallax drift (max 10vh) so the copy feels camera-tilted
       // without visibly separating from the page rhythm.
-      const driftPx = -eased * (winH * 0.12);
+      const driftPx = -eased * (winH * 0.1);
       heroLayer.style.transform = `translate3d(0, ${driftPx.toFixed(1)}px, 0)`;
       heroLayer.style.opacity = (1 - eased).toFixed(3);
     };
@@ -93,7 +94,7 @@ export default function CinematicIntro() {
     <div
       ref={wrapRef}
       className="relative"
-      style={{ height: "100vh", overflow: "hidden" }}
+      style={{ height: "88vh", overflow: "hidden" }}
       data-testid="cinematic-intro-wrap"
     >
       {/* Hero layer — drifts upward and fades to opacity 0 as user scrolls.

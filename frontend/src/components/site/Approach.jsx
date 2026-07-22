@@ -359,159 +359,14 @@ export default function Approach() {
   }, [mode, videoLive, scrubTo]);
 
   // -------------------------------------------------------------------------
-  // Reusable content blocks — same markup in every layout.
+  // Reusable content blocks are hoisted OUT of this component (see the
+  // top-level HeadingBlock / ExamplesCardBlock functions defined below the
+  // Approach export). Keeping them out means their React "type" is stable
+  // across renders — so the video tiles inside ExamplesCardBlock never
+  // unmount when `mode` flips, letting our opacity crossfade actually work.
   // -------------------------------------------------------------------------
-  const HeadingBlock = ({ compact = false }) => (
-    <>
-      <div className="mono-eyebrow">
-        <span style={{ color: "var(--mo-accent)" }}>//</span> Our approach
-      </div>
-
-      <h2
-        className="mt-6 text-white"
-        style={{
-          fontFamily: "Instrument Serif, serif",
-          fontSize: compact
-            ? "clamp(34px, 4vw, 64px)"
-            : "clamp(40px, 5.6vw, 84px)",
-          lineHeight: 1.02,
-          letterSpacing: "-0.015em",
-          fontWeight: 400,
-        }}
-      >
-        Most brands{" "}
-        <span style={{ color: "var(--mo-mute)", fontStyle: "italic" }}>
-          push
-        </span>{" "}
-        content, ignoring what{" "}
-        <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
-          pulls
-        </span>{" "}
-        audiences.
-      </h2>
-
-      <div className="mt-8 flex flex-wrap items-center gap-5">
-        <PremiumToggle value={mode} onChange={setMode} />
-      </div>
-
-      <GlassSurface
-        interactive={false}
-        className="mt-8 rounded-xl px-8 py-9"
-      >
-        <div
-          aria-live="polite"
-          className="text-white"
-          style={{
-            fontFamily: "Instrument Serif, serif",
-            fontSize: compact
-              ? "clamp(18px, 1.7vw, 24px)"
-              : "clamp(22px, 2.4vw, 32px)",
-            fontStyle: "italic",
-            lineHeight: 1.3,
-            letterSpacing: "-0.01em",
-          }}
-        >
-          {/* Keyed so the fade+lift restarts on each mode swap — otherwise
-              the text snap-changes and breaks the demo illusion. */}
-          <span key={mode} className="mo-key-fade-up inline-block">
-            {active.metaphor}
-          </span>
-        </div>
-      </GlassSurface>
-    </>
-  );
-
-  const ExamplesCardBlock = ({ onMonitor = false }) => (
-    <GlassSurface
-      interactive={false}
-      className={`mo-glass-strong ${
-        onMonitor ? "p-3 sm:p-3.5" : "rounded-2xl p-6 sm:p-7"
-      }`}
-      style={
-        onMonitor
-          ? {
-              height: "100%",
-              width: "100%",
-              borderRadius: MONITOR_RADIUS,
-              overflow: "hidden",
-            }
-          : undefined
-      }
-    >
-      <div className="flex items-center justify-between">
-        <div
-          className={`${
-            onMonitor ? "text-[9px]" : "text-[10px]"
-          } tracking-[0.28em] uppercase`}
-          style={{
-            color: "var(--mo-fg-dim)",
-            fontFamily: "JetBrains Mono, monospace",
-          }}
-        >
-          Examples
-        </div>
-        <div
-          className={`${
-            onMonitor ? "text-[9px]" : "text-[10px]"
-          } tracking-[0.28em] uppercase`}
-          style={{
-            color: "var(--mo-accent)",
-            fontFamily: "JetBrains Mono, monospace",
-          }}
-        >
-          {/* Keyed crossfade so the label doesn't teleport on mode swap. */}
-          <span key={mode} className="mo-key-fade inline-block">
-            {mode === "pull" ? "Made to hold" : "Made to broadcast"}
-          </span>
-        </div>
-      </div>
-
-      <div
-        key={`grid-${mode}`}
-        className={`${
-          onMonitor ? "mt-2.5 gap-2" : "mt-5 gap-3"
-        } mo-stagger-in grid grid-cols-3`}
-      >
-        {mode === "push"
-          ? PUSH_VIDEOS.map((v, i) => (
-              <div key={v.preview} style={{ "--i": i }}>
-                <VideoTile
-                  src={v.preview}
-                  index={i}
-                  onPlay={() => setLightbox(v.full)}
-                />
-              </div>
-            ))
-          : PULL_VIDEOS.map((v, i) => (
-              <div key={v.preview} style={{ "--i": i }}>
-                <VideoTile
-                  src={v.preview}
-                  index={i}
-                  onPlay={() => setLightbox(v.full)}
-                />
-              </div>
-            ))}
-      </div>
-
-      <div
-        className={`${
-          onMonitor ? "mt-2.5 pt-2 text-[10px]" : "mt-6 pt-4 text-[11px]"
-        } border-t leading-[1.5]`}
-        style={{
-          borderColor: "var(--mo-line)",
-          color: "var(--mo-fg-dim)",
-          fontFamily: "JetBrains Mono, monospace",
-        }}
-      >
-        {/* Keyed crossfade for the tagline too — same mode swap moment. */}
-        <span key={`caption-${mode}`} className="mo-key-fade inline-block">
-          {mode === "pull"
-            ? "Real examples from people who identified the opportunity early!"
-            : "Every brand is stuck here"}
-        </span>
-      </div>
-    </GlassSurface>
-  );
+  const headingProps = { mode, setMode, copy };
+  const examplesProps = { mode, setLightbox };
 
   return (
     <section
@@ -609,7 +464,7 @@ export default function Approach() {
             }}
           >
             <div className="max-w-full">
-              <HeadingBlock compact />
+              <HeadingBlock compact {...headingProps} />
             </div>
           </div>
 
@@ -627,7 +482,7 @@ export default function Approach() {
               transformOrigin: "0 0",
             }}
           >
-            <ExamplesCardBlock onMonitor />
+            <ExamplesCardBlock onMonitor {...examplesProps} />
           </div>
         </div>
 
@@ -636,9 +491,9 @@ export default function Approach() {
           className="relative flex flex-col gap-8 p-6 pb-8 lg:hidden"
           style={{ background: "var(--mo-bg-elev)" }}
         >
-          <HeadingBlock />
+          <HeadingBlock {...headingProps} />
           <div data-testid={APPROACH.captionCard} className="w-full">
-            <ExamplesCardBlock />
+            <ExamplesCardBlock {...examplesProps} />
           </div>
         </div>
       </GlassSurface>
@@ -648,6 +503,284 @@ export default function Approach() {
         <VideoLightbox src={lightbox} onClose={() => setLightbox(null)} />
       )}
     </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// HeadingBlock — the "Our approach" eyebrow, the H2 headline, the Pull/Push
+// toggle, and the italic metaphor caption. Hoisted to a top-level function
+// (rather than defined inside <Approach>) so its React type is stable
+// across renders — this is what allows the metaphor's dual-mounted
+// crossfade below to actually animate instead of remounting.
+// ---------------------------------------------------------------------------
+function HeadingBlock({ compact = false, mode, setMode, copy }) {
+  return (
+    <>
+      <div className="mono-eyebrow">
+        <span style={{ color: "var(--mo-accent)" }}>//</span> Our approach
+      </div>
+
+      <h2
+        className="mt-6 text-white"
+        style={{
+          fontFamily: "Instrument Serif, serif",
+          fontSize: compact
+            ? "clamp(34px, 4vw, 64px)"
+            : "clamp(40px, 5.6vw, 84px)",
+          lineHeight: 1.02,
+          letterSpacing: "-0.015em",
+          fontWeight: 400,
+        }}
+      >
+        Most brands{" "}
+        <span style={{ color: "var(--mo-mute)", fontStyle: "italic" }}>
+          push
+        </span>{" "}
+        content, ignoring what{" "}
+        <span style={{ color: "var(--mo-accent)", fontStyle: "italic" }}>
+          pulls
+        </span>{" "}
+        audiences.
+      </h2>
+
+      <div className="mt-8 flex flex-wrap items-center gap-5">
+        <PremiumToggle value={mode} onChange={setMode} />
+      </div>
+
+      <GlassSurface
+        interactive={false}
+        className="mt-8 rounded-xl px-8 py-9 relative"
+      >
+        <div
+          aria-live="polite"
+          className="text-white relative"
+          style={{
+            fontFamily: "Instrument Serif, serif",
+            fontSize: compact
+              ? "clamp(18px, 1.7vw, 24px)"
+              : "clamp(22px, 2.4vw, 32px)",
+            fontStyle: "italic",
+            lineHeight: 1.3,
+            letterSpacing: "-0.01em",
+            minHeight: "1.3em",
+          }}
+        >
+          {/* Dual-mounted crossfade — both metaphors always render on top
+              of each other; only opacity + a small vertical drift change
+              on mode swap. Feels like the copy is truly morphing instead
+              of remounting. */}
+          <span
+            aria-hidden={mode !== "pull"}
+            style={{
+              position: "absolute",
+              inset: 0,
+              opacity: mode === "pull" ? 1 : 0,
+              transform: mode === "pull" ? "translateY(0)" : "translateY(-6px)",
+              transition: "opacity 620ms var(--ease-out-strong), transform 620ms var(--ease-out-strong)",
+            }}
+          >
+            {copy.pull.metaphor}
+          </span>
+          <span
+            aria-hidden={mode !== "push"}
+            style={{
+              position: "absolute",
+              inset: 0,
+              opacity: mode === "push" ? 1 : 0,
+              transform: mode === "push" ? "translateY(0)" : "translateY(6px)",
+              transition: "opacity 620ms var(--ease-out-strong), transform 620ms var(--ease-out-strong)",
+            }}
+          >
+            {copy.push.metaphor}
+          </span>
+          {/* Invisible placeholder so the container reserves the taller of
+              the two metaphors' natural heights. */}
+          <span style={{ visibility: "hidden" }}>
+            {copy.pull.metaphor.length >= copy.push.metaphor.length
+              ? copy.pull.metaphor
+              : copy.push.metaphor}
+          </span>
+        </div>
+      </GlassSurface>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ExamplesCardBlock — the "Examples" glass card with the 3-up video grid.
+// Both PULL_VIDEOS and PUSH_VIDEOS grids are rendered simultaneously in
+// the same slot and crossfaded via opacity + translate. Because this
+// component is hoisted out of <Approach>, its identity is stable — so
+// the individual <video> elements inside VideoTile do NOT unmount on
+// mode swap. That's what removes the "rough / immediate" feel.
+// ---------------------------------------------------------------------------
+function ExamplesCardBlock({ onMonitor = false, mode, setLightbox }) {
+  return (
+    <GlassSurface
+      interactive={false}
+      className={`mo-glass-strong ${
+        onMonitor ? "p-3 sm:p-3.5" : "rounded-2xl p-6 sm:p-7"
+      }`}
+      style={
+        onMonitor
+          ? {
+              height: "100%",
+              width: "100%",
+              borderRadius: MONITOR_RADIUS,
+              overflow: "hidden",
+            }
+          : undefined
+      }
+    >
+      <div className="flex items-center justify-between">
+        <div
+          className={`${
+            onMonitor ? "text-[9px]" : "text-[10px]"
+          } tracking-[0.28em] uppercase`}
+          style={{
+            color: "var(--mo-fg-dim)",
+            fontFamily: "JetBrains Mono, monospace",
+          }}
+        >
+          Examples
+        </div>
+        <div
+          className={`${
+            onMonitor ? "text-[9px]" : "text-[10px]"
+          } tracking-[0.28em] uppercase relative`}
+          style={{
+            color: "var(--mo-accent)",
+            fontFamily: "JetBrains Mono, monospace",
+            minWidth: onMonitor ? "80px" : "110px",
+            textAlign: "right",
+          }}
+        >
+          {/* Smooth crossfade — both labels stay mounted; only opacity+
+              translate change on mode swap. No React remount, no jump. */}
+          <span
+            aria-hidden={mode !== "pull"}
+            style={{
+              opacity: mode === "pull" ? 1 : 0,
+              transform: mode === "pull" ? "translateY(0)" : "translateY(-4px)",
+              transition: "opacity 520ms var(--ease-out-strong), transform 520ms var(--ease-out-strong)",
+              display: "inline-block",
+            }}
+          >
+            Made to hold
+          </span>
+          <span
+            aria-hidden={mode !== "push"}
+            style={{
+              position: "absolute",
+              right: 0,
+              top: 0,
+              opacity: mode === "push" ? 1 : 0,
+              transform: mode === "push" ? "translateY(0)" : "translateY(4px)",
+              transition: "opacity 520ms var(--ease-out-strong), transform 520ms var(--ease-out-strong)",
+              display: "inline-block",
+            }}
+          >
+            Made to broadcast
+          </span>
+        </div>
+      </div>
+
+      {/* Dual-mounted grid — both PULL and PUSH grids exist at all times
+          in the same slot; we crossfade between them. Videos never
+          unload, so there's no black-box flash and no snap on toggle. */}
+      <div
+        className={`${
+          onMonitor ? "mt-2.5" : "mt-5"
+        } relative`}
+      >
+        <div
+          data-mode="pull"
+          className={`${onMonitor ? "gap-2" : "gap-3"} grid grid-cols-3`}
+          style={{
+            opacity: mode === "pull" ? 1 : 0,
+            transform: mode === "pull" ? "translateY(0) scale(1)" : "translateY(8px) scale(0.985)",
+            transition: "opacity 560ms var(--ease-out-strong), transform 560ms var(--ease-out-strong)",
+            pointerEvents: mode === "pull" ? "auto" : "none",
+          }}
+          aria-hidden={mode !== "pull"}
+        >
+          {PULL_VIDEOS.map((v, i) => (
+            <VideoTile
+              key={v.preview}
+              src={v.preview}
+              index={i}
+              onPlay={() => setLightbox(v.full)}
+            />
+          ))}
+        </div>
+        <div
+          data-mode="push"
+          className={`${onMonitor ? "gap-2" : "gap-3"} grid grid-cols-3 absolute inset-0`}
+          style={{
+            opacity: mode === "push" ? 1 : 0,
+            transform: mode === "push" ? "translateY(0) scale(1)" : "translateY(8px) scale(0.985)",
+            transition: "opacity 560ms var(--ease-out-strong), transform 560ms var(--ease-out-strong)",
+            pointerEvents: mode === "push" ? "auto" : "none",
+          }}
+          aria-hidden={mode !== "push"}
+        >
+          {PUSH_VIDEOS.map((v, i) => (
+            <VideoTile
+              key={v.preview}
+              src={v.preview}
+              index={i}
+              onPlay={() => setLightbox(v.full)}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div
+        className={`${
+          onMonitor ? "mt-2.5 pt-2 text-[10px]" : "mt-6 pt-4 text-[11px]"
+        } border-t leading-[1.5] relative`}
+        style={{
+          borderColor: "var(--mo-line)",
+          color: "var(--mo-fg-dim)",
+          fontFamily: "JetBrains Mono, monospace",
+          minHeight: onMonitor ? "1.5em" : "1.7em",
+        }}
+      >
+        {/* Same crossfade pattern for the caption — dual mounted, no remount. */}
+        <span
+          aria-hidden={mode !== "pull"}
+          style={{
+            opacity: mode === "pull" ? 1 : 0,
+            transform: mode === "pull" ? "translateY(0)" : "translateY(-3px)",
+            transition: "opacity 520ms var(--ease-out-strong) 60ms, transform 520ms var(--ease-out-strong) 60ms",
+            display: "inline-block",
+            position: "absolute",
+            left: 0,
+            right: 0,
+            top: onMonitor ? "0.5rem" : "1rem",
+          }}
+        >
+          Real examples from people who identified the opportunity early!
+        </span>
+        <span
+          aria-hidden={mode !== "push"}
+          style={{
+            opacity: mode === "push" ? 1 : 0,
+            transform: mode === "push" ? "translateY(0)" : "translateY(3px)",
+            transition: "opacity 520ms var(--ease-out-strong) 60ms, transform 520ms var(--ease-out-strong) 60ms",
+            display: "inline-block",
+            position: "absolute",
+            left: 0,
+            right: 0,
+            top: onMonitor ? "0.5rem" : "1rem",
+          }}
+        >
+          Every brand is stuck here
+        </span>
+        {/* Invisible placeholder to preserve intrinsic caption height. */}
+        <span style={{ visibility: "hidden" }}>Real examples from people who identified the opportunity early!</span>
+      </div>
+    </GlassSurface>
   );
 }
 

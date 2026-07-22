@@ -77,9 +77,9 @@ export default function Stats() {
           floats over that single continuous nightscape. The SQ2/SQ3 bleed
           imagery that used to sit here has been removed on purpose so it
           doesn't compete with the new global background. */}
-      <div className="mx-auto max-w-[1240px] section-px py-[70px]" style={{ position: "relative", zIndex: 2 }}>
+      <div className="mx-auto max-w-[1240px] section-px pt-[28px] pb-[70px]" style={{ position: "relative", zIndex: 2 }}>
         <Reveal>
-          <div className="mono-eyebrow mb-10">
+          <div className="mono-eyebrow mb-6">
             <span style={{ color: "var(--mo-accent)" }}>//</span> The results speak
           </div>
         </Reveal>
