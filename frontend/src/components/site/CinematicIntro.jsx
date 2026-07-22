@@ -94,7 +94,7 @@ export default function CinematicIntro() {
     <div
       ref={wrapRef}
       className="relative"
-      style={{ height: "88vh", overflow: "hidden" }}
+      style={{ height: "100vh", overflow: "hidden" }}
       data-testid="cinematic-intro-wrap"
     >
       {/* Hero layer — drifts upward and fades to opacity 0 as user scrolls.
