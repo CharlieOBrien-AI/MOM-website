@@ -40,7 +40,18 @@ export default function HeroScrubVideo() {
 
 function MobileHeroVideo() {
   return (
-    <div className="absolute inset-0 overflow-hidden">
+    <div
+      className="absolute inset-0 overflow-hidden"
+      style={{
+        // Same "dissolve into the site backdrop" mask as the desktop tier —
+        // the hero video melts into <SiteBackground /> instead of hard-cutting
+        // to the section below.
+        WebkitMaskImage:
+          "linear-gradient(180deg, black 0%, black 72%, rgba(0,0,0,0.85) 84%, rgba(0,0,0,0.5) 92%, rgba(0,0,0,0) 100%)",
+        maskImage:
+          "linear-gradient(180deg, black 0%, black 72%, rgba(0,0,0,0.85) 84%, rgba(0,0,0,0.5) 92%, rgba(0,0,0,0) 100%)",
+      }}
+    >
       {/* Instant poster layer — first frame JPG behind the video */}
       <img
         src={POSTER_SRC}
@@ -64,15 +75,6 @@ function MobileHeroVideo() {
         <source src={MOBILE_SRC} type="video/mp4" />
         <source src="/videos/owl-hero-mobile.webm" type="video/webm" />
       </video>
-      {/* Bottom fade blends the video into the page background below */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(10,10,11,0) 0%, rgba(10,10,11,0) 78%, #06060a 100%)",
-        }}
-      />
     </div>
   );
 }
@@ -303,7 +305,20 @@ function DesktopScrubVideo() {
   }, [reduced, isFullyBuffered]);
 
   return (
-    <div className="absolute inset-0 overflow-hidden">
+    <div
+      className="absolute inset-0 overflow-hidden"
+      style={{
+        // Fade the entire hero layer's bottom edge into transparency so the
+        // site-wide parallax nightscape (position: fixed, z-index: 0) blends
+        // through the last strip of the hero instead of ending in a hard cut
+        // against the next section. Using a mask (not a colour overlay) so
+        // it dissolves the actual pixels rather than tinting them.
+        WebkitMaskImage:
+          "linear-gradient(180deg, black 0%, black 72%, rgba(0,0,0,0.85) 84%, rgba(0,0,0,0.5) 92%, rgba(0,0,0,0) 100%)",
+        maskImage:
+          "linear-gradient(180deg, black 0%, black 72%, rgba(0,0,0,0.85) 84%, rgba(0,0,0,0.5) 92%, rgba(0,0,0,0) 100%)",
+      }}
+    >
       {/* Instant poster layer — the first video frame as a plain JPG so the
           hero never renders black while the video is still buffering. */}
       <img

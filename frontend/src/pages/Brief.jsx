@@ -401,6 +401,22 @@ export default function Brief() {
   return (
     <>
       <GlassBackground />
+      {/* Brief-specific extra tint — deeper than the site-wide SiteBackground
+          tint so the long-form typography here reads comfortably against
+          the nightscape. Fixed to the viewport (independent of scroll), sits
+          above the sky (z-index: 0 SiteBackground layer) but below the
+          content wrapper (z-index: 1). */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none"
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 0,
+          background:
+            "linear-gradient(180deg, rgba(6,4,14,0.55) 0%, rgba(6,4,14,0.62) 45%, rgba(6,4,14,0.72) 100%)",
+        }}
+      />
       <div className="relative" style={{ zIndex: 1 }}>
         {/* Minimal header — logo left, back link right. No full Nav so the
             page reads as a focused, uncluttered task surface. */}
