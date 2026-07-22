@@ -284,7 +284,43 @@ export default function Voices() {
           </h2>
         </Reveal>
 
-        <div className="mt-12 columns-1 gap-5 text-left md:columns-2 lg:columns-3">
+        {/* Mobile: horizontal snap-carousel (comments scroll sideways
+            instead of stacking one below the other). Desktop keeps the
+            masonry column layout unchanged. items-start prevents flex
+            from stretching cards to the tallest sibling's height. */}
+        <div
+          className="mt-10 -mx-4 flex snap-x snap-mandatory items-start gap-4 overflow-x-auto px-4 pb-4 md:hidden"
+          style={{
+            scrollbarWidth: "none",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          {comments.map((c, i) => (
+            <div
+              key={`m-${c.user}`}
+              className="snap-start shrink-0"
+              style={{ width: "82vw", maxWidth: 380 }}
+            >
+              <GlassSurface
+                data-testid={`voice-comment-m-${i}`}
+                className="rounded-2xl p-5"
+                tilt={0}
+                style={{ background: "rgba(15,15,15,0.62)" }}
+              >
+                {c.platform === "youtube" ? (
+                  <YouTubeComment c={c} />
+                ) : (
+                  <InstagramComment c={c} />
+                )}
+              </GlassSurface>
+            </div>
+          ))}
+          {/* Trailing spacer so the last card can snap fully into view */}
+          <div className="shrink-0" style={{ width: "1px" }} aria-hidden="true" />
+        </div>
+
+        {/* Desktop: original CSS columns masonry — unchanged. */}
+        <div className="mt-12 hidden gap-5 text-left md:columns-2 lg:columns-3 md:block">
           {comments.map((c, i) => (
             <Reveal key={c.user} delay={(i % 3) * 110} className="mb-5 break-inside-avoid">
               <GlassSurface

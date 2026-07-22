@@ -253,6 +253,16 @@ export default function Approach() {
     };
     video.addEventListener("seeked", onSeeked);
 
+    // Safety net — if `seeked` never fires (frame not buffered, decoder
+    // hiccup, HD-source blob still loading), unblock the seek gate after
+    // 220 ms so subsequent `currentTime` writes can still be attempted.
+    // Without this the animation can appear "stuck" mid-scrub on slower
+    // networks / production CDN latency.
+    const seekTimeoutTick = () => {
+      if (!seekReadyRef.current) seekReadyRef.current = true;
+    };
+    const seekTimeoutId = setInterval(seekTimeoutTick, 220);
+
     video.addEventListener("loadedmetadata", init, { once: true });
 
     let started = false;
@@ -285,6 +295,7 @@ export default function Approach() {
     return () => {
       video.removeEventListener("loadedmetadata", init);
       video.removeEventListener("seeked", onSeeked);
+      if (seekTimeoutId) clearInterval(seekTimeoutId);
       if (io) io.disconnect();
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };

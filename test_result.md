@@ -102,9 +102,46 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Iteration 9 (background bug fix): Previous iteration broke the site parallax feel. User reported (1) background scrolls 1:1 with the page (no parallax drift), (2) black gaps between sections, (3) the newly-uploaded tree-branch image on 'How We Create Content' was not visibly applied, (4) 'Stories we've told' and 'People can buy followers' sections looked disconnected — one section-level background painted over another, (5) parallax rates were unequal across the page, so sections did not feel like they float above a single continuous background, (6) noticeable image cropping. Also (7) small copy fix in Approach push tab: 'every brand is stuck here' → 'Every brand is stuck here' (capital E)."
+user_problem_statement: "Iteration 10 (feedback follow-up): (1) Hero → Stats still felt disconnected because the combined site-bg.webp had a hard horizontal seam where attachment #3 (tree branch) met bg-3.webp (misty valley) — user wants a truly continuous background. (2) The Voices comments section stacks all comments in one vertical column on mobile, which the user finds broken — user wants a horizontal snap-scroll carousel on mobile (`apply the same scrolling logic here as well`) while keeping the 3-column masonry on desktop. (3) The Approach Push/Pull video and the Hero scrub video sometimes 'get stuck' — most visibly on the deployed production build, less so in preview. Root cause suspected: the animation's seek-ready gate can hang forever if the browser never fires the `seeked` event (frame past the buffered range, decoder hiccup, HD-blob still loading). (4) The Hero video wrapper needed to keep the seamless mask fade added in iteration 9 (must not regress). (5) The darker /brief tint from iteration 9 must not regress."
 
 frontend:
+  - task: "Site background — smooth blended seam between tree-branch and misty-valley"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/public/images/bg/site-bg.webp"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Rebuilt site-bg.webp with a Pillow crossfade at the meeting point of the two source images. Both source images are 1672×941. A 260px alpha-gradient blend zone is inserted at the boundary (the last 260px of attachment #3 alpha-blends into the first 260px of bg-3.webp), so the combined image is 1672×1622 with no visible horizontal line at the seam. Saved at WebP q84 method 6 (~70KB). Verified via Playwright screenshots at multiple scroll positions — the tree-branch scene now dissolves gently into the misty-valley scene rather than hard-cutting."
+
+  - task: "Voices — horizontal snap-scroll carousel on mobile"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/site/Voices.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Under md (< 768px) Voices now renders comments in a single-row horizontal flex container: `-mx-4 flex snap-x snap-mandatory items-start gap-4 overflow-x-auto px-4 pb-4`. Each card is `snap-start shrink-0` at width 82vw (max 380px) so exactly one card is fully in view at a time and the next card peeks in. `items-start` prevents flex from stretching short cards to the tallest sibling's height. A 1px trailing spacer allows the last card to snap fully into view. Desktop (md+) still uses the CSS-columns masonry layout — untouched. New testids: `voice-comment-m-{0..8}` (mobile), `voice-comment-{0..8}` (desktop) still in place for iteration-9 tests. GangisDankus, Charlie's creator-heart, allstarsteven avatar all continue to render inside the mobile carousel."
+
+  - task: "Approach Push/Pull video — anti-stall seek-timeout"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/site/Approach.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added a 220 ms `setInterval` that force-resets `seekReadyRef.current = true` if the `seeked` event hasn't fired. Without this the RAF-driven scrub loop can freeze indefinitely mid-animation when the target frame lives past the buffered range (production CDN latency, low-bandwidth users, or the initial blob load). Interval is cleared on unmount alongside the other listeners. Does NOT change the visible animation timing — the loop still eases toward the target via cubic ease-in-out, just now with a hard ceiling on how long a single seek can block the next one."
+
+
   - task: "Single continuous parallax nightscape background (site-wide)"
     implemented: true
     working: true
@@ -448,8 +485,8 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "1.8"
-  test_sequence: 9
+  version: "1.9"
+  test_sequence: 10
   run_ui: true
 
 test_plan:
