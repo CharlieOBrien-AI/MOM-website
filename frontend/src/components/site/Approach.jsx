@@ -486,10 +486,14 @@ export default function Approach() {
           </div>
         </div>
 
-        {/* MOBILE STACKED CONTENT — below the video-aspect wrapper. */}
+        {/* MOBILE STACKED CONTENT — below the video-aspect wrapper.
+            Transparent background so the site-wide nightscape shows
+            through, matching the glass-UI feel of the Push/Pull toggle
+            and card. Previously this used a solid `--mo-bg-elev` slab
+            that broke the atmospheric continuity on mobile. */}
         <div
           className="relative flex flex-col gap-8 p-6 pb-8 lg:hidden"
-          style={{ background: "var(--mo-bg-elev)" }}
+          style={{ background: "transparent" }}
         >
           <HeadingBlock {...headingProps} />
           <div data-testid={APPROACH.captionCard} className="w-full">

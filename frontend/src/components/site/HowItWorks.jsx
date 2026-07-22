@@ -64,11 +64,20 @@ const steps = [
 function StepRow({ step, index, open, onToggle }) {
   const Icon = step.icon;
   return (
-    <div data-testid={`process-step-${index}`} className="pt-2 text-center">
-      <div className="flex flex-col items-center gap-6">
+    // Overflow-hidden on the step wrapper keeps the accordion label of the
+    // NEXT slide from bleeding into the currently-visible slide on narrow
+    // mobile viewports (was causing "We shape…" to appear next to Step 1
+    // in the original layout).
+    <div data-testid={`process-step-${index}`} className="pt-1 text-center overflow-hidden">
+      <div className="flex flex-col items-center gap-4 sm:gap-5">
         {/* Icon (centered on top for balance) */}
         <div aria-hidden="true">
-          <Icon size={72} strokeWidth={0.9} color="rgba(255,255,255,0.9)" />
+          <Icon
+            size={56}
+            strokeWidth={0.9}
+            color="rgba(255,255,255,0.9)"
+            className="sm:!size-[64px]"
+          />
         </div>
 
         {/* (Step n) */}
@@ -108,7 +117,7 @@ function StepRow({ step, index, open, onToggle }) {
       </div>
 
       {/* Expandable detail row */}
-      <div className="mx-auto mt-10 max-w-[720px] text-left">
+      <div className="mx-auto mt-6 max-w-[720px] text-left">
         <div className="border-t" style={{ borderColor: "var(--mo-line)" }}>
           <button
             type="button"
@@ -270,7 +279,7 @@ export default function HowItWorks() {
 
         {/* One step at a time — arrows on the sides + swipe / keyboard reveal the next */}
         <Reveal delay={130}>
-          <div className="relative mt-12">
+          <div className="relative mt-6 sm:mt-8">
             {/* Left arrow */}
             <button
               type="button"
@@ -313,13 +322,16 @@ export default function HowItWorks() {
               <ChevronRight size={20} strokeWidth={1.6} />
             </button>
 
-            {/* Carousel content, padded so arrows never overlap text.
-                No top border here — the divider used to feel like a hard
-                cut between the section heading and the step body; without
-                it the step content flows naturally under the heading. */}
+            {/* Carousel content. `mx-*` (not `px-*`) so the arrows sit
+                OUTSIDE the overflow-hidden clip box — otherwise the
+                adjacent slide would bleed into the padding area on
+                mobile ("We shape…" showing beside Step 1's "We learn
+                from your audience"). Using margins pushes the clip
+                container inward, giving a hard clean edge exactly at
+                the visible slide width. */}
             <div
               ref={trackRef}
-              className="overflow-hidden px-14 sm:px-16 md:px-20"
+              className="overflow-hidden mx-14 sm:mx-16 md:mx-20"
               onTouchStart={onTouchStart}
               onTouchEnd={onTouchEnd}
             >
@@ -334,7 +346,7 @@ export default function HowItWorks() {
                 {steps.map((s, i) => (
                   <div
                     key={s.title}
-                    className="py-10 lg:py-12"
+                    className="py-4 sm:py-6 lg:py-8"
                     style={{ width: `${100 / total}%`, flexShrink: 0 }}
                   >
                     <StepRow

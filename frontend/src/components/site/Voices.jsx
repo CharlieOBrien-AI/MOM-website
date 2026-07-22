@@ -101,22 +101,23 @@ const comments = [
 
 // -----------------------------------------------------------------------------
 // Mobile slide groupings. We split the 8 comments into exactly THREE slides,
-// hand-curated so each one visually fills the viewport (no more lonely
-// "chills bruh" short comment on a sea of empty space):
+// hand-curated so each one visually fills the viewport:
 //
-//   • Slide 1 — the short "chills bruh" comment paired with the long
-//     ShooterMacgavin comment; the tall paragraph fills the room the
+//   • Slide 1 (2 comments) — the short "chills bruh" quip paired with the
+//     long ShooterMacgavin paragraph; the tall comment fills the room the
 //     tiny quip leaves behind.
-//   • Slide 2 — three medium YouTube quotes stacked so the slide is
-//     comfortably full.
-//   • Slide 3 — the four Instagram voices grouped as one social wall.
+//   • Slide 2 (3 comments) — JayJames + shantanu_shanbhag + allstarsteven.
+//     allstarsteven was moved here from slide 3 so both slides 2 and 3 hold
+//     the same number of cards, giving the carousel a balanced 2-3-3 rhythm.
+//   • Slide 3 (3 comments) — the remaining Instagram voices grouped as a
+//     "social wall" of appreciation.
 //
 // Indices refer to positions in the `comments` array above.
 // -----------------------------------------------------------------------------
 const MOBILE_SLIDE_GROUPS = [
-  [0, 1],           // GangisDankus (short) + ShooterMacgavin (long)
-  [2, 3],           // JayJames + shantanu_shanbhag
-  [4, 5, 6, 7],     // allstarsteven + samuelbryan + angelin + vinaydembla
+  [0, 1],           // GangisDankus + ShooterMacgavin
+  [2, 3, 4],        // JayJames + shantanu_shanbhag + allstarsteven
+  [5, 6, 7],        // samuelbryan268 + angelin1769 + vinaydembla
 ];
 
 const ytFont = "Roboto, 'Helvetica Neue', Arial, sans-serif";
@@ -305,11 +306,13 @@ export default function Voices() {
         </Reveal>
 
         {/* Mobile: horizontal snap-carousel. Exactly THREE hand-curated
-            slides now (see MOBILE_SLIDE_GROUPS above), so every slide
-            visually fills the viewport instead of showing one short
-            quote floating on empty space. */}
+            slides now (see MOBILE_SLIDE_GROUPS above), with a 2-3-3 card
+            rhythm so every slide visually fills the viewport. `text-left`
+            here overrides the parent section's `text-center`, so long
+            comments (Instagram especially) stack naturally at the left
+            edge instead of centering per line. */}
         <div
-          className="mt-10 -mx-4 flex snap-x snap-mandatory items-start gap-4 overflow-x-auto px-4 pb-4 md:hidden"
+          className="mt-10 -mx-4 flex snap-x snap-mandatory items-start gap-4 overflow-x-auto px-4 pb-4 md:hidden text-left"
           style={{
             scrollbarWidth: "none",
             WebkitOverflowScrolling: "touch",
