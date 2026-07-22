@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect, useEffect } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLenis } from "lenis/react";
 import GlassSurface from "@/components/glass/GlassSurface";
@@ -222,23 +222,16 @@ export default function Brief() {
   // window.scrollTo alone doesn't always sync it — calling lenis.scrollTo
   // with immediate:true resets both browser scroll + Lenis' internal state
   // in one call, so /brief always opens at "Let's talk."
+  //
+  // NOTE: We intentionally do NOT call `lenis.stop()` here. `stop()` also
+  // pins/prevents the wheel + touch listeners which BREAKS native scrolling
+  // on the whole form — the visitor can't scroll to the fields below the
+  // fold at all. The correct way to disable Lenis for the whole /brief
+  // route is at the App-level (see App.js) where we simply do not mount
+  // <ReactLenis> when the current path is /brief. That lets the browser
+  // use its native scroll (with the correct Android virtual-keyboard
+  // behaviour) while smooth-scroll remains active on the Home route.
   const lenis = useLenis();
-
-  // On Android especially, Lenis's `syncTouch: true` swallows native touch
-  // events which fights with the virtual keyboard: after typing in a field
-  // and dismissing the keyboard, any subsequent scroll animation would fire
-  // Lenis' cached scroll extent and snap the visitor back toward the top.
-  // We stop Lenis for the entire duration of the /brief page so the browser
-  // handles form scrolling natively (Android's default input-into-view
-  // behavior + native touch inertia work correctly). Lenis resumes when
-  // the visitor navigates away.
-  useEffect(() => {
-    if (!lenis || typeof lenis.stop !== "function") return undefined;
-    lenis.stop();
-    return () => {
-      if (typeof lenis.start === "function") lenis.start();
-    };
-  }, [lenis]);
 
   // useLayoutEffect (not useEffect) runs synchronously before paint, so the
   // scroll reset happens before the user even sees the page — no visible

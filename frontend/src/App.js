@@ -1,6 +1,6 @@
 import "@/App.css";
 import "lenis/dist/lenis.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ReactLenis } from "lenis/react";
 import Home from "@/pages/Home";
 import Brief from "@/pages/Brief";
@@ -42,6 +42,52 @@ const LENIS_OPTIONS = {
   gestureOrientation: "vertical",
 };
 
+/**
+ * AppShell — the routed content. Wraps its children in <ReactLenis> for
+ * routes that benefit from the buttery smooth scrolling (the marketing
+ * landing page), and DELIBERATELY skips Lenis on the /brief form route.
+ *
+ * Why skip on /brief?
+ *   Lenis with `syncTouch: true` proxies touch scroll through its own JS
+ *   loop. On Android that fights with the native virtual-keyboard behavior:
+ *   after focusing a field, typing, and dismissing the keyboard, subsequent
+ *   scroll gestures would either be dropped or snap the visitor back
+ *   toward the top of the page. Native touch scrolling handles the
+ *   keyboard resize event correctly — so the fix is simply to NOT hand
+ *   scrolling over to Lenis while the user is filling out a form.
+ *
+ *   NB: This also unmounts ReactLenis when the visitor navigates into
+ *   /brief, and remounts it when they navigate back to /. That's cheap
+ *   (Lenis is a tiny library) and keeps the two behaviors cleanly
+ *   isolated with no runtime toggling of internal Lenis state.
+ */
+function AppShell() {
+  const location = useLocation();
+  const useSmoothScroll = location.pathname !== "/brief";
+
+  // The routed content. Same tree either way; only the outer wrapper
+  // differs so hot-reload / DOM diffing stays predictable.
+  const body = (
+    <div className="App">
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/brief" element={<Brief />} />
+          <Route path="*" element={<Home />} />
+        </Routes>
+      </div>
+    </div>
+  );
+
+  return useSmoothScroll ? (
+    <ReactLenis root options={LENIS_OPTIONS}>
+      {body}
+    </ReactLenis>
+  ) : (
+    body
+  );
+}
+
 function App() {
   return (
     <>
@@ -56,19 +102,12 @@ function App() {
           bg-3 misty-valley cabin, no gap) and slowly reveals it top-to-bottom
           as the visitor scrolls the page. See SiteBackground.jsx for details. */}
       <SiteBackground />
-      <ReactLenis root options={LENIS_OPTIONS}>
-        <div className="App">
-          <div style={{ position: "relative", zIndex: 1 }}>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/brief" element={<Brief />} />
-                <Route path="*" element={<Home />} />
-              </Routes>
-            </BrowserRouter>
-          </div>
-        </div>
-      </ReactLenis>
+      {/* BrowserRouter must wrap AppShell so `useLocation()` inside AppShell
+          has a routing context to consult when deciding whether to enable
+          Lenis for the current route. */}
+      <BrowserRouter>
+        <AppShell />
+      </BrowserRouter>
     </>
   );
 }
