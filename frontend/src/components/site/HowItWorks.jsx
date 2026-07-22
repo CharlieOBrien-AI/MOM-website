@@ -228,10 +228,11 @@ export default function HowItWorks() {
       className="relative overflow-hidden"
       style={{ background: "transparent" }}
     >
-      {/* Section-level nightscape (bg-4) with slow parallax + linear tint,
-          matching the treatment on FAQ and Voices. */}
+      {/* Section-level nightscape (tree-branch purple sky, uploaded by the
+          user) with slow parallax + linear tint, matching the treatment on
+          FAQ and Voices. */}
       <ParallaxBackground
-        src="/images/bg/bg-4.webp"
+        src="/images/bg/bg-tree.webp"
         speed={0.14}
         tint="linear-gradient(180deg, rgba(6,4,14,0.82) 0%, rgba(6,4,14,0.55) 45%, rgba(6,4,14,0.88) 100%)"
       />

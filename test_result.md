@@ -102,9 +102,70 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Iteration 7: Bug fixes and content changes - (1) PRIMARY BUG FIX: Get In Touch scroll bug — clicking 'Get In Touch' button from scrolled landing page now navigates to /brief AND opens at the very TOP (Y=0), showing 'Let's talk.' headline, not bottom of form; (2) Approach section text swap — Pull tab shows 'Real examples from people who identified the opportunity early!', Push tab shows 'every brand is stuck here'; (3) Contact section golden eyes removed — no pulsating golden circles, just cinematic nightscape background (bg-3.webp) with linear tint + headline + CTA; (4) Background images with linear tint — FAQ (bg-1.webp tree at cliff), Voices (bg-2.webp mountain lake), Contact (bg-3.webp misty valley cabin) all have dark gradient tints; (5) FAQ heading changed to 'You might have questions.' with 'questions.' in purple italic serif; (6) FAQ answer for 'How soon will I see results?' updated to single-paragraph answer about proven strategies and data-driven optimizations; (7) Brief page subtext — three sentences separated by blank lines; (8) Required fields marked with purple asterisks — Full name*, Email* (Phone does NOT have *), Section 04 'Select at least one*', Section 05 'About your project*' — all asterisks in purple (var(--mo-accent))."
+user_problem_statement: "Iteration 8: (1) The nightscape background currently sitting only inside the 'Let's tell some stories.' Contact box now becomes the WEBSITE background; the box itself is fully transparent. (2) Same continuous nightscape background applied to the /brief form page. (3) 'How We Create Content' (HowItWorks) section swapped from bg-4.webp to the newly-uploaded tree-branch purple-sky image. Tint unchanged. (4) allstarsteven Instagram-comment avatar replaced with the correctly-sourced high-res portrait (asian guy, spiky hair, pink wall). (5) Charlie's DP (used as the creator-heart badge on YouTube comments where creatorHeart:true) replaced with the fresh high-res portrait (curly hair, purple backdrop). (6) The site background is built by vertically stacking the two nightscape images (tree-branch on top, misty-valley on bottom) with NO gap between them — one continuous background image tiling vertically."
 
 frontend:
+  - task: "Continuous site background — combined tree-branch + misty-valley nightscape applied to <body>"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/site/SiteBackground.jsx, /app/frontend/src/index.css, /app/frontend/src/pages/Home.jsx, /app/frontend/src/pages/Brief.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Created /public/images/bg/site-bg.webp by vertically concatenating the newly-uploaded tree-branch purple-sky image (top) and the existing bg-3.webp misty-valley scene (bottom) with 0px gap between them. Added a new SiteBackground.jsx component (mounted on both Home.jsx and Brief.jsx) that sets document.body.style.backgroundImage = url('/images/bg/site-bg.webp') at runtime — this side-steps webpack's css-loader which was refusing to resolve absolute /images/ URLs in index.css. Tiling / sizing / positioning defaults live in index.css on the body rule: background-repeat: repeat-y; background-size: 100% auto; background-position: top center; background-attachment: scroll. .mo-bg-orbs (previously solid #000) is now a fixed viewport-sized linear-gradient tint (rgba(6,4,14,0.48-0.72)) so the site bg reads clearly through it while the copy still has enough contrast. Verified via Playwright: getComputedStyle(document.body).backgroundImage returns the site-bg.webp URL on both / and /brief; the Contact section (transparent) shows the misty-valley portion of the site bg through it; the Brief page shows the tree-branch portion at the top and transitions to misty-valley as the user scrolls."
+
+  - task: "Contact section — box is transparent, no local background"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/site/Contact.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Contact.jsx was already background: transparent (Iteration 7). No further changes were required — the Contact section now correctly shows the site's continuous nightscape bg (misty-valley portion) through the transparent box. 'Let's tell some stories.' headline + 'Book a free consultation session with us.' + 'GET IN TOUCH →' CTA remain unchanged."
+
+  - task: "HowItWorks section — background swapped to tree-branch purple sky"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/site/HowItWorks.jsx, /app/frontend/public/images/bg/bg-tree.webp"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Saved the newly-uploaded tree-branch purple-sky image as /public/images/bg/bg-tree.webp (30KB WebP, 1672×941). Changed HowItWorks.jsx ParallaxBackground src from '/images/bg/bg-4.webp' to '/images/bg/bg-tree.webp'. Tint (linear-gradient rgba(6,4,14,0.82) → 0.55 → 0.88) and parallax speed (0.14) kept unchanged as the user asked. Verified via screenshot: the 'How We Create Content That Pulls People In.' section now shows the new tree-branch scene."
+
+  - task: "allstarsteven Instagram avatar replaced with correct high-res portrait"
+    implemented: true
+    working: true
+    file: "/app/frontend/public/images/avatars/allstarsteven.jpg"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Downloaded the uploaded portrait (asian guy, spiky hair, pink wall), resized to 240×240 JPEG (progressive, quality 88) and overwrote /public/images/avatars/allstarsteven.jpg. Verified via Playwright screenshot: the allstarsteven comment card in the Voices section now shows the correct portrait next to the verified badge. No code changes needed in Voices.jsx because it already references the file by absolute path."
+
+  - task: "Charlie's creator-heart avatar replaced with fresh high-res portrait"
+    implemented: true
+    working: true
+    file: "/app/frontend/public/images/avatars/charlie.jpg"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Downloaded the uploaded portrait (curly hair, purple backdrop), resized to 240×240 JPEG (progressive, quality 88) and overwrote /public/images/avatars/charlie.jpg. The CreatorHeart sub-component in Voices.jsx renders this image as the 'hearted by creator' badge on comments with creatorHeart:true (@GangisDankus, @shantanu_shanbhag). Verified via screenshot: both those comments now show the new curly-haired portrait behind the red heart glyph."
+
+
   - task: "PRIMARY BUG FIX: Get In Touch scroll position — /brief opens at top"
     implemented: true
     working: true
@@ -341,8 +402,8 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "1.6"
-  test_sequence: 7
+  version: "1.7"
+  test_sequence: 8
   run_ui: true
 
 test_plan:
@@ -352,6 +413,9 @@ test_plan:
   test_priority: "stuck_first"
 
 agent_communication:
+  - agent: "main"
+    message: "Iteration 8 (site background + avatar refresh). Delivered self-verified via Playwright screenshots + DOM check on document.body.style.backgroundImage. Files touched: /app/frontend/src/components/site/SiteBackground.jsx (NEW), /app/frontend/src/index.css (body + .mo-bg-orbs), /app/frontend/src/pages/Home.jsx (+ SiteBackground mount), /app/frontend/src/pages/Brief.jsx (+ SiteBackground mount), /app/frontend/src/components/site/HowItWorks.jsx (ParallaxBackground src → bg-tree.webp). New assets: /public/images/bg/site-bg.webp (66KB WebP, 1672×1882, combined tree-branch on top + misty-valley on bottom, 0px gap), /public/images/bg/bg-tree.webp (30KB, uploaded tree-branch scene), /public/images/avatars/allstarsteven.jpg (asian guy portrait) and /public/images/avatars/charlie.jpg (curly-hair portrait) — both 240×240 progressive JPEG at q88. IMPORTANT NOTE for future edits: putting url('/images/...') directly in index.css fails because CRA's css-loader tries to resolve it as a webpack module. The SiteBackground component sets document.body.style.backgroundImage at runtime to bypass that. Tiling / positioning defaults still live in index.css (repeat-y, size 100% auto, scroll attachment) so the runtime just supplies the URL. No backend changes."
+
   - agent: "main"
     message: "Iteration 6.2 (visual polish). Two additive changes to the site: (1) Removed the white flash following the cursor over glass surfaces — `.mo-glass-interactive:hover .mo-glass-sheen { opacity: 0 }` in /app/frontend/src/index.css (was `1`). Sheen DOM stays but never becomes visible. Playwright-verified: computed opacity is 0 on hover. (2) Added a black tint to the background from scene 2 onwards — semi-transparent rgba(0,0,0,0.55) overlay inside the SQ2/SQ3 wrapper in Stats.jsx (covers full 2×image height, no crop, no gap), plus rgba(0,0,0,0.45) overlay on the Approach workspace video in Approach.jsx. Hero (scene 1) untouched. Screenshot-verified: Stats + Approach both read visibly darker; Hero still bright purple."
   - agent: "main"
@@ -363,8 +427,8 @@ agent_communication:
   - agent: "testing"
     message: "Iteration 6.1 bug fix testing COMPLETE. All tests PASSED ✅. PRIMARY BUG FIX VERIFIED: The double audio bug is completely resolved. Desktop viewport shows exactly 3 play buttons (not 6), proving only one layout renders. When playing a video, exactly 1 iframe mounts (not 2) - this is the core fix. Switching between videos correctly unmounts the previous iframe, stopping its audio. Mobile viewport also shows exactly 3 play buttons and 1 iframe when playing. Cross-viewport resize test confirms no orphan iframes survive layout changes (playingIdx resets to -1). All regression checks passed: custom thumbnails present, no kicker tags, allstarsteven comment with verified badge visible in Voices, HowItWorks arrows functional. The matchMedia hook implementation successfully prevents the root cause - only ONE iframe can exist in the DOM at any time, eliminating the parallel audio playback issue. Ready for production."
   - agent: "testing"
-    message: "Brief form validation UX testing COMPLETE at https://google-forms-api.preview.emergentagent.com/brief. All critical validation behaviors verified and working correctly: (1) Required field indicators (*) correctly shown only on 'Full name' and 'Email address' labels, NOT on Phone/Company/Website. (2) Submit button is always clickable (not disabled) when form is empty, only disabled while submitting. (3) Empty form submission triggers red error summary banner (data-testid='brief-error-summary') showing '4 THINGS NEED YOUR ATTENTION' with inline red errors below name, email, services, and projectDetails fields. Page smoothly scrolls to first invalid field (name). (4) Invalid email 'notanemail' shows friendly inline error: 'That email doesn't look right — try something like you@company.com.' (5) Errors clear in real-time as user types valid input - email error disappeared when typing 'test@example.com'. (6) Valid submission with all fields filled correctly (name: 'Playwright Test', phone: '9876543210', email: 'playwright@example.com', company: 'Test Co', website: 'https://example.com', service: 'Video Production and Ad Films', project details: proper description) successfully completes and shows success state with data-testid='brief-success-heading' displaying 'We've got your brief.' Minor note: Error summary text is styled in uppercase via CSS (intentional design), not a bug. All validation logic, error handling, and UX flows working as specified."
+    message: "Brief form validation UX testing COMPLETE at https://image-flow-19.preview.emergentagent.com/brief. All critical validation behaviors verified and working correctly: (1) Required field indicators (*) correctly shown only on 'Full name' and 'Email address' labels, NOT on Phone/Company/Website. (2) Submit button is always clickable (not disabled) when form is empty, only disabled while submitting. (3) Empty form submission triggers red error summary banner (data-testid='brief-error-summary') showing '4 THINGS NEED YOUR ATTENTION' with inline red errors below name, email, services, and projectDetails fields. Page smoothly scrolls to first invalid field (name). (4) Invalid email 'notanemail' shows friendly inline error: 'That email doesn't look right — try something like you@company.com.' (5) Errors clear in real-time as user types valid input - email error disappeared when typing 'test@example.com'. (6) Valid submission with all fields filled correctly (name: 'Playwright Test', phone: '9876543210', email: 'playwright@example.com', company: 'Test Co', website: 'https://example.com', service: 'Video Production and Ad Films', project details: proper description) successfully completes and shows success state with data-testid='brief-success-heading' displaying 'We've got your brief.' Minor note: Error summary text is styled in uppercase via CSS (intentional design), not a bug. All validation logic, error handling, and UX flows working as specified."
   - agent: "testing"
-    message: "COMPREHENSIVE SMOKE TEST COMPLETE (Iteration 7 features) at https://google-forms-api.preview.emergentagent.com/. ALL TESTS PASSED ✅. Verified: (1) Owl PNG logo (/images/owl-logo.png) present in Nav (top-left with purple glow next to 'MIDNIGHT OWL MEDIA' wordmark), Footer (bottom with 'Midnight Owl Media' text), and Brief page header (top-left) - all three locations confirmed. (2) Pull-section videos in Approach: All 3 videos playing (pull-1.mp4, pull-2.mp4, pull-3.mp4), play buttons functional (3/3 visible), VideoLightbox opens/closes correctly, Push/Pull toggle works. (3) Work section 'See all' button: Correct href (https://linktr.ee/Midnightowlmedia), opens in new tab (target='_blank'). (4) Brief page new copy: Eyebrow '// Say hello', headline 'Let's talk.' (with 'talk.' in purple italic serif), all 6 section titles present (01 'Hi, my name is…', 02 'You can reach me at…', 03 'I work at…', 04 'I'd like help with…', 05 'Here's what I'm building…', 06 'Send it over'), '// Prefer email?' section at bottom with mailto:hi@midnightowl.media link (data-testid='brief-direct-email'). (5) Form submission: Works correctly, shows success state 'We've got your brief.' with owl-eye animation. Backend logs confirm 200 OK responses with successful Slack/Google Sheets integration. Screenshots captured: nav logo, approach pull videos, brief page top/bottom, form success. No issues found - all new features working as specified."
+    message: "COMPREHENSIVE SMOKE TEST COMPLETE (Iteration 7 features) at https://image-flow-19.preview.emergentagent.com/. ALL TESTS PASSED ✅. Verified: (1) Owl PNG logo (/images/owl-logo.png) present in Nav (top-left with purple glow next to 'MIDNIGHT OWL MEDIA' wordmark), Footer (bottom with 'Midnight Owl Media' text), and Brief page header (top-left) - all three locations confirmed. (2) Pull-section videos in Approach: All 3 videos playing (pull-1.mp4, pull-2.mp4, pull-3.mp4), play buttons functional (3/3 visible), VideoLightbox opens/closes correctly, Push/Pull toggle works. (3) Work section 'See all' button: Correct href (https://linktr.ee/Midnightowlmedia), opens in new tab (target='_blank'). (4) Brief page new copy: Eyebrow '// Say hello', headline 'Let's talk.' (with 'talk.' in purple italic serif), all 6 section titles present (01 'Hi, my name is…', 02 'You can reach me at…', 03 'I work at…', 04 'I'd like help with…', 05 'Here's what I'm building…', 06 'Send it over'), '// Prefer email?' section at bottom with mailto:hi@midnightowl.media link (data-testid='brief-direct-email'). (5) Form submission: Works correctly, shows success state 'We've got your brief.' with owl-eye animation. Backend logs confirm 200 OK responses with successful Slack/Google Sheets integration. Screenshots captured: nav logo, approach pull videos, brief page top/bottom, form success. No issues found - all new features working as specified."
   - agent: "testing"
-    message: "Iteration 7 bug fixes and content changes testing COMPLETE at https://google-forms-api.preview.emergentagent.com/. ALL CHANGES VERIFIED ✅. PRIMARY BUG FIX (CRITICAL): Get In Touch scroll bug FIXED — /brief page opens at Y=0px with 'Let's talk.' headline visible at Y=160.5px. User flow tested: scrolled landing page to bottom (Y=5919px) → clicked 'Get In Touch' → /brief opened at top (Y=0px). useEffect scroll reset working perfectly. OTHER CHANGES: (1) Approach taglines — Pull: 'Real examples from people who identified the opportunity early!', Push: 'every brand is stuck here' — both verified on monitor screen. (2) Contact section — no golden eyes/pulsing animations (0 found), nightscape bg-3.webp visible with tint, clean design. (3) Background images — FAQ (bg-1.webp), Voices (bg-2.webp), Contact (bg-3.webp) all have cinematic nightscapes with dark linear tints. (4) FAQ heading — 'You might have questions.' with 'questions.' in purple (rgb(164,74,255)) italic. (5) FAQ answer — new single-paragraph answer about proven strategies visible. (6) Brief subtext — all three sentences present, properly separated. (7) Required asterisks — Full name*, Email* (Phone NO asterisk ✓), Section 04 'Select at least one*', Section 05 'About your project*' — all purple (rgb(164,74,255)). Screenshots confirm all visual changes. No issues found — all bug fixes and content changes working as specified."
+    message: "Iteration 7 bug fixes and content changes testing COMPLETE at https://image-flow-19.preview.emergentagent.com/. ALL CHANGES VERIFIED ✅. PRIMARY BUG FIX (CRITICAL): Get In Touch scroll bug FIXED — /brief page opens at Y=0px with 'Let's talk.' headline visible at Y=160.5px. User flow tested: scrolled landing page to bottom (Y=5919px) → clicked 'Get In Touch' → /brief opened at top (Y=0px). useEffect scroll reset working perfectly. OTHER CHANGES: (1) Approach taglines — Pull: 'Real examples from people who identified the opportunity early!', Push: 'every brand is stuck here' — both verified on monitor screen. (2) Contact section — no golden eyes/pulsing animations (0 found), nightscape bg-3.webp visible with tint, clean design. (3) Background images — FAQ (bg-1.webp), Voices (bg-2.webp), Contact (bg-3.webp) all have cinematic nightscapes with dark linear tints. (4) FAQ heading — 'You might have questions.' with 'questions.' in purple (rgb(164,74,255)) italic. (5) FAQ answer — new single-paragraph answer about proven strategies visible. (6) Brief subtext — all three sentences present, properly separated. (7) Required asterisks — Full name*, Email* (Phone NO asterisk ✓), Section 04 'Select at least one*', Section 05 'About your project*' — all purple (rgb(164,74,255)). Screenshots confirm all visual changes. No issues found — all bug fixes and content changes working as specified."

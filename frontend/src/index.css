@@ -65,7 +65,18 @@
 
   body {
     margin: 0;
-    background: transparent;
+    /* Continuous cinematic nightscape background — one tall image made of
+       attachment #3 (tree-branch purple sky) stacked on top of bg-3
+       (misty valley cabin) with no gap between them. The image itself is
+       applied at runtime via <SiteBackground /> so the URL doesn't have
+       to travel through webpack's css-loader (which would try to resolve
+       it as a module). This rule just provides the pure-black fallback
+       and the tiling / positioning defaults every page inherits. */
+    background-color: #000;
+    background-repeat: repeat-y;
+    background-size: 100% auto;
+    background-position: top center;
+    background-attachment: scroll;
     color: var(--mo-fg);
     font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     -webkit-font-smoothing: antialiased;
@@ -338,17 +349,27 @@
    ───────────────────────────────────────────────────────────────────────── */
 
 @layer utilities {
-  /* Site-wide backdrop: pure black. Per user request the orb / vignette /
-     grain gradient system is disabled — anywhere no section-owned imagery
-     (hero video, SQ2/SQ3 images, workspace video) is visible, the page
-     reads pure black. */
+  /* Site-wide backdrop: sits above the continuous nightscape image (which
+     lives on <body>) and applies a subtle uniform tint so the copy stays
+     readable at every scroll position. Fixed to the viewport so the tint
+     never moves — only the sky underneath does. The orb / vignette / grain
+     gradient system is disabled per an earlier user request; the tint is
+     provided here directly. */
   .mo-bg-orbs {
     position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
     overflow: hidden;
-    background: #000;
+    /* Same character as the ParallaxBackground tint used on FAQ / Voices /
+       HowItWorks, but a touch lighter so the tree-branch and misty-valley
+       imagery below still reads clearly. */
+    background: linear-gradient(
+      180deg,
+      rgba(6, 4, 14, 0.5) 0%,
+      rgba(6, 4, 14, 0.32) 45%,
+      rgba(6, 4, 14, 0.6) 100%
+    );
   }
 
   .mo-bg-vignette,
