@@ -52,7 +52,7 @@ export default function Hero() {
             leaves room below for the eyebrow + headline + copy + BOTH
             CTA buttons within a single Android viewport-with-URL-bar. */}
         <div
-          className="lg:hidden mb-4 mx-auto"
+          className="lg:hidden mb-3 mx-auto"
           data-testid="hero-mobile-media"
           style={{ maxWidth: "480px" }}
         >
@@ -128,7 +128,7 @@ export default function Hero() {
 
           <p
             data-testid={HERO.copy}
-            className="mt-5 sm:mt-8 max-w-[560px] text-[14.5px] leading-[1.7]"
+            className="mt-4 sm:mt-8 max-w-[560px] text-[14.5px] leading-[1.7]"
             style={{
               color: "var(--mo-fg-dim)",
               fontFamily: "JetBrains Mono, monospace",
@@ -138,13 +138,13 @@ export default function Hero() {
             <span style={{ color: "var(--mo-accent)" }}>care</span>.
           </p>
 
-          <div className="mt-6 sm:mt-10 flex flex-wrap items-center gap-3">
+          <div className="mt-5 sm:mt-10 flex flex-wrap items-center gap-2.5 sm:gap-3">
             <GlassSurface
               as={Link}
               to="/brief"
               data-testid={HERO.ctaPrimary}
               tilt={3}
-              className="mo-glass-pill mo-glass-lit mo-press group inline-flex items-center gap-2 px-6 py-3.5 text-[12px] font-medium tracking-[0.16em] uppercase"
+              className="mo-glass-pill mo-glass-lit mo-press group inline-flex items-center gap-2 px-5 py-3 sm:px-6 sm:py-3.5 text-[12px] font-medium tracking-[0.16em] uppercase"
               style={{
                 fontFamily: "JetBrains Mono, monospace",
                 color: "var(--mo-fg)",
@@ -164,7 +164,7 @@ export default function Hero() {
               href="#work"
               data-testid={HERO.ctaSecondary}
               tilt={3}
-              className="mo-glass-pill mo-press group inline-flex items-center gap-2 px-6 py-3.5 text-[12px] font-medium tracking-[0.16em] uppercase"
+              className="mo-glass-pill mo-press group inline-flex items-center gap-2 px-5 py-3 sm:px-6 sm:py-3.5 text-[12px] font-medium tracking-[0.16em] uppercase"
               style={{
                 fontFamily: "JetBrains Mono, monospace",
                 color: "var(--mo-fg)",
