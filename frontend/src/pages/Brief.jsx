@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect } from "react";
+import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLenis } from "lenis/react";
 import GlassSurface from "@/components/glass/GlassSurface";
@@ -223,6 +223,22 @@ export default function Brief() {
   // with immediate:true resets both browser scroll + Lenis' internal state
   // in one call, so /brief always opens at "Let's talk."
   const lenis = useLenis();
+
+  // On Android especially, Lenis's `syncTouch: true` swallows native touch
+  // events which fights with the virtual keyboard: after typing in a field
+  // and dismissing the keyboard, any subsequent scroll animation would fire
+  // Lenis' cached scroll extent and snap the visitor back toward the top.
+  // We stop Lenis for the entire duration of the /brief page so the browser
+  // handles form scrolling natively (Android's default input-into-view
+  // behavior + native touch inertia work correctly). Lenis resumes when
+  // the visitor navigates away.
+  useEffect(() => {
+    if (!lenis || typeof lenis.stop !== "function") return undefined;
+    lenis.stop();
+    return () => {
+      if (typeof lenis.start === "function") lenis.start();
+    };
+  }, [lenis]);
 
   // useLayoutEffect (not useEffect) runs synchronously before paint, so the
   // scroll reset happens before the user even sees the page — no visible

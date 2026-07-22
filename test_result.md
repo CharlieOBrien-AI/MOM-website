@@ -561,11 +561,16 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "2.0"
-  test_sequence: 12
+  test_sequence: 13
   run_ui: true
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Android hero — both CTA buttons (Schedule a Call + Explore the Work) are visible without scrolling on Android-sized viewports (393x660 with URL bar, 360x620 tiny)"
+    - "Hero mobile — uses min-h-[100svh] instead of min-h-screen, so the URL-bar-visible viewport is respected"
+    - "Hero mobile — owl box uses 16/9 aspect (was 5/4) and tightened paddings so content fits in ~660px viewport"
+    - "Brief page — Lenis smooth scroll is now STOPPED while on /brief and RESUMED on unmount. Native Android keyboard behavior should work correctly (no snap-back to top after dismissing keyboard)"
+    - "index.html — viewport meta now includes interactive-widget=resizes-content for proper Android keyboard handling"
   stuck_tasks: []
   test_all: false
   test_priority: "stuck_first"

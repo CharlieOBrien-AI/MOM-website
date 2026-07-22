@@ -19,7 +19,15 @@ export default function Hero() {
     <section
       id="top"
       data-testid={HERO.root}
-      className="relative flex h-full min-h-screen flex-col overflow-hidden pt-[68px] lg:justify-center lg:pt-0"
+      // `min-h-[100svh]` uses the *small* viewport height (Chrome ≥108,
+      // Safari ≥15.4). On Android, plain `100vh` refers to the viewport
+      // with the URL bar HIDDEN — so on first load, when the URL bar is
+      // still showing, content near the bottom of a `min-h-screen` hero
+      // gets pushed below the fold. svh is always the smallest possible
+      // viewport height (URL bar + all UI shown), so the CTAs are
+      // guaranteed to be visible on first paint. Desktop keeps `lg:min-h-screen`
+      // for the full-bleed cinematic view.
+      className="relative flex h-full min-h-[100svh] lg:min-h-screen flex-col overflow-hidden pt-[68px] lg:justify-center lg:pt-0"
     >
       {/* Desktop-only full-bleed video layer — spans the entire hero so the
           cursor-driven scrub maps 1:1 with pointer X. Hidden on mobile
@@ -30,22 +38,28 @@ export default function Hero() {
         <HeroScrubVideo />
       </div>
 
-      {/* Content — explicit z-index keeps the copy above the video layers */}
-      <div className="relative z-10 mx-auto w-full max-w-[1240px] section-px py-10 lg:py-0 lg:pt-24">
+      {/* Content — explicit z-index keeps the copy above the video layers.
+          Mobile paddings are trimmed (py-4 not py-10) so the whole hero fits
+          within a phone's visible viewport including CTAs. */}
+      <div className="relative z-10 mx-auto w-full max-w-[1240px] section-px py-4 lg:py-0 lg:pt-24">
         {/* MOBILE: owl in a contained rounded box above the text. Mirrors
             the "media panel + copy stacked" pattern the Approach section
             uses on small screens, so the whole page reads with a
             consistent rhythm. Auto-hidden on lg+ where the full-bleed
-            video takes over. */}
+            video takes over.
+
+            Aspect ratio is 16/10 (was 5/4) so the box is shorter — this
+            leaves room below for the eyebrow + headline + copy + BOTH
+            CTA buttons within a single Android viewport-with-URL-bar. */}
         <div
-          className="lg:hidden mb-8 mx-auto"
+          className="lg:hidden mb-4 mx-auto"
           data-testid="hero-mobile-media"
           style={{ maxWidth: "480px" }}
         >
           <div
             className="relative w-full overflow-hidden rounded-2xl border"
             style={{
-              aspectRatio: "5 / 4",
+              aspectRatio: "16 / 9",
               borderColor: "var(--mo-line)",
               background: "var(--mo-bg-elev)",
             }}
@@ -66,10 +80,10 @@ export default function Hero() {
 
           <h1
             data-testid={HERO.headline}
-            className="mt-8 text-white"
+            className="mt-6 sm:mt-8 text-white"
             style={{
               fontFamily: "Instrument Serif, serif",
-              fontSize: "clamp(40px, 6.2vw, 96px)",
+              fontSize: "clamp(34px, 6.2vw, 96px)",
               lineHeight: 1,
               letterSpacing: "-0.02em",
               fontWeight: 400,
@@ -114,7 +128,7 @@ export default function Hero() {
 
           <p
             data-testid={HERO.copy}
-            className="mt-8 max-w-[560px] text-[14.5px] leading-[1.7]"
+            className="mt-5 sm:mt-8 max-w-[560px] text-[14.5px] leading-[1.7]"
             style={{
               color: "var(--mo-fg-dim)",
               fontFamily: "JetBrains Mono, monospace",
@@ -124,7 +138,7 @@ export default function Hero() {
             <span style={{ color: "var(--mo-accent)" }}>care</span>.
           </p>
 
-          <div className="mt-10 flex flex-wrap items-center gap-3">
+          <div className="mt-6 sm:mt-10 flex flex-wrap items-center gap-3">
             <GlassSurface
               as={Link}
               to="/brief"
